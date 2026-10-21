@@ -39,15 +39,48 @@ export const TEXTES = {
   },
 
   // ---------------------------------------------------------------------------------
+  // ÉCRAN PROFIL (et fenêtre de choix d'avatar)
+  // Dans les textes, {pseudo} est remplacé automatiquement par le pseudo du joueur : garde-le tel quel.
+  // ---------------------------------------------------------------------------------
+  profil: {
+    // Le titre de la fenêtre de choix d'avatar (en haut de la feuille qui monte du bas).
+    titreAvatar: 'Choisis ton avatar',
+    // Le texte gris qui s'affiche dans le champ pseudo tant qu'il est vide.
+    placeholderPseudo: 'Ton pseudo',
+    // La phrase en gras sous le champ pseudo.
+    consigne: 'Choisis ton avatar et ton pseudo.',
+    // La petite phrase grise sous la consigne.
+    remarque: 'Tu pourras les changer à tout moment.',
+    // Le texte du gros bouton corail en bas de la carte.
+    boutonOk: 'OK',
+    // Le texte du bouton qui confirme le choix, dans la fenêtre de choix d'avatar.
+    boutonValider: 'Valider',
+    // Le message rouge qui apparaît quand le pseudo est trop court ou trop long.
+    // (Si tu changes les limites 2 et 16 dans config/profile.ts, change aussi ce texte.)
+    erreurPseudo: 'Ton pseudo doit faire entre 2 et 16 caractères.',
+    // Le texte lu par les lecteurs d'écran pour le bouton rond de l'avatar (invisible à l'écran).
+    labelChangerAvatar: "Changer d'avatar",
+    // Le texte lu par les lecteurs d'écran pour la croix qui ferme la fenêtre d'avatar (invisible à l'écran).
+    labelFermer: 'Fermer',
+    // Le titre de la page lu par les lecteurs d'écran (invisible à l'écran).
+    titrePage: 'Profil',
+    // Le nom du champ pseudo lu par les lecteurs d'écran (invisible à l'écran).
+    labelPseudo: 'Pseudo',
+    // Le message affiché pendant que le profil est lu sur l'appareil.
+    chargement: 'Chargement…',
+    // Le message d'accueil quand un profil existe déjà.
+    bonRetour: 'Bon retour, {pseudo} !',
+    // Le bouton pour reprendre le profil existant.
+    continuer: 'Continuer en tant que {pseudo}',
+    // Le bouton pour modifier le profil existant.
+    modifierProfil: 'Modifier mon profil',
+    // Le message rouge quand l'enregistrement sur l'appareil échoue.
+    erreurSauvegarde: "Impossible d'enregistrer le profil sur cet appareil. Réessaie.",
+  },
+
+  // ---------------------------------------------------------------------------------
   // POUR PLUS TARD : les autres écrans s'ajouteront ici, sur le même modèle.
-  // Exemple (à décommenter et compléter quand on habillera l'écran Profil) :
-  //
-  // profil: {
-  //   // Le titre en haut de l'écran Profil.
-  //   titre: 'Ton profil',
-  //   // L'étiquette au-dessus du champ pseudo.
-  //   labelPseudo: 'Pseudonyme',
-  // },
+  // Exemple (à décommenter et compléter quand on habillera l'écran de choix du booster) :
   //
   // choixBooster: {
   //   // Le titre en haut de l'écran de choix du booster.

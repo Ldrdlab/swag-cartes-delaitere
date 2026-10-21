@@ -19,7 +19,7 @@ Aucune dépendance sans validation préalable du porteur du projet.
 - Commentaires, JSDoc et messages en français. Chaque fichier commence par un bloc d'en-tête (rôle, exports, dépendances).
 - `domain/` = logique pure : aucun import de React ni du DOM. La logique va dans `domain/` et `hooks/`, jamais dans les composants.
 - Aucune valeur magique : seuils, durées et réglages dans `src/config/`, données factices dans `src/data/`.
-- Textes affichés à l'écran d'accueil : uniquement dans `src/content/textes.ts` (jamais en dur dans les composants).
+- Textes de l'accueil et du profil : uniquement dans `src/content/textes.ts` (jamais en dur dans les composants). Avatars : liste dans `src/config/avatars.ts`, profil enregistré par `id`.
 - Gestes : Pointer Events uniquement ; `touch-action: none` seulement sur les zones de geste ; chaque geste a une alternative bouton/clavier.
 - Animations : `transform` et `opacity` uniquement.
 - Navigation : tout passe par `transition()` dans `app/flowMachine.ts`.

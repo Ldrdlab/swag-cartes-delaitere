@@ -72,4 +72,23 @@
   --degrade-menthe: linear-gradient(135deg, #a9e6d9, #cbf4dc);
   --degrade-lavande: linear-gradient(135deg, #d9ccff, #f5cfe6);
   --degrade-ciel: linear-gradient(135deg, #c9eff6, #d9ccff);
+
+  /* ===== Habillage de l'écran Profil (palette pastel plus douce que l'accueil) ===== */
+
+  /* Fond général de l'écran Profil. */
+  --couleur-profil-fond: #eef1fc;
+  /* Les 4 taches de couleur très douces, une par coin. */
+  --couleur-profil-aqua: #d7f1f7; /* en haut à gauche */
+  --couleur-profil-menthe: #daf5e6; /* en haut à droite */
+  --couleur-profil-rose: #f7e2ee; /* en bas à gauche */
+  --couleur-profil-lilas: #e6e0f8; /* en bas à droite */
+  /* Corail : bouton OK, anneau de l'avatar sélectionné (même couleur que le mot SWAG). */
+  --couleur-corail: var(--couleur-titre);
+  /* Champ pseudo : fond et bordure au repos (au focus : fond blanc et bordure violette). */
+  --couleur-champ-fond: #f1f2fc;
+  --couleur-champ-bordure: #d9dcf3;
+  /* Bouton désactivé : fond (le texte reste en --couleur-texte-doux). */
+  --couleur-bouton-inactif: #dcddf2;
+  /* Ombre douce teintée d'encre (carte, avatar). */
+  --ombre-douce: 0 18px 40px rgba(42, 27, 77, 0.16);
 }

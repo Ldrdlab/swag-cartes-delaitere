@@ -39,4 +39,24 @@ describe('validatePseudo', () => {
     const resultat = validatePseudo('');
     expect(resultat.valid === false && resultat.error.length > 0).toBe(true);
   });
+
+  // Règle du bouton OK : il n'est actif que si le pseudo fait au moins 2 caractères SANS les espaces.
+  it('retire aussi les tabulations et sauts de ligne de début et de fin', () => {
+    expect(validatePseudo('\t Sacha \n')).toEqual({ valid: true, pseudo: 'Sacha' });
+  });
+
+  it('refuse un seul caractère entouré d’espaces (le bouton OK reste désactivé)', () => {
+    expect(validatePseudo('   a   ').valid).toBe(false);
+    expect(validatePseudo(' a ').valid).toBe(false);
+  });
+
+  it('compte les espaces à l’intérieur du pseudo', () => {
+    expect(validatePseudo('a b')).toEqual({ valid: true, pseudo: 'a b' });
+    expect(validatePseudo('a'.repeat(PSEUDO_MAX_LENGTH - 1) + ' b').valid).toBe(false);
+  });
+
+  it('accepte un pseudo trop long uniquement à cause des espaces de bord', () => {
+    const pseudo = 'a'.repeat(PSEUDO_MAX_LENGTH);
+    expect(validatePseudo(`   ${pseudo}   `)).toEqual({ valid: true, pseudo });
+  });
 });

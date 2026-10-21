@@ -1,48 +1,267 @@
-/* Styles de l'écran Profil (ProfileForm, AvatarPlaceholder, index). */
-.form {
+/*
+ * Styles de l'écran Profil (téléphone portrait de référence).
+ * Couleurs, polices, ombres : voir styles/tokens.css.
+ */
+
+/* Fond : 4 taches pastel très douces (une par coin) sur la couleur de base. 100 % CSS. */
+.page,
+.ecran {
+  background:
+    radial-gradient(circle at 0% 0%, var(--couleur-profil-aqua) 0, transparent 60%),
+    radial-gradient(circle at 100% 0%, var(--couleur-profil-menthe) 0, transparent 60%),
+    radial-gradient(circle at 0% 100%, var(--couleur-profil-rose) 0, transparent 60%),
+    radial-gradient(circle at 100% 100%, var(--couleur-profil-lilas) 0, transparent 60%),
+    var(--couleur-profil-fond);
+}
+
+/* Sur ordinateur : le même fond remplit la fenêtre, l'écran « téléphone » reste centré. */
+.page {
+  display: flex;
+  justify-content: center;
+  /* Hauteur réellement visible sur mobile (publiée par hooks/useViewportHeight), repli : 100dvh. */
+  height: var(--viewport-height, 100dvh);
+}
+
+/* L'écran défile si le contenu dépasse (par exemple quand le clavier virtuel est ouvert). */
+.ecran {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: var(--phone-min-width);
+  max-width: var(--phone-max-width);
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--space-4) 0;
+  color: var(--couleur-encre);
+  font-family: var(--police-texte);
+  box-shadow: 0 0 48px rgba(42, 27, 77, 0.12);
+}
+
+/* Texte lu par les lecteurs d'écran mais invisible à l'écran. */
+.masque {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Petit logo : contour de 2 px fait d'ombres (une tous les 30°), relief vers le bas, ombre douce. */
+.logo {
+  flex: none;
+  align-self: center;
+  margin: 0;
+  color: var(--couleur-titre);
+  font-family: var(--police-titre);
+  font-size: 46px;
+  line-height: 1;
+  transform: rotate(-4deg);
+  text-shadow:
+    2px 0 0 var(--couleur-encre),
+    1.7px 1px 0 var(--couleur-encre),
+    1px 1.7px 0 var(--couleur-encre),
+    0 2px 0 var(--couleur-encre),
+    -1px 1.7px 0 var(--couleur-encre),
+    -1.7px 1px 0 var(--couleur-encre),
+    -2px 0 0 var(--couleur-encre),
+    -1.7px -1px 0 var(--couleur-encre),
+    -1px -1.7px 0 var(--couleur-encre),
+    0 -2px 0 var(--couleur-encre),
+    1px -1.7px 0 var(--couleur-encre),
+    1.7px -1px 0 var(--couleur-encre),
+    0 4px 0 var(--couleur-encre),
+    0 7px 8px rgba(42, 27, 77, 0.25);
+}
+
+/* La carte est centrée dans la place restante ; le padding du haut laisse la place à la moitié de l'avatar. */
+.zone {
+  margin: auto 20px;
+  padding-top: 68px;
+}
+
+.carte {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4) 0;
+  box-sizing: border-box;
+  padding: 84px 20px 28px;
+  border: 2px solid #ffffff;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--ombre-douce);
 }
 
+/* L'avatar (136 px) chevauche le haut de la carte de moitié. */
 .avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: var(--color-placeholder);
+  position: absolute;
+  top: -68px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.label {
-  align-self: flex-start;
-  font-weight: 600;
-}
-
-.input {
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   width: 100%;
-  min-height: var(--touch-target-min);
-  padding: var(--space-2) var(--space-3);
-  border: 2px solid var(--color-placeholder);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  /* 16px minimum : en dessous, Safari iOS zoome automatiquement sur le champ. */
-  font-size: var(--font-size-base);
 }
 
-.input[aria-invalid='true'] {
+/* ----- Champ pseudo : toute la pilule est un <label> ----- */
+.pilule {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 290px;
+  height: 54px;
+  padding: 0 48px;
+  border: 2px solid var(--couleur-champ-bordure);
+  border-radius: 999px;
+  background: var(--couleur-champ-fond);
+  cursor: text;
+}
+
+.pilule:focus-within {
+  border-color: var(--couleur-violet);
+  background: #ffffff;
+}
+
+.pilule[data-invalide='true'] {
   border-color: var(--color-danger);
 }
 
-.error {
-  align-self: flex-start;
-  min-height: 1.5em;
-  margin: 0;
-  color: var(--color-danger);
+.champ {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--couleur-encre);
+  font-family: var(--police-texte);
+  /* 19 px : au-dessus de 16 px, donc Safari iOS ne zoome pas sur le champ. */
+  font-size: 19px;
+  font-weight: 800;
+  text-align: center;
 }
 
-.status {
+/* Le focus se voit déjà sur toute la pilule (bordure violette, fond blanc) : pas d'anneau en plus. */
+.champ:focus-visible {
+  outline: none;
+}
+
+.champ::placeholder {
+  color: var(--couleur-texte-doux);
+  font-weight: 600;
+  opacity: 1;
+}
+
+.crayon {
+  position: absolute;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  color: var(--couleur-texte-doux);
+  font-size: 20px;
+}
+
+.erreur {
   margin: 0;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 800;
   text-align: center;
-  color: var(--color-text-muted);
+}
+
+.consigne {
+  margin: 0;
+  color: var(--couleur-encre);
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.remarque {
+  margin: -6px 0 0;
+  color: var(--couleur-texte-doux);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.separateur {
+  width: 100%;
+  margin: 2px 0;
+  border: 0;
+  border-top: 1px solid rgba(98, 94, 135, 0.2);
+}
+
+/* ----- Bouton OK : pilule corail, texte et bordure encre, ombre dure ----- */
+.boutonOk {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 200px;
+  max-width: 100%;
+  height: 56px;
+  padding: 0 20px;
+  border: 3px solid var(--couleur-encre);
+  border-radius: 999px;
+  background: var(--couleur-corail);
+  box-shadow: 0 5px 0 var(--couleur-encre);
+  color: var(--couleur-encre);
+  font-family: var(--police-titre);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.boutonOk:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--couleur-encre);
+}
+
+/* Désactivé : fond gris-violet, texte doux, plus d'ombre. */
+.boutonOk:disabled {
+  border-color: var(--couleur-bouton-inactif);
+  background: var(--couleur-bouton-inactif);
+  box-shadow: none;
+  color: var(--couleur-texte-doux);
+}
+
+/* Variante pour « Continuer en tant que … » : le texte peut passer sur deux lignes. */
+.boutonLarge {
+  width: 100%;
+  height: auto;
+  min-height: 56px;
+  padding: 10px 20px;
+  font-size: 20px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.boutonLien {
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--couleur-violet);
+  font-family: var(--police-texte);
+  font-size: 16px;
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.statut {
+  margin: 0;
+  color: var(--couleur-texte-doux);
+  font-weight: 800;
+  text-align: center;
 }

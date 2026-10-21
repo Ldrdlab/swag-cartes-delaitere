@@ -25,22 +25,28 @@ src/
 │   └── useFlow.ts        Branche transition() sur React (useReducer)
 ├── screens/              Un dossier par écran (index.tsx + CSS Module)
 │   ├── Welcome/          Écran 1 — Accueil
-│   ├── Profile/          Écran 2 — Profil (ProfileForm, AvatarPlaceholder)
+│   ├── Profile/          Écran 2 — Profil (ProfileLayout, ProfileEditor, ProfileForm, ProfileResume)
 │   ├── BoosterSelect/    Écran 3 — Carrousel de boosters
 │   ├── BoosterConfirm/   Écran 4 — Confirmation
 │   ├── BoosterOpening/   Écran 5 — Découpe du booster
 │   └── CardReveal/       Écran 6 — Révélation + récapitulatif
 ├── components/           Button, ScreenLayout, Carousel, BoosterPlaceholder, CutTrail,
-│                         CardPlaceholder, CardStack, CardGrid, FloatingCard (cartes décoratives de l'accueil)
+│                         CardPlaceholder, CardStack, CardGrid, FloatingCard (cartes décoratives de l'accueil),
+│                         Icon (icônes en traits), AvatarButton (avatar rond), AvatarPicker (choix d'avatar)
 ├── content/
-│   └── textes.ts         TOUS les textes de l'écran d'accueil (autres écrans à venir)
-├── assets/images/welcome/cartes/   Photos optionnelles des cartes flottantes de l'accueil
+│   ├── textes.ts         TOUS les textes de l'accueil et du profil (autres écrans à venir)
+│   └── formatTexte.ts    remplir() : insère le pseudo à la place de {pseudo} dans un texte
+├── assets/
+│   ├── images/welcome/cartes/   Photos optionnelles des cartes flottantes de l'accueil
+│   ├── images/avatars/          Les images des avatars (5 exemples en SVG)
+│   └── icons/                   Icônes en traits (crayon, croix), colorées par le CSS
 ├── hooks/
 │   ├── useSwipe.ts            Tap / swipe (Pointer Events) + décalage en cours
 │   ├── useCarousel.ts         Élément central d'un carrousel qui boucle
 │   ├── useCutGesture.ts       Geste de découpe (Pointer Events) + trace
 │   ├── cutFeedback.ts         Points d'accroche VIDES pour son et vibration
 │   ├── useGlobalActivation.ts Touche clavier / clic « n'importe où »
+│   ├── useAvatarSelection.ts  État du choix d'avatar (ouvrir, cocher, valider, fermer)
 │   ├── useStorage.tsx         Fournit le StorageService aux composants (contexte)
 │   └── useViewportHeight.ts   Suit la zone visible (clavier virtuel mobile)
 ├── domain/               Logique métier pure
@@ -50,6 +56,7 @@ src/
 │   ├── cutGesture.ts     Détecteur de découpe (startCut, moveCut, endCut)
 │   ├── drawCards.ts      Tirage des cartes (aléatoire injectable)
 │   ├── cardImport.ts     Validation / import d'un JSON de cartes externe
+│   ├── avatarSelection.ts Choix d'avatar : fermer sans valider ne change pas l'avatar
 │   ├── validatePseudo.ts Règles du pseudonyme
 │   ├── player.ts         Lecture sûre d'un Player (parsePlayer)
 │   └── id.ts             generateId() sans crypto.randomUUID
@@ -60,6 +67,7 @@ src/
 │   ├── game.ts           Nombre de cartes, poids et libellés de rareté, taille de la pile
 │   ├── gestures.ts       Seuils swipe/tap et découpe
 │   ├── timings.ts        Durées des animations
+│   ├── avatars.ts        Liste des avatars (id, nom, image) et avatar par défaut
 │   ├── accueil.ts        Cartes flottantes de l'accueil (position, taille, couleur, photo) et durées
 │   └── profile.ts        Longueur du pseudo, clé de sauvegarde
 ├── data/
@@ -118,6 +126,50 @@ Alternatives sans geste : bouton « Ouvrir » et touche Entrée.
 Points d'accroche son/vibration : `hooks/cutFeedback.ts` (`onCutStart`, `onCutProgress`,
 `onCutComplete`), volontairement vides.
 
+## Personnaliser le visuel
+
+Guide pour débutant : tout ce qu'on peut changer **sans toucher au code des composants**.
+Après un changement, enregistre le fichier : la page ouverte dans le navigateur se met à jour toute seule.
+
+### Les textes
+
+| Je veux changer…                                          | Fichier                                    |
+| --------------------------------------------------------- | ------------------------------------------ |
+| Un texte de l'**accueil**                                 | `src/content/textes.ts`, section `accueil` |
+| Un texte du **profil** (consigne, boutons, erreur…)       | `src/content/textes.ts`, section `profil`  |
+| Les textes du **choix d'avatar** (titre, Valider, Fermer) | `src/content/textes.ts`, section `profil`  |
+
+Modifie ce qui est **entre guillemets**, garde les guillemets et la virgule. Dans un texte, `{pseudo}`
+est remplacé automatiquement par le pseudo du joueur : garde-le tel quel.
+Si tu changes la longueur autorisée du pseudo (`src/config/profile.ts`), change aussi le texte
+`erreurPseudo`, qui cite « 2 et 16 caractères ».
+
+### Les avatars
+
+Fichier à modifier : **`src/config/avatars.ts`** (la liste) et le dossier **`src/assets/images/avatars/`** (les images).
+
+- **Remplacer un avatar par une photo** : prépare une image **carrée de 256 × 256 px**, au format
+  **WebP**, de **moins de 30 Ko**. Dépose-la dans `src/assets/images/avatars/`. Dans `config/avatars.ts`,
+  change le nom du fichier dans la ligne `import` de cet avatar (par exemple `'./avatar-01.svg'` devient
+  `'./ma-photo.webp'`). Ne change pas son `id`.
+- **Ajouter un avatar** : dépose son image dans le dossier, ajoute une ligne `import` en haut de
+  `config/avatars.ts`, puis copie une ligne `{ id: …, nom: …, image: … },` de la liste et change ses trois
+  valeurs. L'`id` doit être **unique** et ne plus changer ensuite (c'est lui qui est enregistré dans le
+  profil du joueur). Le sélecteur affiche tout seul le nouvel avatar et passe à la ligne s'il y en a plus de 5.
+- **Retirer un avatar** : efface sa ligne. Les joueurs qui l'avaient retrouvent l'avatar par défaut.
+- **Changer l'avatar par défaut** : `ID_AVATAR_PAR_DEFAUT` dans le même fichier (l'`id` doit exister dans la liste).
+
+Le champ `nom` n'est pas affiché : il sert aux lecteurs d'écran, qui ne peuvent pas décrire une image.
+
+### Les couleurs, polices et animations
+
+| Je veux changer…                                      | Fichier                                                |
+| ----------------------------------------------------- | ------------------------------------------------------ |
+| Une couleur, une police, un dégradé                   | `src/styles/tokens.css` (variables `--couleur-…`)      |
+| Les cartes flottantes de l'accueil (position, photo…) | `src/config/accueil.ts`                                |
+| La durée de l'ouverture de la fenêtre d'avatar        | `src/config/timings.ts` → `AVATAR_PICKER_OPEN_MS`      |
+| Les icônes (crayon, croix)                            | `src/assets/icons/` (le SVG ; la couleur vient du CSS) |
+
 ## Où modifier quoi
 
 | Je veux…                                                                      | Je modifie…                                                                                                             |
@@ -133,6 +185,8 @@ Points d'accroche son/vibration : `hooks/cutFeedback.ts` (`onCutStart`, `onCutPr
 | Changer la **longueur du pseudo**                                             | `config/profile.ts`                                                                                                     |
 | Changer les **couleurs, espacements**                                         | `styles/tokens.css`                                                                                                     |
 | Changer un **texte de l'accueil**                                             | `content/textes.ts` (section `accueil`)                                                                                 |
+| Changer un **texte du profil** ou du choix d'avatar                           | `content/textes.ts` (section `profil`)                                                                                  |
+| **Remplacer ou ajouter un avatar**                                            | `config/avatars.ts` + image dans `src/assets/images/avatars/` (démarche détaillée dans « Personnaliser le visuel »)     |
 | Déplacer / ajouter / retirer une **carte flottante** de l'accueil             | `config/accueil.ts` → `CARTES_FLOTTANTES`                                                                               |
 | Mettre une **photo** sur une carte flottante                                  | Copier la photo dans `src/assets/images/welcome/cartes/`, puis `image: 'nom.png'` dans `config/accueil.ts`              |
 | Régler la **vitesse du flottement / de la pulsation** de l'accueil            | `config/accueil.ts` → `REGLAGES_ANIMATION`                                                                              |

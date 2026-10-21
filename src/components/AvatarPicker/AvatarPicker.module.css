@@ -1,0 +1,134 @@
+/*
+ * Styles de la fenêtre de choix d'avatar.
+ * Variable posée par le composant : --duree-ouverture (définie dans config/timings.ts).
+ * Mobile : feuille collée en bas. À partir de 560 px de large : fenêtre centrée de 420 px.
+ */
+.feuille {
+  width: 100%;
+  max-width: var(--phone-max-width);
+  max-height: 92dvh;
+  margin: auto auto 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 28px 28px 0 0;
+  background: #ffffff;
+  color: var(--couleur-encre);
+  font-family: var(--police-texte);
+}
+
+/* Voile encre à 38 % derrière la fenêtre (valeur écrite en dur : ::backdrop ne voit pas les variables). */
+.feuille::backdrop {
+  background: rgba(42, 27, 77, 0.38);
+}
+
+/* Animation d'ouverture courte : montée + fondu (transform et opacity uniquement). */
+.feuille[open] {
+  animation: monter var(--duree-ouverture, 280ms) ease-out;
+}
+
+@keyframes monter {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (min-width: 560px) {
+  .feuille {
+    width: 420px;
+    margin: auto;
+    border-radius: 28px;
+  }
+}
+
+.contenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+}
+
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.titre {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.fermer {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--couleur-champ-fond);
+  color: var(--couleur-encre);
+  font-size: 22px;
+}
+
+/* 5 colonnes égales ; si la liste s'allonge, les avatars passent à la ligne tout seuls. */
+.grille {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  padding: 4px;
+}
+
+.avatar {
+  width: 100%;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  padding: 0;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(42, 27, 77, 0.25);
+}
+
+/* Avatar sélectionné : anneau corail de 4 px. */
+.avatar[aria-pressed='true'] {
+  box-shadow: 0 0 0 4px var(--couleur-corail);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.valider {
+  width: 100%;
+  height: 54px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--couleur-encre);
+  color: #ffffff;
+  font-family: var(--police-texte);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feuille[open] {
+    animation: none;
+  }
+}

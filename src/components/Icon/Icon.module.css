@@ -1,0 +1,9 @@
+/* Icône « pochoir » : la forme vient du SVG, la couleur de la propriété `color` du parent. */
+.icone {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  -webkit-mask: var(--icone) center / contain no-repeat;
+  mask: var(--icone) center / contain no-repeat;
+}

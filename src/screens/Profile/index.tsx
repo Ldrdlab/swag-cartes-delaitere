@@ -1,20 +1,23 @@
 /**
  * Écran 2 — Profil.
  *
- * Rôle : saisir (ou reprendre) le profil du joueur, le sauvegarder via StorageService, puis
- * passer au choix du booster. Trois modes : chargement, reprise d'un profil existant, saisie.
+ * Rôle : saisir (ou reprendre) le profil du joueur — pseudo et avatar —, le sauvegarder via
+ * StorageService (l'avatar est enregistré par son identifiant, dans `iconId`), puis passer au choix du
+ * booster. Trois modes : chargement, reprise d'un profil existant, saisie.
  * Expose : le composant `ProfileScreen`.
- * Dépend de : react, hooks/useStorage, domain/validatePseudo, domain/id, components/*, ProfileForm.
+ * Dépend de : react, hooks/useStorage, domain/id, config/avatars, content/textes, ProfileEditor,
+ * ProfileResume, ProfileLayout.
  */
-import { useEffect, useId, useState } from 'react';
-import { Button } from '../../components/Button';
-import { ScreenLayout } from '../../components/ScreenLayout';
+import { useEffect, useState } from 'react';
+import { AvatarButton } from '../../components/AvatarButton';
+import { ID_AVATAR_PAR_DEFAUT, trouverAvatar } from '../../config/avatars';
+import { TEXTES } from '../../content/textes';
 import { generateId } from '../../domain/id';
 import type { Player } from '../../domain/types';
-import { validatePseudo } from '../../domain/validatePseudo';
 import { useStorage } from '../../hooks/useStorage';
-import { AvatarPlaceholder } from './AvatarPlaceholder';
-import { ProfileForm } from './ProfileForm';
+import { ProfileEditor } from './ProfileEditor';
+import { ProfileLayout } from './ProfileLayout';
+import { ProfileResume } from './ProfileResume';
 import styles from './Profile.module.css';
 
 interface ProfileScreenProps {
@@ -27,10 +30,8 @@ type Mode = 'loading' | 'resume' | 'edit';
 /** Écran de profil. */
 export function ProfileScreen({ onDone }: ProfileScreenProps) {
   const storage = useStorage();
-  const formId = useId();
   const [mode, setMode] = useState<Mode>('loading');
   const [storedPlayer, setStoredPlayer] = useState<Player | null>(null);
-  const [pseudo, setPseudo] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -43,7 +44,6 @@ export function ProfileScreen({ onDone }: ProfileScreenProps) {
       .then((player) => {
         if (cancelled) return;
         setStoredPlayer(player);
-        setPseudo(player?.pseudo ?? '');
         setMode(player ? 'resume' : 'edit');
       });
     return () => {
@@ -51,72 +51,43 @@ export function ProfileScreen({ onDone }: ProfileScreenProps) {
     };
   }, [storage]);
 
-  const validation = validatePseudo(pseudo);
-
-  const save = async () => {
-    if (!validation.valid || saving) return;
+  const save = async (pseudo: string, avatarId: string) => {
+    if (saving) return;
     setSaving(true);
     setSaveError(null);
-    const player: Player = {
-      id: storedPlayer?.id ?? generateId(),
-      pseudo: validation.pseudo,
-      iconId: storedPlayer?.iconId,
-    };
+    const player: Player = { id: storedPlayer?.id ?? generateId(), pseudo, iconId: avatarId };
     try {
       await storage.savePlayer(player);
       onDone();
     } catch {
-      setSaveError('Impossible d’enregistrer le profil sur cet appareil. Réessayez.');
+      setSaveError(TEXTES.profil.erreurSauvegarde);
       setSaving(false);
     }
   };
 
   if (mode === 'loading') {
     return (
-      <ScreenLayout title="Profil">
-        <p className={styles.status}>Chargement…</p>
-      </ScreenLayout>
+      <ProfileLayout avatar={<AvatarButton avatar={trouverAvatar(ID_AVATAR_PAR_DEFAUT)} />}>
+        <p className={styles.statut} role="status">
+          {TEXTES.profil.chargement}
+        </p>
+      </ProfileLayout>
     );
   }
 
   if (mode === 'resume' && storedPlayer) {
     return (
-      <ScreenLayout
-        title="Profil"
-        footer={
-          <>
-            <Button onClick={onDone}>Continuer en tant que {storedPlayer.pseudo}</Button>
-            <Button variant="secondary" onClick={() => setMode('edit')}>
-              Modifier mon profil
-            </Button>
-          </>
-        }
-      >
-        <div className={styles.form}>
-          <AvatarPlaceholder />
-          <p className={styles.status}>Bon retour, {storedPlayer.pseudo} !</p>
-        </div>
-      </ScreenLayout>
+      <ProfileResume player={storedPlayer} onContinue={onDone} onEdit={() => setMode('edit')} />
     );
   }
 
   return (
-    <ScreenLayout
-      title="Profil"
-      footer={
-        <Button type="submit" form={formId} disabled={!validation.valid || saving}>
-          OK
-        </Button>
-      }
-    >
-      <ProfileForm
-        formId={formId}
-        pseudo={pseudo}
-        onPseudoChange={setPseudo}
-        validationError={validation.valid ? null : validation.error}
-        saveError={saveError}
-        onSubmit={() => void save()}
-      />
-    </ScreenLayout>
+    <ProfileEditor
+      initialPseudo={storedPlayer?.pseudo ?? ''}
+      initialAvatarId={trouverAvatar(storedPlayer?.iconId).id}
+      saving={saving}
+      saveError={saveError}
+      onSubmit={(pseudo, avatarId) => void save(pseudo, avatarId)}
+    />
   );
 }

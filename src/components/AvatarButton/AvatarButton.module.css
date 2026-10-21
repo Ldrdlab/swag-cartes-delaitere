@@ -1,0 +1,40 @@
+/* Avatar rond de 136 px : bordure blanche 5 px, ombre douce, pastille crayon de 40 px en bas à droite. */
+.avatar {
+  position: relative;
+  display: block;
+  width: 136px;
+  height: 136px;
+  box-sizing: border-box;
+  padding: 0;
+  border: 5px solid #ffffff;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(42, 27, 77, 0.22);
+}
+
+.bouton {
+  cursor: pointer;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.pastille {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 3px 8px rgba(42, 27, 77, 0.28);
+  color: var(--couleur-encre);
+  font-size: 20px;
+}
