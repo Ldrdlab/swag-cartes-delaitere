@@ -1,13 +1,17 @@
 /**
  * Point d'entrée de l'application.
  *
- * Rôle : importer les styles globaux et monter le composant racine <App /> dans #root.
+ * Rôle : importer les styles globaux, choisir l'implémentation de stockage et monter <App /> dans #root.
  * Expose : rien (effet de bord : rendu React).
- * Dépend de : react-dom, app/App, styles/tokens.css, styles/reset.css.
+ * Dépend de : react-dom, app/App, hooks/useStorage, services/LocalStorageService, styles/*.css.
+ * Pour brancher un backend partagé plus tard, remplacer `LocalStorageService` par une autre
+ * implémentation de `StorageService` ci-dessous : aucun écran n'est à modifier.
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
+import { StorageProvider } from './hooks/useStorage';
+import { LocalStorageService } from './services/LocalStorageService';
 import './styles/tokens.css';
 import './styles/reset.css';
 
@@ -18,6 +22,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <StorageProvider service={new LocalStorageService()}>
+      <App />
+    </StorageProvider>
   </StrictMode>,
 );

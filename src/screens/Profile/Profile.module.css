@@ -1,0 +1,48 @@
+/* Styles de l'écran Profil (ProfileForm, AvatarPlaceholder, index). */
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--color-placeholder);
+}
+
+.label {
+  align-self: flex-start;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-placeholder);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  /* 16px minimum : en dessous, Safari iOS zoome automatiquement sur le champ. */
+  font-size: var(--font-size-base);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.error {
+  align-self: flex-start;
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.status {
+  margin: 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}

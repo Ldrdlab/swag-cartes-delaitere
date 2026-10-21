@@ -1,12 +1,14 @@
 /**
- * Écran 1 — Accueil (squelette de l'étape 2, finalisé à l'étape 3).
+ * Écran 1 — Accueil.
  *
- * Rôle : point de départ du parcours.
+ * Rôle : plein écran avec un titre placeholder. Un tap, un clic n'importe où, ou la touche
+ * Entrée / Espace fait passer à l'écran Profil.
  * Expose : le composant `WelcomeScreen`.
- * Dépend de : components/ScreenLayout, components/Button.
+ * Dépend de : react, components/ScreenLayout, Welcome.module.css.
  */
-import { Button } from '../../components/Button';
+import { useEffect } from 'react';
 import { ScreenLayout } from '../../components/ScreenLayout';
+import styles from './Welcome.module.css';
 
 interface WelcomeScreenProps {
   /** Appelé pour passer à l'écran Profil. */
@@ -15,9 +17,37 @@ interface WelcomeScreenProps {
 
 /** Écran d'accueil. */
 export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
+  // « N'importe où » : un clic/tap sur toute la fenêtre (marges de l'écran ordinateur comprises)
+  // ou Entrée / Espace démarre, même si le bouton n'a pas le focus.
+  // Un double déclenchement (clic + touche) est sans effet : la machine à états ignore le 2e événement.
+  useEffect(() => {
+    const mountedAt = performance.now();
+    // Ignore l'événement qui a lui-même provoqué l'arrivée sur cet écran (ex. clic sur « Accueil »).
+    const handleClick = (event: MouseEvent) => {
+      if (event.timeStamp >= mountedAt) onStart();
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.repeat || event.timeStamp < mountedAt) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onStart();
+      }
+    };
+    window.addEventListener('click', handleClick);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('click', handleClick);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onStart]);
+
   return (
-    <ScreenLayout title="Accueil" footer={<Button onClick={onStart}>Commencer</Button>}>
-      <p>Écran 1 — Accueil (placeholder)</p>
+    <ScreenLayout>
+      {/* Le bouton plein écran sert aux lecteurs d'écran et au focus clavier ; le clic est géré plus haut. */}
+      <button type="button" className={styles.fullScreenButton}>
+        <span className={styles.title}>Booster Opening</span>
+        <span className={styles.message}>Touchez l’écran pour commencer</span>
+      </button>
     </ScreenLayout>
   );
 }

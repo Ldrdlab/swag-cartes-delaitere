@@ -2,8 +2,13 @@
 .page {
   display: flex;
   justify-content: center;
-  height: 100%;
+  /*
+   * --viewport-height / --viewport-offset-top sont publiées par hooks/useViewportHeight : elles suivent
+   * la zone réellement visible (clavier virtuel inclus). Repli : 100dvh.
+   */
+  height: var(--viewport-height, 100dvh);
   background: var(--color-bg-page);
+  transform: translateY(var(--viewport-offset-top, 0px));
 }
 
 .screen {
@@ -12,8 +17,7 @@
   width: 100%;
   min-width: var(--phone-min-width);
   max-width: var(--phone-max-width);
-  /* dvh : suit la hauteur réellement visible sur mobile (barre d'adresse, clavier virtuel). */
-  height: 100dvh;
+  height: 100%;
   padding: var(--space-3);
   background: var(--color-bg-screen);
 }

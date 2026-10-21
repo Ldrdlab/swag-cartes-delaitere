@@ -19,6 +19,8 @@ body,
 }
 
 body {
+  /* Chaque écran gère son propre défilement : la page elle-même ne défile jamais. */
+  overflow: hidden;
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   color: var(--color-text);

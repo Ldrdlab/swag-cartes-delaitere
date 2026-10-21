@@ -3,8 +3,9 @@
  *
  * Rôle : afficher l'écran correspondant à l'état de la machine à états et lui relayer les événements.
  * Expose : le composant `App`.
- * Dépend de : app/useFlow, screens/*.
+ * Dépend de : app/useFlow, hooks/useViewportHeight, screens/*.
  */
+import { useViewportHeight } from '../hooks/useViewportHeight';
 import { BoosterConfirmScreen } from '../screens/BoosterConfirm';
 import { BoosterOpeningScreen } from '../screens/BoosterOpening';
 import { BoosterSelectScreen } from '../screens/BoosterSelect';
@@ -15,6 +16,7 @@ import { useFlow } from './useFlow';
 
 /** Composant racine de l'application. */
 export function App() {
+  useViewportHeight();
   const { state, send } = useFlow();
 
   switch (state.screen) {
