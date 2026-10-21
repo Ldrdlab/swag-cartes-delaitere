@@ -1,0 +1,56 @@
+/*
+ * Styles de l'écran Ouverture. Animation uniquement par `transform` et `opacity`.
+ * Variable posée par le composant : --cut-detach-ms (durée, définie dans config/timings.ts).
+ */
+.stage {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  padding: var(--space-2) 0;
+}
+
+/* Zone de geste : le navigateur ne doit ni défiler ni zoomer pendant la découpe. */
+.pack {
+  position: relative;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 1 / 2;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.piece {
+  position: absolute;
+  inset: 0;
+}
+
+.topPiece {
+  transform-origin: 0% 100%;
+  transition:
+    transform var(--cut-detach-ms) ease-in,
+    opacity var(--cut-detach-ms) ease-in;
+  will-change: transform;
+}
+
+.detached {
+  transform: translateY(-70%) rotate(-12deg);
+  opacity: 0;
+}
+
+/* Ligne pointillée de découpe ; sa hauteur (top) vient de config/gestures. */
+.cutLine {
+  position: absolute;
+  right: 0;
+  left: 0;
+  border-top: 3px dashed rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Mouvement réduit : le haut disparaît par simple fondu, sans déplacement. */
+  .detached {
+    transform: none;
+  }
+}

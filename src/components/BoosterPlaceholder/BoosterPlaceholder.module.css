@@ -15,8 +15,8 @@
 
 .cutZone {
   align-self: stretch;
-  /* Hauteur de la bande : repère visuel du haut du paquet (zone de découpe à l'écran 5). */
-  flex: 0 0 18%;
+  /* Hauteur de la bande (flex-basis) : fixée par le composant d'après config/gestures. */
+  flex: 0 0 auto;
   background: rgba(0, 0, 0, 0.25);
 }
 

@@ -41,7 +41,13 @@ export function App() {
         />
       );
     case 'BOOSTER_OPENING':
-      return <BoosterOpeningScreen onDone={(cards) => send({ type: 'OPENING_DONE', cards })} />;
+      return (
+        <BoosterOpeningScreen
+          booster={getBoosterAt(state.selectedBoosterIndex)}
+          // Le tirage des cartes sera branché ici à l'étape « Révélation ».
+          onOpened={() => send({ type: 'OPENING_DONE', cards: [] })}
+        />
+      );
     case 'CARD_REVEAL':
       return (
         <CardRevealScreen

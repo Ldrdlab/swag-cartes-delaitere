@@ -4,11 +4,14 @@
  * Rôle : plein écran avec un titre placeholder. Un tap, un clic n'importe où, ou la touche
  * Entrée / Espace fait passer à l'écran Profil.
  * Expose : le composant `WelcomeScreen`.
- * Dépend de : react, components/ScreenLayout, Welcome.module.css.
+ * Dépend de : components/ScreenLayout, hooks/useGlobalActivation, Welcome.module.css.
  */
-import { useEffect } from 'react';
 import { ScreenLayout } from '../../components/ScreenLayout';
+import { useGlobalActivation } from '../../hooks/useGlobalActivation';
 import styles from './Welcome.module.css';
+
+/** Touches qui démarrent le parcours. */
+const START_KEYS = ['Enter', ' '] as const;
 
 interface WelcomeScreenProps {
   /** Appelé pour passer à l'écran Profil. */
@@ -17,29 +20,9 @@ interface WelcomeScreenProps {
 
 /** Écran d'accueil. */
 export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
-  // « N'importe où » : un clic/tap sur toute la fenêtre (marges de l'écran ordinateur comprises)
-  // ou Entrée / Espace démarre, même si le bouton n'a pas le focus.
-  // Un double déclenchement (clic + touche) est sans effet : la machine à états ignore le 2e événement.
-  useEffect(() => {
-    const mountedAt = performance.now();
-    // Ignore l'événement qui a lui-même provoqué l'arrivée sur cet écran (ex. clic sur « Accueil »).
-    const handleClick = (event: MouseEvent) => {
-      if (event.timeStamp >= mountedAt) onStart();
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat || event.timeStamp < mountedAt) return;
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        onStart();
-      }
-    };
-    window.addEventListener('click', handleClick);
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('click', handleClick);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onStart]);
+  // « N'importe où » : clic/tap sur toute la fenêtre (marges de l'écran ordinateur comprises) ou clavier.
+  // Un double déclenchement est sans effet : la machine à états ignore le 2e événement.
+  useGlobalActivation({ onActivate: onStart, keys: START_KEYS, includeClicks: true });
 
   return (
     <ScreenLayout>
