@@ -1,25 +1,28 @@
 # Booster Opening
 
-Application web mobile-first d'ouverture de boosters de cartes entre amis (inspirée du flux de Pokémon TCG Pocket).
-Itération 1 : squelette fonctionnel, placeholders neutres, aucun graphisme définitif.
+Application web mobile-first d'ouverture de boosters de cartes entre amis (inspirée de Pokémon TCG Pocket).
+Itération 1 : parcours complet fonctionnel, placeholders neutres, aucun graphisme définitif.
 
 ## Stack
 
-Vite + React 18 + TypeScript strict + CSS Modules. Tests : Vitest. Qualité : ESLint 9 + Prettier.
+Vite + React 18 + TypeScript strict + CSS Modules. Tests : Vitest (environnement `node`). Qualité : ESLint 9 + Prettier.
 Aucune dépendance sans validation préalable du porteur du projet.
 
 ## Commandes
 
-- `npm run dev` (ajouter `-- --host` pour tester sur téléphone) · `npm run build` · `npm run lint` · `npm test`
-- Avant chaque commit : build, lint et tests doivent passer sans erreur ni warning.
+- `npm run dev` (ajouter `-- --host` pour tester sur téléphone ; `-- --port 3456` si le port 5173 est refusé sous Windows)
+- `npm run build` · `npm run lint` · `npm test`
+- Avant chaque commit : build, lint et tests sans erreur ni warning. Commits en français, une étape = un commit.
 
 ## Conventions clés
 
-- Commentaires, JSDoc et messages de commit en français. Bloc d'en-tête dans chaque fichier (rôle, exports, dépendances).
-- `domain/` = logique pure : aucun import de React ni du DOM.
-- Aucune valeur magique : seuils, durées et réglages vivent dans `src/config/`, données factices dans `src/data/`.
-- Gestes : Pointer Events uniquement ; `touch-action: none` seulement sur les zones de geste.
-- Animations : `transform` et `opacity` uniquement. Chaque geste a une alternative bouton/clavier.
-- Composants courts (~150 lignes max) ; logique dans `hooks/` et `domain/`.
+- Commentaires, JSDoc et messages en français. Chaque fichier commence par un bloc d'en-tête (rôle, exports, dépendances).
+- `domain/` = logique pure : aucun import de React ni du DOM. La logique va dans `domain/` et `hooks/`, jamais dans les composants.
+- Aucune valeur magique : seuils, durées et réglages dans `src/config/`, données factices dans `src/data/`.
+- Gestes : Pointer Events uniquement ; `touch-action: none` seulement sur les zones de geste ; chaque geste a une alternative bouton/clavier.
+- Animations : `transform` et `opacity` uniquement.
+- Navigation : tout passe par `transition()` dans `app/flowMachine.ts`.
+- Composants courts (~150 lignes max). Stockage : toujours via l'interface `StorageService`.
+- Pas de `crypto.randomUUID` (indisponible en HTTP sur le réseau local) : utiliser `domain/id.ts`.
 
-Voir `docs/ARCHITECTURE.md` pour la structure et « où modifier quoi ».
+Structure et « où modifier quoi » : `docs/ARCHITECTURE.md`. Installation et test sur téléphone : `README.md`.
