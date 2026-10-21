@@ -1,0 +1,25 @@
+/* Styles du composant Button (voir index.tsx). */
+.button {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: 2px solid transparent;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
+
+.primary {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.secondary {
+  background: transparent;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.button:disabled {
+  background: var(--color-disabled-bg);
+  border-color: transparent;
+  color: var(--color-disabled-text);
+}
