@@ -4,7 +4,7 @@
  * Rôle : fournir des cartes de test couvrant toutes les raretés. À remplacer plus tard par un fichier
  * JSON exporté depuis un outil de création de cartes (voir domain/cardImport).
  * Expose : CARDS.
- * Dépend de : domain/types. Pour ajouter une carte, l'ajouter ici puis l'inscrire dans data/boosters.ts.
+ * Dépend de : domain/types. Pour ajouter une carte, l'ajouter ici puis l'inscrire dans src/boosters/catalogue.ts.
  */
 import type { Card } from '../domain/types';
 

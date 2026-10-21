@@ -1,0 +1,18 @@
+/*
+ * Effet « reflet au sol » : un reflet du paquet sous le booster, qui s'efface vers le bas.
+ * Variables posées par le composant : --reflet-debut, --reflet-fin (couleurs du paquet).
+ */
+.reflet {
+  position: absolute;
+  top: 100%;
+  right: 6%;
+  left: 6%;
+  height: calc(46 * var(--u));
+  margin-top: calc(6 * var(--u));
+  border-radius: 0 0 var(--rayon) var(--rayon);
+  background: linear-gradient(90deg, var(--reflet-debut), var(--reflet-fin));
+  opacity: 0.22;
+  -webkit-mask-image: linear-gradient(to bottom, #000000, transparent);
+  mask-image: linear-gradient(to bottom, #000000, transparent);
+  pointer-events: none;
+}

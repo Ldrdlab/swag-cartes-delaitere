@@ -1,0 +1,30 @@
+/*
+ * Styles de BoosterVisuel.
+ * Variables posées par le composant : --u (pixels par unité de référence), --nb-hauteur (hauteur de la
+ * partie affichée, en unités), --couleur-ombre (ombre portée du thème).
+ */
+.racine {
+  /* Le reflet au sol se positionne par rapport à cette boîte. */
+  position: relative;
+  width: 100%;
+  /* Rayon des coins du paquet : 8 unités. */
+  --rayon: calc(8 * var(--u));
+}
+
+.paquet {
+  position: relative;
+  width: 100%;
+  height: calc(var(--nb-hauteur) * var(--u));
+  overflow: hidden;
+  border-radius: var(--rayon);
+  box-shadow: 0 calc(10 * var(--u)) calc(22 * var(--u)) calc(-6 * var(--u)) var(--couleur-ombre);
+}
+
+/* Découpé en deux : le haut n'a que ses coins hauts arrondis, le corps que ses coins bas. */
+.paquet[data-partie='haut'] {
+  border-radius: var(--rayon) var(--rayon) 0 0;
+}
+
+.paquet[data-partie='corps'] {
+  border-radius: 0 0 var(--rayon) var(--rayon);
+}

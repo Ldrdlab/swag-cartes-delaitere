@@ -3,10 +3,11 @@
  *
  * Rôle : afficher l'écran correspondant à l'état de la machine à états et lui relayer les événements.
  * Expose : le composant `App`.
- * Dépend de : app/useFlow, config/game, data/*, domain/drawCards, hooks/useViewportHeight, screens/*.
+ * Dépend de : app/useFlow, boosters/catalogue, config/game, data/cards, domain/drawCards,
+ * hooks/useViewportHeight, screens/*.
  */
+import { getBoosterAt, versBoosterTirage } from '../boosters/catalogue';
 import { CARDS_PER_BOOSTER, RARITY_WEIGHTS } from '../config/game';
-import { getBoosterAt } from '../data/boosters';
 import { CARDS } from '../data/cards';
 import { drawCards } from '../domain/drawCards';
 import { useViewportHeight } from '../hooks/useViewportHeight';
@@ -52,7 +53,12 @@ export function App() {
           onOpened={() =>
             send({
               type: 'OPENING_DONE',
-              cards: drawCards(booster, CARDS, CARDS_PER_BOOSTER, RARITY_WEIGHTS),
+              cards: drawCards(
+                versBoosterTirage(booster),
+                CARDS,
+                CARDS_PER_BOOSTER,
+                RARITY_WEIGHTS,
+              ),
             })
           }
         />

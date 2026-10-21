@@ -1,13 +1,6 @@
-/* Styles de l'écran Confirmation : le booster, seul et centré, prend toute la hauteur disponible. */
+/* Styles de l'écran Confirmation : le booster, seul et centré, prend toute la place disponible. */
 .stage {
   display: flex;
   justify-content: center;
   height: 100%;
-  padding: var(--space-2) 0;
-}
-
-.pack {
-  height: 100%;
-  max-width: 100%;
-  aspect-ratio: 1 / 2;
 }

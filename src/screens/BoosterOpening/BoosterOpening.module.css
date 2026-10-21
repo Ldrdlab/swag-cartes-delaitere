@@ -2,36 +2,42 @@
  * Styles de l'écran Ouverture. Animation uniquement par `transform` et `opacity`.
  * Variable posée par le composant : --cut-detach-ms (durée, définie dans config/timings.ts).
  */
+/* Place disponible pour le booster (mesurée par le composant, sans marge intérieure). */
 .stage {
   display: flex;
   justify-content: center;
   height: 100%;
-  padding: var(--space-2) 0;
 }
 
 /* Zone de geste : le navigateur ne doit ni défiler ni zoomer pendant la découpe. */
 .pack {
   position: relative;
-  height: 100%;
-  max-width: 100%;
-  aspect-ratio: 1 / 2;
+  /* Largeur et hauteur : calculées par le composant (boosters/taille.ts). */
   cursor: crosshair;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.piece {
+/* Deux morceaux du booster : le haut (bande qui se découpe) et le corps. */
+.pieceHaut,
+.pieceCorps {
   position: absolute;
-  inset: 0;
+  right: 0;
+  left: 0;
 }
 
-.topPiece {
+.pieceHaut {
+  top: 0;
   transform-origin: 0% 100%;
   transition:
     transform var(--cut-detach-ms) ease-in,
     opacity var(--cut-detach-ms) ease-in;
   will-change: transform;
+}
+
+.pieceCorps {
+  bottom: 0;
 }
 
 .detached {

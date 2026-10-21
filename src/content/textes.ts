@@ -79,12 +79,24 @@ export const TEXTES = {
   },
 
   // ---------------------------------------------------------------------------------
+  // ÉCRAN DE CHOIX DU BOOSTER
+  // (Les noms et les textes des boosters eux-mêmes sont dans src/boosters/themes/.)
+  // Dans les textes, {numero} et {total} sont remplacés automatiquement : garde-les tels quels.
+  // ---------------------------------------------------------------------------------
+  choixBooster: {
+    // La phrase dans la pilule blanche en haut de l'écran.
+    titre: 'Choisis un booster.',
+    // Le texte lu par les lecteurs d'écran pour la flèche de gauche (invisible à l'écran).
+    labelPrecedent: 'Booster précédent',
+    // Le texte lu par les lecteurs d'écran pour la flèche de droite (invisible à l'écran).
+    labelSuivant: 'Booster suivant',
+    // Le nom de la liste de boosters pour les lecteurs d'écran (invisible à l'écran).
+    labelListe: 'Boosters disponibles',
+    // Lu après le nom du booster par les lecteurs d'écran (invisible à l'écran).
+    position: '{numero} sur {total}',
+  },
+
+  // ---------------------------------------------------------------------------------
   // POUR PLUS TARD : les autres écrans s'ajouteront ici, sur le même modèle.
-  // Exemple (à décommenter et compléter quand on habillera l'écran de choix du booster) :
-  //
-  // choixBooster: {
-  //   // Le titre en haut de l'écran de choix du booster.
-  //   titre: 'Choisissez un booster',
-  // },
   // ---------------------------------------------------------------------------------
 };

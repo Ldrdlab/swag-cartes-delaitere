@@ -1,0 +1,66 @@
+/*
+ * Skin « exemple-ultra » : calques en profondeur, inclinaison 3D, paillettes.
+ * Variables : --tx et --ty (inclinaison de -1 à +1, publiées par hooks/useInclinaison),
+ * --profondeur (0 à 1, posée sur chaque calque). Uniquement transform et opacity.
+ */
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* La scène penche légèrement selon l'inclinaison (8 degrés au maximum). */
+  transform: perspective(calc(520 * var(--u))) rotateX(calc(var(--ty, 0) * -8deg))
+    rotateY(calc(var(--tx, 0) * 8deg));
+  transition: transform 120ms linear;
+  transform-style: preserve-3d;
+}
+
+/* Chaque calque se décale selon sa profondeur : le fond reste immobile, le premier plan bouge le plus. */
+.calque {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: translate(
+      calc(var(--tx, 0) * var(--profondeur) * 6 * var(--u)),
+      calc(var(--ty, 0) * var(--profondeur) * 6 * var(--u))
+    )
+    scale(1.06);
+  transition: transform 120ms linear;
+}
+
+/* Paillettes : petits points qui apparaissent, grossissent puis disparaissent. */
+.paillette {
+  position: absolute;
+  width: calc(5 * var(--u));
+  height: calc(5 * var(--u));
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0 35%, rgba(255, 255, 255, 0) 72%);
+  opacity: 0;
+  animation: scintiller 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes scintiller {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene,
+  .calque {
+    transition: none;
+  }
+
+  .paillette {
+    animation: none;
+  }
+}

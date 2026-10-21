@@ -1,0 +1,23 @@
+/* Skin « image » : l'illustration remplit tout le paquet. */
+.image {
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+/* Paquet de secours quand l'image est introuvable. */
+.secours {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: calc(8 * var(--u));
+  color: #ffffff;
+  font-family: var(--police-texte);
+  font-size: calc(9 * var(--u));
+  font-weight: 800;
+  text-align: center;
+  word-break: break-all;
+}

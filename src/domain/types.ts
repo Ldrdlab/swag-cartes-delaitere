@@ -33,12 +33,13 @@ export interface Card {
   extra?: Record<string, unknown>;
 }
 
-/** Booster : un paquet qui contient un tirage parmi une liste de cartes possibles. */
+/**
+ * Booster, vu par le tirage : un nom et la liste des cartes qui peuvent en sortir.
+ * (Son apparence — thème, skin — est décrite dans src/boosters/, pas ici.)
+ */
 export interface Booster {
   id: string;
   name: string;
-  /** Couleur de fond provisoire (valeur CSS). */
-  color: string;
   /** Identifiants des cartes qui peuvent sortir de ce booster. */
   cardIds: readonly string[];
 }

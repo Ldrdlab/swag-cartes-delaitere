@@ -1,7 +1,9 @@
 /*
  * Styles du carrousel. Animation uniquement par `transform` et `opacity`.
- * Variables posées par le composant : --offset (position relative : -1, 0, +1), --drag (px de glissement),
- * --carousel-transition-ms (durée, définie dans config/timings.ts).
+ * Variables posées par le composant (valeurs dans config/boosters.ts et config/timings.ts) :
+ * --largeur-ref, --hauteur-ref (taille du booster central, en px), --decalage-lateral,
+ * --abaissement-cote (px), --echelle-cote, --ajustement (réduction si l'écran est court),
+ * --carousel-transition-ms. Variables posées sur chaque booster : --offset, --drag.
  */
 .zone {
   position: relative;
@@ -23,47 +25,76 @@
   outline-offset: -3px;
 }
 
-.item {
-  --scale: 0.75;
-  --opacity: 0.7;
-
+/* La scène a la taille du booster central, centrée dans la zone. */
+.scene {
   position: absolute;
   top: 50%;
   left: 50%;
-  height: 85%;
-  aspect-ratio: 1 / 2;
-  opacity: var(--opacity);
-  /* Décalage latéral : 85 % de la largeur du booster par cran, plus le glissement du doigt. */
-  transform: translate(-50%, -50%) translateX(calc(var(--offset) * 85% + var(--drag, 0px)))
-    scale(var(--scale));
+  width: calc(var(--largeur-ref) * 1px);
+  height: calc(var(--hauteur-ref) * 1px);
+  transform: translate(-50%, -50%) scale(var(--ajustement, 1));
+}
+
+.item {
+  --abaissement: 0px;
+  --echelle: 1;
+
+  position: absolute;
+  inset: 0;
+  /* Décalage latéral (+ glissement du doigt), abaissement et réduction des boosters latéraux. */
+  transform: translateX(calc(var(--offset) * var(--decalage-lateral) * 1px + var(--drag, 0px)))
+    translateY(var(--abaissement)) scale(var(--echelle));
   transition:
     transform var(--carousel-transition-ms) ease,
     opacity var(--carousel-transition-ms) ease;
   will-change: transform;
-  z-index: 1;
 }
 
-.item[data-position='center'] {
-  --scale: 1;
-  --opacity: 1;
+/* Voile sombre sur les boosters latéraux (seule son opacité change). */
+.item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: rgba(36, 22, 74, 0.32);
+  opacity: 0;
+  transition: opacity var(--carousel-transition-ms) ease;
+  pointer-events: none;
+}
+
+.item[data-role='centre'] {
+  z-index: 3;
+}
+
+.item[data-role='cote'] {
+  --abaissement: calc(var(--abaissement-cote) * 1px);
+  --echelle: var(--echelle-cote);
 
   z-index: 2;
 }
 
-.item[data-position='hidden'] {
-  --opacity: 0;
+.item[data-role='cote']::after {
+  opacity: 1;
+}
 
+/* Boosters trop éloignés : invisibles et non touchables. */
+.item[data-role='cache'] {
+  --echelle: var(--echelle-cote);
+
+  z-index: 1;
+  opacity: 0;
   pointer-events: none;
 }
 
-/* Pendant le glissement, l'élément suit le doigt sans retard ; le booster qui boucle est téléporté. */
+/* Pendant le glissement, les boosters suivent le doigt sans retard ; celui qui boucle est téléporté. */
 .zone[data-dragging='true'] .item,
 .item[data-wrapping='true'] {
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .item {
+  .item,
+  .item::after {
     transition: none;
   }
 }

@@ -3,17 +3,20 @@
  *
  * Rôle : montrer seul, en grand, le booster choisi, puis proposer de l'ouvrir ou de revenir au choix.
  * Expose : le composant `BoosterConfirmScreen`.
- * Dépend de : components/BoosterPlaceholder, components/ScreenLayout, components/Button, domain/types.
+ * Dépend de : boosters/BoosterVisuel, boosters/catalogue (type), boosters/taille, hooks/useElementSize,
+ * components/ScreenLayout, components/Button.
  */
-import { BoosterPlaceholder } from '../../components/BoosterPlaceholder';
+import { BoosterVisuel } from '../../boosters/BoosterVisuel';
+import type { BoosterCatalogue } from '../../boosters/catalogue';
+import { ajusterBooster } from '../../boosters/taille';
 import { Button } from '../../components/Button';
 import { ScreenLayout } from '../../components/ScreenLayout';
-import type { Booster } from '../../domain/types';
+import { useElementSize } from '../../hooks/useElementSize';
 import styles from './BoosterConfirm.module.css';
 
 interface BoosterConfirmScreenProps {
   /** Booster choisi à l'écran précédent. */
-  booster: Booster;
+  booster: BoosterCatalogue;
   /** Passe à l'écran d'ouverture. */
   onOpen: () => void;
   /** Revient au carrousel (qui retrouve la position de ce booster). */
@@ -22,9 +25,13 @@ interface BoosterConfirmScreenProps {
 
 /** Écran de confirmation du booster. */
 export function BoosterConfirmScreen({ booster, onOpen, onBack }: BoosterConfirmScreenProps) {
+  // Plus grande taille qui tient dans la place disponible, sans déformer le booster.
+  const { ref: cadreRef, width, height } = useElementSize<HTMLDivElement>();
+  const taille = ajusterBooster(width, height);
+
   return (
     <ScreenLayout
-      title={booster.name}
+      title={booster.theme.nom}
       footer={
         <>
           <Button onClick={onOpen}>Ouvrir ce booster</Button>
@@ -34,9 +41,9 @@ export function BoosterConfirmScreen({ booster, onOpen, onBack }: BoosterConfirm
         </>
       }
     >
-      <div className={styles.stage}>
-        <div className={styles.pack}>
-          <BoosterPlaceholder booster={booster} />
+      <div ref={cadreRef} className={styles.stage}>
+        <div style={{ width: taille.largeur }}>
+          <BoosterVisuel booster={booster} etat="confirmation" />
         </div>
       </div>
     </ScreenLayout>

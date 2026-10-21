@@ -1,0 +1,151 @@
+/*
+ * Styles de la skin « standard ». Toutes les mesures sont en unités du paquet de référence (172 × 320) :
+ * calc(N * var(--u)). Variables posées par la skin : --couleur-sertis, --paquet-debut, --paquet-fin, --lueur.
+ */
+.paquet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, var(--paquet-debut), var(--paquet-fin));
+}
+
+/* ----- Haut : sertis (14) + bandeau (42) + bande brillante (4) = 60 ----- */
+.haut {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+}
+
+.bandeau {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  height: calc(42 * var(--u));
+  background: linear-gradient(90deg, var(--paquet-debut), var(--paquet-fin));
+}
+
+.marque {
+  color: #ffffff;
+  font-family: var(--police-titre);
+  font-size: calc(22 * var(--u));
+  line-height: 1;
+  transform: rotate(-4deg);
+  --c: calc(1.3 * var(--u));
+}
+
+.badge {
+  position: absolute;
+  top: calc(4 * var(--u));
+  right: calc(6 * var(--u));
+  padding: calc(1.5 * var(--u)) calc(5 * var(--u));
+  border-radius: calc(4 * var(--u));
+  background: var(--couleur-encre);
+  color: #ffffff;
+  font-family: var(--police-texte);
+  font-size: calc(11 * var(--u));
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.bandeBrillante {
+  flex: none;
+  height: calc(4 * var(--u));
+  background: linear-gradient(90deg, #ffffff, #d8f7ff, #ffffff, #ffd9ee);
+}
+
+/* ----- Corps : illustration + sertis du bas ----- */
+.corps {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.illustration {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.pied {
+  position: absolute;
+  right: 0;
+  bottom: calc(10 * var(--u));
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(6 * var(--u));
+}
+
+.titre {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--police-titre);
+  font-size: calc(25 * var(--u));
+  line-height: 0.98;
+  text-align: center;
+  text-transform: uppercase;
+  --c: calc(2 * var(--u));
+}
+
+.saison {
+  padding: calc(2 * var(--u)) calc(10 * var(--u));
+  border: calc(2 * var(--u)) solid #ffffff;
+  border-radius: 999px;
+  background: var(--couleur-encre);
+  color: #ffffff;
+  font-family: var(--police-texte);
+  font-size: calc(10 * var(--u));
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* Volume : bord gauche éclairé, bord droit dans l'ombre. */
+.volume {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.28),
+    transparent 12%,
+    transparent 84%,
+    rgba(0, 0, 0, 0.3)
+  );
+  pointer-events: none;
+}
+
+/*
+ * Contour épais en encre : 8 ombres nettes autour des lettres (rayon --c).
+ * .contourLueur ajoute la lueur colorée du thème autour du titre.
+ */
+.contour {
+  text-shadow:
+    var(--c) 0 0 var(--couleur-encre),
+    calc(-1 * var(--c)) 0 0 var(--couleur-encre),
+    0 var(--c) 0 var(--couleur-encre),
+    0 calc(-1 * var(--c)) 0 var(--couleur-encre),
+    var(--c) var(--c) 0 var(--couleur-encre),
+    calc(-1 * var(--c)) var(--c) 0 var(--couleur-encre),
+    var(--c) calc(-1 * var(--c)) 0 var(--couleur-encre),
+    calc(-1 * var(--c)) calc(-1 * var(--c)) 0 var(--couleur-encre);
+}
+
+.contourLueur {
+  text-shadow:
+    var(--c) 0 0 var(--couleur-encre),
+    calc(-1 * var(--c)) 0 0 var(--couleur-encre),
+    0 var(--c) 0 var(--couleur-encre),
+    0 calc(-1 * var(--c)) 0 var(--couleur-encre),
+    var(--c) var(--c) 0 var(--couleur-encre),
+    calc(-1 * var(--c)) var(--c) 0 var(--couleur-encre),
+    var(--c) calc(-1 * var(--c)) 0 var(--couleur-encre),
+    calc(-1 * var(--c)) calc(-1 * var(--c)) 0 var(--couleur-encre),
+    0 0 calc(12 * var(--u)) var(--lueur),
+    0 0 calc(22 * var(--u)) var(--lueur);
+}

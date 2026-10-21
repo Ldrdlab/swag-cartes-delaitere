@@ -23,6 +23,7 @@ Aucune dépendance sans validation préalable du porteur du projet.
 - Gestes : Pointer Events uniquement ; `touch-action: none` seulement sur les zones de geste ; chaque geste a une alternative bouton/clavier.
 - Animations : `transform` et `opacity` uniquement.
 - Navigation : tout passe par `transition()` dans `app/flowMachine.ts`.
+- Boosters : un écran n'affiche un booster que via `<BoosterVisuel />` ; ajouter un booster = un thème dans `src/boosters/themes/` + une ligne dans `src/boosters/catalogue.ts`. Toute skin respecte le contrat de `src/boosters/skins/types.ts` (parties `haut` / `corps`).
 - Composants courts (~150 lignes max). Stockage : toujours via l'interface `StorageService`.
 - Pas de `crypto.randomUUID` (indisponible en HTTP sur le réseau local) : utiliser `domain/id.ts`.
 

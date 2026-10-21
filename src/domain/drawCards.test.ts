@@ -19,7 +19,6 @@ const catalogue: Card[] = [
 const booster: Booster = {
   id: 'b',
   name: 'Booster test',
-  color: '#000',
   cardIds: ['c1', 'c2', 'p1', 'r1', 'u1'],
 };
 

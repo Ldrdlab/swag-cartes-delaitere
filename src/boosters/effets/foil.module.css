@@ -1,0 +1,59 @@
+/*
+ * Effet « foil » : reflet holographique qui balaie le paquet.
+ * Variables posées par le composant : --foil-intensite (0 à 1), --foil-couleur, --foil-duree.
+ * Seul le balayage s'anime (transform) ; le voile irisé est fixe.
+ */
+.foil {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  /* Un effet décoratif ne doit jamais intercepter un geste. */
+  pointer-events: none;
+}
+
+/* Léger voile irisé rose / cyan / doré, superposé en mode « screen ». */
+.voile {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 111, 200, 0.5),
+    rgba(94, 234, 255, 0.5) 50%,
+    rgba(255, 214, 100, 0.5)
+  );
+  mix-blend-mode: screen;
+  opacity: calc(var(--foil-intensite) * 0.45);
+}
+
+/* Bande blanche diagonale qui traverse le paquet puis fait une pause. */
+.balayage {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(100deg, transparent 0%, var(--foil-couleur) 50%, transparent 100%);
+  opacity: var(--foil-intensite);
+  transform: translateX(-120%) skewX(-14deg);
+  animation: balayer var(--foil-duree) ease-in-out infinite;
+}
+
+@keyframes balayer {
+  0%,
+  15% {
+    transform: translateX(-120%) skewX(-14deg);
+  }
+
+  70%,
+  100% {
+    transform: translateX(320%) skewX(-14deg);
+  }
+}
+
+/* Mouvement réduit : pas de balayage, seulement le voile fixe. */
+@media (prefers-reduced-motion: reduce) {
+  .balayage {
+    display: none;
+  }
+}

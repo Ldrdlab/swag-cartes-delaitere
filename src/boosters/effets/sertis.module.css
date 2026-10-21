@@ -1,0 +1,21 @@
+/*
+ * Effet « sertis » : bords striés en haut et en bas du paquet.
+ * Variable lue : --couleur-sertis (posée par la skin d'après le thème).
+ * Hauteur : 14 unités (ce qui fait 60 avec le bandeau de 42 et la bande de 4 : voir config/boosters.ts).
+ */
+.sertis {
+  flex: none;
+  height: calc(14 * var(--u));
+  background: var(--couleur-sertis);
+}
+
+/* Stries verticales : une claire, une foncée, par-dessus la couleur de sertis. */
+.rayure {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.3) 0 calc(1.5 * var(--u)),
+      rgba(0, 0, 0, 0.2) calc(1.5 * var(--u)) calc(3 * var(--u))
+    ),
+    var(--couleur-sertis);
+}

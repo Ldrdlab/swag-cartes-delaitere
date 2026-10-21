@@ -91,4 +91,21 @@
   --couleur-bouton-inactif: #dcddf2;
   /* Ombre douce teintée d'encre (carte, avatar). */
   --ombre-douce: 0 18px 40px rgba(42, 27, 77, 0.16);
+
+  /* ===== Habillage de l'écran de choix du booster ===== */
+
+  /* Moitié haute irisée : dégradé horizontal, de gauche (rose) à droite (menthe). */
+  --couleur-choix-irise-1: #f4d2e7;
+  --couleur-choix-irise-2: #dcd3f6;
+  --couleur-choix-irise-3: #c9dbf6;
+  --couleur-choix-irise-4: #c6f1e3;
+  /* Moitié basse gris très clair : dégradé vertical, de haut en bas. */
+  --couleur-choix-bas-1: #f5f6fa;
+  --couleur-choix-bas-2: #e4e6f0;
+  /* Bordure de la pilule « Choisis un booster. » : doré → rose clair → rose vif. */
+  --couleur-dore: #ffc94d;
+  --couleur-rose-clair: #ff9ec4;
+  --couleur-rose-vif: #ff6fa8;
+  /* Indicateurs de position : le point actif est violet (--couleur-violet), les autres de cette couleur. */
+  --couleur-point-inactif: #c9cae6;
 }

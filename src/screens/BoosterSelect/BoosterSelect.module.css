@@ -1,25 +1,158 @@
-/* Styles de l'écran Choix du booster : carrousel qui prend la place disponible + rangée de contrôles. */
-.layout {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+/*
+ * Styles de l'écran Choix du booster (téléphone portrait de référence).
+ * Couleurs : voir styles/tokens.css (--couleur-choix-…, --couleur-dore…).
+ */
+
+/* Moitié basse : gris très clair, de haut en bas. Sur ordinateur, le même fond entoure l'écran. */
+.page,
+.ecran {
+  background: linear-gradient(180deg, var(--couleur-choix-bas-1), var(--couleur-choix-bas-2));
 }
 
-.stage {
+.page {
+  display: flex;
+  justify-content: center;
+  /* Hauteur réellement visible sur mobile (publiée par hooks/useViewportHeight), repli : 100dvh. */
+  height: var(--viewport-height, 100dvh);
+}
+
+.ecran {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: var(--phone-min-width);
+  max-width: var(--phone-max-width);
+  height: 100%;
+  overflow: hidden;
+  padding: 18px 18px 0;
+  font-family: var(--police-texte);
+  box-shadow: 0 0 48px rgba(42, 27, 77, 0.12);
+}
+
+/* Moitié haute irisée : dégradé horizontal, bas coupé en diagonale (40 % à gauche, 33 % à droite). */
+.fondHaut {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--couleur-choix-irise-1),
+    var(--couleur-choix-irise-2),
+    var(--couleur-choix-irise-3),
+    var(--couleur-choix-irise-4)
+  );
+  clip-path: polygon(0 0, 100% 0, 100% 33%, 0 40%);
+  pointer-events: none;
+}
+
+/* Pilule blanche de toute la largeur, bordure en dégradé doré → rose. */
+.bandeau {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  height: 64px;
+  margin: 0;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(90deg, var(--couleur-dore), var(--couleur-rose-clair), var(--couleur-rose-vif))
+      border-box;
+  box-shadow: 0 8px 20px rgba(42, 27, 77, 0.12);
+  color: var(--couleur-encre);
+  font-size: 21px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* Le carrousel prend toute la place restante. */
+.scene {
+  position: relative;
   flex: 1;
   min-height: 0;
 }
 
-.controls {
+/* ----- Commandes : flèche, nom + indicateurs, flèche ----- */
+.controles {
+  position: relative;
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding-top: var(--space-3);
+  padding: var(--space-2) 0 calc(var(--space-3) + env(safe-area-inset-bottom));
 }
 
-.caption {
+.fleche {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(42, 27, 77, 0.18);
+  color: var(--couleur-encre);
+  font-size: 22px;
+}
+
+/* La flèche de gauche est la flèche de droite retournée. */
+.gauche {
+  display: grid;
+  place-items: center;
+  transform: scaleX(-1);
+}
+
+.centre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nom {
   margin: 0;
-  font-weight: 600;
+  color: var(--couleur-encre);
+  font-family: var(--police-titre);
+  font-size: 18px;
+  line-height: 1.2;
   text-align: center;
+}
+
+/* Texte lu par les lecteurs d'écran mais invisible à l'écran. */
+.masque {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.points {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.point {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--couleur-point-inactif);
+}
+
+/* Point actif : allongé et violet. */
+.point[data-actif='true'] {
+  width: 22px;
+  background: var(--couleur-violet);
 }

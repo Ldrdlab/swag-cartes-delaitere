@@ -1,35 +1,40 @@
 /**
  * Carrousel circulaire de boosters.
  *
- * Rôle : afficher les boosters (le central en grand, les voisins réduits), les faire tourner au
- * swipe (doigt ou souris), au tap sur un voisin et au clavier (← →), et sélectionner le central
- * au tap ou avec Entrée / Espace. L'état (index central) est fourni par `useCarousel`.
+ * Rôle : afficher les boosters (le central en grand et devant, les deux voisins réduits, assombris et
+ * derrière), les faire tourner au swipe (doigt ou souris), au tap sur un voisin et au clavier (← →), et
+ * sélectionner le central au tap ou avec Entrée / Espace. Accepte n'importe quel nombre de boosters :
+ * seuls le central et ses voisins immédiats sont visibles. L'état (index central) vient de
+ * `useCarousel`. Sur un écran trop court, l'ensemble est réduit pour tout garder visible.
  * Expose : le composant `Carousel`.
- * Dépend de : react, hooks/useSwipe, domain/carousel, components/BoosterPlaceholder, config/timings.
+ * Dépend de : react, hooks/useSwipe, hooks/useElementSize, domain/carousel, boosters/BoosterVisuel,
+ * config/boosters, config/timings, content/textes, Carousel.module.css.
  */
 import { useId, type CSSProperties, type KeyboardEvent } from 'react';
+import { BoosterVisuel } from '../../boosters/BoosterVisuel';
+import type { BoosterCatalogue } from '../../boosters/catalogue';
+import {
+  GEOMETRIE_CARROUSEL,
+  HAUTEUR_AVEC_REFLET,
+  HAUTEUR_REFERENCE,
+  LARGEUR_REFERENCE,
+} from '../../config/boosters';
 import { CAROUSEL_TRANSITION_MS } from '../../config/timings';
-import { relativeOffset } from '../../domain/carousel';
-import type { Booster } from '../../domain/types';
+import { TEXTES } from '../../content/textes';
+import { carouselPositions } from '../../domain/carousel';
+import { useElementSize } from '../../hooks/useElementSize';
 import type { CarouselControls } from '../../hooks/useCarousel';
 import { useSwipe } from '../../hooks/useSwipe';
-import { BoosterPlaceholder } from '../BoosterPlaceholder';
 import styles from './Carousel.module.css';
 
 /** Attribut posé sur chaque booster pour retrouver lequel a été touché. */
 const INDEX_ATTRIBUTE = 'data-carousel-index';
 
 interface CarouselProps {
-  boosters: readonly Booster[];
+  boosters: readonly BoosterCatalogue[];
   carousel: CarouselControls;
   /** Appelé quand l'utilisateur choisit le booster central (tap, Entrée ou Espace). */
   onSelect: (boosterIndex: number) => void;
-}
-
-/** Position visuelle d'un booster selon son décalage par rapport au centre. */
-function positionName(offset: number): 'center' | 'side' | 'hidden' {
-  if (offset === 0) return 'center';
-  return Math.abs(offset) === 1 ? 'side' : 'hidden';
 }
 
 /** Carrousel de boosters (voir le commentaire d'en-tête). */
@@ -37,6 +42,10 @@ export function Carousel({ boosters, carousel, onSelect }: CarouselProps) {
   const { index, previousIndex, rotateBy, rotateTo, settle } = carousel;
   const count = boosters.length;
   const idPrefix = useId();
+  const { ref: zoneRef, height: hauteurDisponible } = useElementSize<HTMLDivElement>();
+  // Écran trop court : on réduit l'ensemble (jamais on n'agrandit au-delà de la taille de référence).
+  const ajustement =
+    hauteurDisponible > 0 ? Math.min(1, hauteurDisponible / HAUTEUR_AVEC_REFLET) : 1;
 
   const { handlers, dragOffsetPx, isDragging } = useSwipe({
     // Swipe vers la gauche : le booster suivant vient au centre.
@@ -59,41 +68,65 @@ export function Carousel({ boosters, carousel, onSelect }: CarouselProps) {
     event.preventDefault();
   };
 
+  const positions = carouselPositions(count, index);
+  const anciennesPositions = carouselPositions(count, previousIndex);
+
+  // Géométrie (config/boosters.ts) et durée (config/timings.ts) transmises au CSS.
+  const variables = {
+    '--largeur-ref': LARGEUR_REFERENCE,
+    '--hauteur-ref': HAUTEUR_REFERENCE,
+    '--decalage-lateral': GEOMETRIE_CARROUSEL.decalageLateralPx,
+    '--abaissement-cote': GEOMETRIE_CARROUSEL.abaissementCotePx,
+    '--echelle-cote': GEOMETRIE_CARROUSEL.echelleCote,
+    '--ajustement': ajustement,
+    '--carousel-transition-ms': `${CAROUSEL_TRANSITION_MS}ms`,
+  } as CSSProperties;
+
   return (
     <div
+      ref={zoneRef}
       className={styles.zone}
       role="listbox"
       tabIndex={0}
-      aria-label="Boosters disponibles"
+      aria-label={TEXTES.choixBooster.labelListe}
       aria-orientation="horizontal"
       aria-activedescendant={`${idPrefix}-${index}`}
       data-dragging={isDragging}
-      style={{ '--carousel-transition-ms': `${CAROUSEL_TRANSITION_MS}ms` } as CSSProperties}
+      style={variables}
       onKeyDown={handleKeyDown}
       {...handlers}
     >
-      {boosters.map((booster, boosterIndex) => {
-        const offset = relativeOffset(boosterIndex, index, count);
-        const previousOffset = relativeOffset(boosterIndex, previousIndex, count);
-        // Un booster qui traverse d'un bord à l'autre (offset -1 → +1) réapparaît sans animation.
-        const isWrapping = Math.abs(offset - previousOffset) > 1;
-        return (
-          <div
-            key={booster.id}
-            id={`${idPrefix}-${boosterIndex}`}
-            className={styles.item}
-            role="option"
-            aria-selected={offset === 0}
-            aria-label={booster.name}
-            data-position={positionName(offset)}
-            data-wrapping={isWrapping}
-            {...{ [INDEX_ATTRIBUTE]: boosterIndex }}
-            style={{ '--offset': offset, '--drag': `${dragOffsetPx}px` } as CSSProperties}
-          >
-            <BoosterPlaceholder booster={booster} />
-          </div>
-        );
-      })}
+      <div className={styles.scene}>
+        {boosters.map((booster, boosterIndex) => {
+          const position = positions[boosterIndex];
+          const ancienne = anciennesPositions[boosterIndex];
+          if (!position || !ancienne) return null;
+          // Un booster qui traverse d'un bord à l'autre réapparaît sans animation.
+          const isWrapping = Math.abs(position.offset - ancienne.offset) > 1;
+          return (
+            <div
+              key={booster.theme.id}
+              id={`${idPrefix}-${boosterIndex}`}
+              className={styles.item}
+              role="option"
+              aria-selected={position.role === 'centre'}
+              aria-label={booster.theme.nom}
+              data-role={position.role}
+              data-wrapping={isWrapping}
+              {...{ [INDEX_ATTRIBUTE]: boosterIndex }}
+              style={
+                { '--offset': position.offset, '--drag': `${dragOffsetPx}px` } as CSSProperties
+              }
+            >
+              <BoosterVisuel
+                booster={booster}
+                etat={position.role === 'centre' ? 'centre' : 'cote'}
+                largeur={LARGEUR_REFERENCE}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@
  * Logique d'index du carrousel circulaire.
  *
  * Rôle : calculer les positions dans une liste qui « boucle » (après le dernier, on revient au premier).
- * Expose : wrapIndex(), stepIndex(), relativeOffset().
+ * Expose : wrapIndex(), stepIndex(), relativeOffset(), carouselPositions().
  * Dépend de : rien (logique pure, aucun import React ni DOM).
  */
 
@@ -41,4 +41,32 @@ export function stepIndex(current: number, delta: number, count: number): number
 export function relativeOffset(itemIndex: number, centerIndex: number, count: number): number {
   const half = Math.floor(count / 2);
   return wrapIndex(itemIndex - centerIndex + half, count) - half;
+}
+
+/** Rôle visuel d'un élément du carrousel. */
+export type RolePosition = 'centre' | 'cote' | 'cache';
+
+/** Position d'un élément : décalage par rapport au centre et rôle visuel. */
+export interface PositionCarrousel {
+  /** 0 = au centre, -1 = juste à gauche, +1 = juste à droite, etc. */
+  offset: number;
+  /** `centre` : devant, grand. `cote` : voisin immédiat, réduit. `cache` : trop loin, invisible. */
+  role: RolePosition;
+}
+
+/**
+ * Calcule la position de CHAQUE élément pour un carrousel de `count` éléments dont celui d'index
+ * `centerIndex` est au centre. Quel que soit le nombre d'éléments, seuls le central et ses deux
+ * voisins immédiats sont visibles ; les autres sont `cache`.
+ *
+ * @param count - Nombre d'éléments (> 0).
+ * @param centerIndex - Index de l'élément central.
+ * @returns Un tableau de `count` positions, dans l'ordre des éléments.
+ */
+export function carouselPositions(count: number, centerIndex: number): PositionCarrousel[] {
+  return Array.from({ length: count }, (_, itemIndex) => {
+    const offset = relativeOffset(itemIndex, centerIndex, count);
+    const role: RolePosition = offset === 0 ? 'centre' : Math.abs(offset) === 1 ? 'cote' : 'cache';
+    return { offset, role };
+  });
 }

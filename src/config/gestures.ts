@@ -8,6 +8,7 @@
  */
 import type { CutThresholds } from '../domain/cutGesture';
 import type { SwipeThresholds } from '../domain/swipe';
+import { RATIO_HAUT } from './boosters';
 
 export const SWIPE_THRESHOLDS: SwipeThresholds = {
   /** Au-delà de ce déplacement (px), le geste n'est plus un tap (et le glissement visuel démarre). */
@@ -21,8 +22,8 @@ export const SWIPE_THRESHOLDS: SwipeThresholds = {
 };
 
 export const CUT_THRESHOLDS: CutThresholds = {
-  /** Position de la ligne de découpe : 18 % de la hauteur du booster en partant du haut. */
-  cutLineYRatio: 0.18,
+  /** Position de la ligne de découpe : le bas de la bande du haut du booster (voir config/boosters.ts). */
+  cutLineYRatio: RATIO_HAUT,
   /** Tolérance verticale autour de la ligne : ± 7 % de la hauteur du booster. */
   bandToleranceRatio: 0.07,
   /** Le geste doit démarrer à moins de 20 % de la largeur d'un bord latéral. */

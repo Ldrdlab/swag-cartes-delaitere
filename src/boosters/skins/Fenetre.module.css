@@ -1,0 +1,14 @@
+/* Fenêtre sur un paquet complet : ce qui dépasse est caché. */
+.fenetre {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}

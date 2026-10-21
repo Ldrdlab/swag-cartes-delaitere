@@ -2,16 +2,17 @@
  * Écran 3 — Choix du booster.
  *
  * Rôle : carrousel de boosters (swipe, flèches à l'écran, clavier, tap). Choisir le booster central
- * fait passer à l'écran de confirmation.
+ * fait passer à l'écran de confirmation. La liste des boosters vient de boosters/catalogue.ts.
  * Expose : le composant `BoosterSelectScreen`.
- * Dépend de : hooks/useCarousel, components/Carousel, components/Button, data/boosters.
+ * Dépend de : hooks/useCarousel, components/Carousel, boosters/catalogue, content/textes, Controles,
+ * BoosterSelect.module.css.
  */
-import { Button } from '../../components/Button';
+import { CATALOGUE, getBoosterAt } from '../../boosters/catalogue';
 import { Carousel } from '../../components/Carousel';
-import { ScreenLayout } from '../../components/ScreenLayout';
-import { BOOSTERS } from '../../data/boosters';
+import { TEXTES } from '../../content/textes';
 import { useCarousel } from '../../hooks/useCarousel';
 import styles from './BoosterSelect.module.css';
+import { Controles } from './Controles';
 
 interface BoosterSelectScreenProps {
   /** Booster à placer au centre à l'arrivée (celui choisi précédemment, ou le premier). */
@@ -22,35 +23,26 @@ interface BoosterSelectScreenProps {
 
 /** Écran de choix du booster. */
 export function BoosterSelectScreen({ initialIndex, onChoose }: BoosterSelectScreenProps) {
-  const carousel = useCarousel(BOOSTERS.length, initialIndex);
-  const current = BOOSTERS[carousel.index];
+  const carousel = useCarousel(CATALOGUE.length, initialIndex);
+  const courant = getBoosterAt(carousel.index);
 
   return (
-    <ScreenLayout title="Choisissez un booster">
-      <div className={styles.layout}>
-        <div className={styles.stage}>
-          <Carousel boosters={BOOSTERS} carousel={carousel} onSelect={onChoose} />
+    <div className={styles.page}>
+      <main className={styles.ecran}>
+        {/* Moitié haute irisée, coupée en diagonale (décor). */}
+        <div className={styles.fondHaut} aria-hidden="true" />
+        <h1 className={styles.bandeau}>{TEXTES.choixBooster.titre}</h1>
+        <div className={styles.scene}>
+          <Carousel boosters={CATALOGUE} carousel={carousel} onSelect={onChoose} />
         </div>
-        <div className={styles.controls}>
-          <Button
-            variant="secondary"
-            aria-label="Booster précédent"
-            onClick={() => carousel.rotateBy(-1)}
-          >
-            ‹
-          </Button>
-          <p className={styles.caption} aria-live="polite">
-            {current?.name} ({carousel.index + 1}/{BOOSTERS.length})
-          </p>
-          <Button
-            variant="secondary"
-            aria-label="Booster suivant"
-            onClick={() => carousel.rotateBy(1)}
-          >
-            ›
-          </Button>
-        </div>
-      </div>
-    </ScreenLayout>
+        <Controles
+          nom={courant.theme.nom}
+          position={carousel.index}
+          total={CATALOGUE.length}
+          onPrecedent={() => carousel.rotateBy(-1)}
+          onSuivant={() => carousel.rotateBy(1)}
+        />
+      </main>
+    </div>
   );
 }

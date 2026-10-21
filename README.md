@@ -80,7 +80,8 @@ Remarques :
 src/
 ├── app/         Point d'entrée de l'application : routeur d'écrans, machine à états du parcours
 ├── screens/     Un dossier par écran (Welcome, Profile, BoosterSelect, BoosterConfirm, BoosterOpening, CardReveal)
-├── components/  Composants réutilisables (Button, ScreenLayout, Carousel, BoosterPlaceholder, CardStack...)
+├── boosters/    Apparence des boosters : catalogue, thèmes, skins, effets, BoosterVisuel
+├── components/  Composants réutilisables (Button, ScreenLayout, Carousel, CardStack...)
 ├── hooks/       Logique React réutilisable (gestes, carrousel, stockage)
 ├── domain/      Logique métier pure, sans React ni DOM (types, tirage, détection de gestes...)
 ├── services/    StorageService (interface) et ses implémentations

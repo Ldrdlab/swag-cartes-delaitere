@@ -6,18 +6,20 @@
  * Une fois ouvert, le haut du booster se détache puis on passe à la révélation.
  * Expose : le composant `BoosterOpeningScreen`.
  * Dépend de : hooks/useCutGesture, hooks/cutFeedback, hooks/useGlobalActivation, components/*,
- * config/gestures, config/timings.
+ * boosters/BoosterVisuel, boosters/taille, hooks/useElementSize, config/gestures, config/timings.
  */
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
-import { BoosterPlaceholder } from '../../components/BoosterPlaceholder';
+import { BoosterVisuel } from '../../boosters/BoosterVisuel';
+import type { BoosterCatalogue } from '../../boosters/catalogue';
+import { ajusterBooster } from '../../boosters/taille';
 import { Button } from '../../components/Button';
 import { CutTrail } from '../../components/CutTrail';
 import { ScreenLayout } from '../../components/ScreenLayout';
 import { CUT_THRESHOLDS } from '../../config/gestures';
 import { CUT_DETACH_MS } from '../../config/timings';
-import type { Booster } from '../../domain/types';
 import { cutFeedback } from '../../hooks/cutFeedback';
 import { useCutGesture } from '../../hooks/useCutGesture';
+import { useElementSize } from '../../hooks/useElementSize';
 import { useGlobalActivation } from '../../hooks/useGlobalActivation';
 import styles from './BoosterOpening.module.css';
 
@@ -26,7 +28,7 @@ const OPEN_KEYS = ['Enter'] as const;
 
 interface BoosterOpeningScreenProps {
   /** Booster à ouvrir. */
-  booster: Booster;
+  booster: BoosterCatalogue;
   /** Appelé quand le booster est ouvert et l'animation terminée. */
   onOpened: () => void;
 }
@@ -64,8 +66,9 @@ export function BoosterOpeningScreen({ booster, onOpened }: BoosterOpeningScreen
   }, [isOpened]);
 
   const lineRatio = CUT_THRESHOLDS.cutLineYRatio;
-  const topPieceClip = `inset(0 0 ${(1 - lineRatio) * 100}% 0)`;
-  const bottomPieceClip = `inset(${lineRatio * 100}% 0 0 0)`;
+  // Taille exacte du booster (proportions 172 : 320) : le haut et le corps se rejoignent sans espace.
+  const { ref: cadreRef, width, height } = useElementSize<HTMLDivElement>();
+  const taille = ajusterBooster(width, height);
 
   return (
     <ScreenLayout
@@ -76,23 +79,26 @@ export function BoosterOpeningScreen({ booster, onOpened }: BoosterOpeningScreen
         </Button>
       }
     >
-      <div className={styles.stage}>
+      <div ref={cadreRef} className={styles.stage}>
         <div
           className={styles.pack}
           role="group"
-          aria-label={`${booster.name}. Tracez une ligne horizontale en haut du booster pour l’ouvrir, ou utilisez le bouton Ouvrir.`}
-          style={{ '--cut-detach-ms': `${CUT_DETACH_MS}ms` } as CSSProperties}
+          aria-label={`${booster.theme.nom}. Tracez une ligne horizontale en haut du booster pour l’ouvrir, ou utilisez le bouton Ouvrir.`}
+          style={
+            {
+              '--cut-detach-ms': `${CUT_DETACH_MS}ms`,
+              width: taille.largeur,
+              height: taille.hauteur,
+            } as CSSProperties
+          }
           {...handlers}
         >
-          {/* Deux morceaux superposés : le haut se détache après la découpe, le bas reste en place. */}
-          <div
-            className={`${styles.piece} ${styles.topPiece} ${isOpened ? styles.detached : ''}`}
-            style={{ clipPath: topPieceClip }}
-          >
-            <BoosterPlaceholder booster={booster} />
+          {/* Deux morceaux séparés : le haut se détache après la découpe, le corps reste en place. */}
+          <div className={`${styles.pieceHaut} ${isOpened ? styles.detached : ''}`}>
+            <BoosterVisuel booster={booster} etat="ouverture" partie="haut" />
           </div>
-          <div className={styles.piece} style={{ clipPath: bottomPieceClip }}>
-            <BoosterPlaceholder booster={booster} />
+          <div className={styles.pieceCorps}>
+            <BoosterVisuel booster={booster} etat="ouverture" partie="corps" />
           </div>
           <div
             className={styles.cutLine}
