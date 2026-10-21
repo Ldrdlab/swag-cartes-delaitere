@@ -1,0 +1,25 @@
+/* Styles de l'écran Choix du booster : carrousel qui prend la place disponible + rangée de contrôles. */
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.stage {
+  flex: 1;
+  min-height: 0;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.caption {
+  margin: 0;
+  font-weight: 600;
+  text-align: center;
+}

@@ -1,0 +1,69 @@
+/*
+ * Styles du carrousel. Animation uniquement par `transform` et `opacity`.
+ * Variables posées par le composant : --offset (position relative : -1, 0, +1), --drag (px de glissement),
+ * --carousel-transition-ms (durée, définie dans config/timings.ts).
+ */
+.zone {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+  /* Zone de geste : le navigateur ne doit ni défiler ni zoomer pendant un swipe. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.zone[data-dragging='true'] {
+  cursor: grabbing;
+}
+
+/* Anneau de focus à l'intérieur : à l'extérieur, il serait rogné par la zone de contenu. */
+.zone:focus-visible {
+  outline-offset: -3px;
+}
+
+.item {
+  --scale: 0.75;
+  --opacity: 0.7;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 85%;
+  aspect-ratio: 1 / 2;
+  opacity: var(--opacity);
+  /* Décalage latéral : 85 % de la largeur du booster par cran, plus le glissement du doigt. */
+  transform: translate(-50%, -50%) translateX(calc(var(--offset) * 85% + var(--drag, 0px)))
+    scale(var(--scale));
+  transition:
+    transform var(--carousel-transition-ms) ease,
+    opacity var(--carousel-transition-ms) ease;
+  will-change: transform;
+  z-index: 1;
+}
+
+.item[data-position='center'] {
+  --scale: 1;
+  --opacity: 1;
+
+  z-index: 2;
+}
+
+.item[data-position='hidden'] {
+  --opacity: 0;
+
+  pointer-events: none;
+}
+
+/* Pendant le glissement, l'élément suit le doigt sans retard ; le booster qui boucle est téléporté. */
+.zone[data-dragging='true'] .item,
+.item[data-wrapping='true'] {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+}

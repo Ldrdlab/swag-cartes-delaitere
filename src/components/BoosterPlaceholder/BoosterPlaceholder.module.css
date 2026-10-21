@@ -1,0 +1,30 @@
+/* Styles du booster placeholder : un paquet vertical avec une bande en haut et le nom au centre. */
+.pack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  text-align: center;
+}
+
+.cutZone {
+  align-self: stretch;
+  /* Hauteur de la bande : repère visuel du haut du paquet (zone de découpe à l'écran 5). */
+  flex: 0 0 18%;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.name {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: var(--space-2);
+  font-size: 1.25rem;
+  font-weight: 700;
+}

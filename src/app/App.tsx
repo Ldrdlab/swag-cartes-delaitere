@@ -27,6 +27,7 @@ export function App() {
     case 'BOOSTER_SELECT':
       return (
         <BoosterSelectScreen
+          initialIndex={state.selectedBoosterIndex}
           onChoose={(boosterIndex) => send({ type: 'BOOSTER_CHOSEN', boosterIndex })}
         />
       );
