@@ -1,0 +1,49 @@
+/*
+ * Remise à zéro minimale + réglages globaux.
+ *
+ * Rôle : base cohérente entre navigateurs, focus clavier toujours visible.
+ * Expose : styles globaux (html, body, boutons, champs).
+ * Dépend de : tokens.css (à importer avant). Importé dans src/main.tsx.
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: var(--color-bg-page);
+  /* Empêche le « rebond » de page sur mobile. Le scroll reste possible dans les conteneurs. */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Focus visible pour la navigation au clavier (accessibilité minimale). */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
