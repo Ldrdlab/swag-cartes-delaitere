@@ -3,9 +3,12 @@
  *
  * Rôle : afficher l'écran correspondant à l'état de la machine à états et lui relayer les événements.
  * Expose : le composant `App`.
- * Dépend de : app/useFlow, data/boosters, hooks/useViewportHeight, screens/*.
+ * Dépend de : app/useFlow, config/game, data/*, domain/drawCards, hooks/useViewportHeight, screens/*.
  */
+import { CARDS_PER_BOOSTER, RARITY_WEIGHTS } from '../config/game';
 import { getBoosterAt } from '../data/boosters';
+import { CARDS } from '../data/cards';
+import { drawCards } from '../domain/drawCards';
 import { useViewportHeight } from '../hooks/useViewportHeight';
 import { BoosterConfirmScreen } from '../screens/BoosterConfirm';
 import { BoosterOpeningScreen } from '../screens/BoosterOpening';
@@ -40,14 +43,21 @@ export function App() {
           onBack={() => send({ type: 'BACK' })}
         />
       );
-    case 'BOOSTER_OPENING':
+    case 'BOOSTER_OPENING': {
+      const booster = getBoosterAt(state.selectedBoosterIndex);
       return (
         <BoosterOpeningScreen
-          booster={getBoosterAt(state.selectedBoosterIndex)}
-          // Le tirage des cartes sera branché ici à l'étape « Révélation ».
-          onOpened={() => send({ type: 'OPENING_DONE', cards: [] })}
+          booster={booster}
+          // Le tirage a lieu au moment où le booster est réellement ouvert.
+          onOpened={() =>
+            send({
+              type: 'OPENING_DONE',
+              cards: drawCards(booster, CARDS, CARDS_PER_BOOSTER, RARITY_WEIGHTS),
+            })
+          }
         />
       );
+    }
     case 'CARD_REVEAL':
       return (
         <CardRevealScreen
