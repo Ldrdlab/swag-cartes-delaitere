@@ -96,4 +96,4 @@ voir [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 ## Stack
 
 Vite · React 18 · TypeScript (mode strict) · CSS Modules · Vitest · ESLint · Prettier.
-Aucune dépendance d'exécution autre que React.
+Dépendances d'exécution : React et les polices auto-hébergées @fontsource (Lilita One, Nunito).

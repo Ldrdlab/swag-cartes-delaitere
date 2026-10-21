@@ -1,0 +1,87 @@
+/*
+ * Styles de la carte décorative. Animation uniquement par `transform`.
+ * Variables posées par le composant : --largeur, --rotation, --degrade, --decalage.
+ * Variables posées par l'écran d'accueil : --duree-flottement, --amplitude-flottement.
+ */
+.position {
+  position: absolute;
+  width: var(--largeur);
+  /* Proportions d'une vraie carte : 63 × 88. */
+  aspect-ratio: 63 / 88;
+  /* Le point (left, top) est le CENTRE de la carte. */
+  transform: translate(-50%, -50%) rotate(var(--rotation));
+  /* Décoratif : ne doit jamais intercepter un clic. */
+  pointer-events: none;
+}
+
+.carte {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--largeur) * 0.05);
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: calc(var(--largeur) * 0.08);
+  border-radius: calc(var(--largeur) * 0.1);
+  background: var(--degrade);
+}
+
+/* ----- Les trois profondeurs ----- */
+.position[data-profondeur='lointaine'] {
+  opacity: 0.4;
+  filter: blur(1.5px);
+}
+
+.position[data-profondeur='moyenne'] {
+  opacity: 0.9;
+}
+
+.position[data-profondeur='proche'] .carte {
+  border: 3px solid #ffffff;
+  box-shadow: 0 10px 22px rgba(42, 27, 77, 0.22);
+  animation: flotter var(--duree-flottement, 6s) ease-in-out var(--decalage, 0s) infinite;
+}
+
+@keyframes flotter {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(calc(var(--amplitude-flottement, 6px) * -1));
+  }
+}
+
+/* ----- Contenu de la carte ----- */
+.photo {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: calc(var(--largeur) * 0.06);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.barre {
+  flex: 0 0 auto;
+  height: calc(var(--largeur) * 0.07);
+  border-radius: 999px;
+  background: rgba(98, 94, 135, 0.3);
+}
+
+.barreCourte {
+  width: 60%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .position[data-profondeur='proche'] .carte {
+    animation: none;
+  }
+}

@@ -1,29 +1,185 @@
-/* Styles de l'écran Accueil : le bouton remplit toute la zone de contenu. */
-.fullScreenButton {
+/*
+ * Styles de l'écran Accueil (format téléphone portrait de référence).
+ * Couleurs et polices : voir styles/tokens.css. Durées : voir config/accueil.ts
+ * (transmises via --duree-flottement, --amplitude-flottement, --duree-pulsation).
+ */
+
+/* Les 4 taches pastel (une par coin) sur la couleur de fond. 100 % CSS, aucune image. */
+.page,
+.ecran {
+  background:
+    radial-gradient(circle at 0% 0%, var(--couleur-fond-aqua) 0, transparent 60%),
+    radial-gradient(circle at 100% 0%, var(--couleur-fond-menthe) 0, transparent 60%),
+    radial-gradient(circle at 0% 100%, var(--couleur-fond-rose) 0, transparent 60%),
+    radial-gradient(circle at 100% 100%, var(--couleur-fond-lilas) 0, transparent 60%),
+    var(--couleur-fond);
+}
+
+/* Sur ordinateur : le même fond remplit la fenêtre, l'écran « téléphone » reste centré. */
+.page {
+  display: flex;
+  justify-content: center;
+  /* Hauteur réellement visible sur mobile (publiée par hooks/useViewportHeight), repli : 100dvh. */
+  height: var(--viewport-height, 100dvh);
+}
+
+.ecran {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: 100%;
+  min-width: var(--phone-min-width);
+  max-width: var(--phone-max-width);
+  height: 100%;
+  overflow: hidden;
+  padding: var(--space-3);
+  font-family: var(--police-texte);
+  box-shadow: 0 0 48px rgba(42, 27, 77, 0.12);
+}
+
+/* Les cartes décoratives remplissent l'écran, derrière tout le reste. */
+.cartes {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.infos,
+.logo,
+.bas {
+  position: relative;
+  z-index: 1;
+}
+
+/* ----- En haut à gauche : version et joueur ----- */
+.infos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* La boîte épouse le texte (et non toute la largeur) : les cartes peuvent passer juste à côté. */
+  width: fit-content;
+  max-width: 55%;
+  margin: 0;
+  color: var(--couleur-texte-doux);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.joueur {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ----- Au centre : logo ----- */
+.logo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-5);
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  align-self: center;
+  gap: 6px;
+  margin: 0;
+  font-weight: inherit;
   text-align: center;
 }
 
-.title {
-  display: grid;
-  place-items: center;
-  width: 80%;
-  aspect-ratio: 2 / 1;
-  border-radius: var(--radius-md);
-  background: var(--color-placeholder);
-  font-size: var(--font-size-title);
-  font-weight: 700;
+/*
+ * « SWAG » : contour épais en encre fait de plusieurs ombres (une tous les 30°, rayon 4 px),
+ * puis effet de relief vers le bas, puis ombre douce. Pour un contour plus fin ou plus épais,
+ * remplacer les valeurs « 4 » par une autre taille.
+ */
+.titre {
+  display: block;
+  color: var(--couleur-titre);
+  font-family: var(--police-titre);
+  font-size: clamp(84px, 31vw, 112px);
+  font-weight: 400;
+  line-height: 1;
+  transform: rotate(-4deg);
+  text-shadow:
+    4px 0 0 var(--couleur-encre),
+    3.5px 2px 0 var(--couleur-encre),
+    2px 3.5px 0 var(--couleur-encre),
+    0 4px 0 var(--couleur-encre),
+    -2px 3.5px 0 var(--couleur-encre),
+    -3.5px 2px 0 var(--couleur-encre),
+    -4px 0 0 var(--couleur-encre),
+    -3.5px -2px 0 var(--couleur-encre),
+    -2px -3.5px 0 var(--couleur-encre),
+    0 -4px 0 var(--couleur-encre),
+    2px -3.5px 0 var(--couleur-encre),
+    3.5px -2px 0 var(--couleur-encre),
+    /* relief vers le bas */ 0 7px 0 var(--couleur-encre),
+    3px 7px 0 var(--couleur-encre),
+    -3px 7px 0 var(--couleur-encre),
+    0 10px 0 var(--couleur-encre),
+    /* ombre douce */ 0 16px 18px rgba(42, 27, 77, 0.28);
 }
 
-.message {
-  color: var(--color-text-muted);
+.sousTitre {
+  display: block;
+  padding: 6px 20px;
+  border: 3px solid #ffffff;
+  border-radius: var(--radius-pill);
+  background: var(--couleur-encre);
+  box-shadow: 0 6px 14px rgba(42, 27, 77, 0.3);
+  color: #ffffff;
+  font-family: var(--police-titre);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.nomAppli {
+  display: block;
+  color: var(--couleur-violet);
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+/* ----- En bas : invitation et mentions ----- */
+.bas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.invitation {
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--couleur-texte-doux);
+  font-family: var(--police-texte);
+  font-size: 23px;
+  font-weight: 800;
+  text-align: center;
+  animation: pulser var(--duree-pulsation, 2.2s) ease-in-out infinite;
+}
+
+@keyframes pulser {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.mentions {
+  margin: 0;
+  color: var(--couleur-texte-doux);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Si l'utilisateur a demandé « réduire les animations » : tout reste immobile. */
+@media (prefers-reduced-motion: reduce) {
+  .invitation {
+    animation: none;
+  }
 }

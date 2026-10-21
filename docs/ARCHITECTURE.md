@@ -31,7 +31,10 @@ src/
 │   ├── BoosterOpening/   Écran 5 — Découpe du booster
 │   └── CardReveal/       Écran 6 — Révélation + récapitulatif
 ├── components/           Button, ScreenLayout, Carousel, BoosterPlaceholder, CutTrail,
-│                         CardPlaceholder, CardStack, CardGrid
+│                         CardPlaceholder, CardStack, CardGrid, FloatingCard (cartes décoratives de l'accueil)
+├── content/
+│   └── textes.ts         TOUS les textes de l'écran d'accueil (autres écrans à venir)
+├── assets/images/welcome/cartes/   Photos optionnelles des cartes flottantes de l'accueil
 ├── hooks/
 │   ├── useSwipe.ts            Tap / swipe (Pointer Events) + décalage en cours
 │   ├── useCarousel.ts         Élément central d'un carrousel qui boucle
@@ -57,12 +60,13 @@ src/
 │   ├── game.ts           Nombre de cartes, poids et libellés de rareté, taille de la pile
 │   ├── gestures.ts       Seuils swipe/tap et découpe
 │   ├── timings.ts        Durées des animations
+│   ├── accueil.ts        Cartes flottantes de l'accueil (position, taille, couleur, photo) et durées
 │   └── profile.ts        Longueur du pseudo, clé de sauvegarde
 ├── data/
 │   ├── boosters.ts       Les boosters proposés (+ getBoosterAt)
 │   └── cards.ts          Les cartes factices
 └── styles/
-    ├── tokens.css        Couleurs, espacements, dimensions
+    ├── tokens.css        Couleurs, polices, dégradés, espacements, dimensions
     └── reset.css         Remise à zéro, focus visible
 ```
 
@@ -128,6 +132,10 @@ Points d'accroche son/vibration : `hooks/cutFeedback.ts` (`onCutStart`, `onCutPr
 | Changer la **durée des animations**                                           | `config/timings.ts`                                                                                                     |
 | Changer la **longueur du pseudo**                                             | `config/profile.ts`                                                                                                     |
 | Changer les **couleurs, espacements**                                         | `styles/tokens.css`                                                                                                     |
+| Changer un **texte de l'accueil**                                             | `content/textes.ts` (section `accueil`)                                                                                 |
+| Déplacer / ajouter / retirer une **carte flottante** de l'accueil             | `config/accueil.ts` → `CARTES_FLOTTANTES`                                                                               |
+| Mettre une **photo** sur une carte flottante                                  | Copier la photo dans `src/assets/images/welcome/cartes/`, puis `image: 'nom.png'` dans `config/accueil.ts`              |
+| Régler la **vitesse du flottement / de la pulsation** de l'accueil            | `config/accueil.ts` → `REGLAGES_ANIMATION`                                                                              |
 | Changer le **nombre de cartes visibles** dans la pile                         | `config/game.ts` → `STACK_VISIBLE_CARDS`                                                                                |
 | Modifier l'**ordre / les transitions des écrans**                             | `app/flowMachine.ts` (+ `app/App.tsx` pour l'affichage)                                                                 |
 | Modifier l'**apparence d'un écran**                                           | `screens/<Écran>/index.tsx` et son `.module.css`                                                                        |
