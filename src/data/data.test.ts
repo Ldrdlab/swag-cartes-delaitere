@@ -5,7 +5,7 @@
  * Dépend de : vitest, data/boosters, data/cards.
  */
 import { describe, expect, it } from 'vitest';
-import { BOOSTERS } from './boosters';
+import { BOOSTERS, getBoosterAt } from './boosters';
 import { CARDS } from './cards';
 
 describe('données factices', () => {
@@ -17,6 +17,12 @@ describe('données factices', () => {
   it('les identifiants de boosters sont uniques', () => {
     const ids = BOOSTERS.map((booster) => booster.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('getBoosterAt renvoie le booster demandé et boucle hors de la liste', () => {
+    expect(getBoosterAt(1)).toBe(BOOSTERS[1]);
+    expect(getBoosterAt(BOOSTERS.length)).toBe(BOOSTERS[0]);
+    expect(getBoosterAt(-1)).toBe(BOOSTERS[BOOSTERS.length - 1]);
   });
 
   it('chaque booster ne référence que des cartes existantes', () => {

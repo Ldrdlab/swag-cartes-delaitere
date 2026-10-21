@@ -3,8 +3,9 @@
  *
  * Rôle : afficher l'écran correspondant à l'état de la machine à états et lui relayer les événements.
  * Expose : le composant `App`.
- * Dépend de : app/useFlow, hooks/useViewportHeight, screens/*.
+ * Dépend de : app/useFlow, data/boosters, hooks/useViewportHeight, screens/*.
  */
+import { getBoosterAt } from '../data/boosters';
 import { useViewportHeight } from '../hooks/useViewportHeight';
 import { BoosterConfirmScreen } from '../screens/BoosterConfirm';
 import { BoosterOpeningScreen } from '../screens/BoosterOpening';
@@ -34,6 +35,7 @@ export function App() {
     case 'BOOSTER_CONFIRM':
       return (
         <BoosterConfirmScreen
+          booster={getBoosterAt(state.selectedBoosterIndex)}
           onOpen={() => send({ type: 'OPEN_CONFIRMED' })}
           onBack={() => send({ type: 'BACK' })}
         />

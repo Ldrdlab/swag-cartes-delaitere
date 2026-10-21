@@ -2,10 +2,11 @@
  * Boosters factices (placeholders).
  *
  * Rôle : définir les boosters proposés (nom, couleur provisoire, cartes possibles).
- * Expose : BOOSTERS.
- * Dépend de : domain/types, data/cards (les identifiants de cartes doivent exister).
+ * Expose : BOOSTERS, getBoosterAt().
+ * Dépend de : domain/types, domain/carousel, data/cards (les identifiants de cartes doivent exister).
  * Pour ajouter, retirer ou renommer un booster, modifier ce fichier.
  */
+import { wrapIndex } from '../domain/carousel';
 import type { Booster } from '../domain/types';
 
 export const BOOSTERS: readonly Booster[] = [
@@ -55,3 +56,18 @@ export const BOOSTERS: readonly Booster[] = [
     ],
   },
 ];
+
+/**
+ * Renvoie le booster à une position donnée de la liste (la position est ramenée dans la liste).
+ *
+ * @param index - Position du booster (ex. `selectedBoosterIndex` de la machine à états).
+ * @returns Le booster correspondant.
+ * @throws Si la liste BOOSTERS est vide (erreur de configuration).
+ */
+export function getBoosterAt(index: number): Booster {
+  const booster = BOOSTERS[wrapIndex(index, BOOSTERS.length)];
+  if (!booster) {
+    throw new Error('Aucun booster défini dans data/boosters.ts');
+  }
+  return booster;
+}
