@@ -68,6 +68,7 @@ export function App() {
       return (
         <CardRevealScreen
           cards={state.drawnCards}
+          booster={getBoosterAt(state.selectedBoosterIndex)}
           onOpenAnother={() => send({ type: 'OPEN_ANOTHER' })}
           onHome={() => send({ type: 'GO_HOME' })}
         />

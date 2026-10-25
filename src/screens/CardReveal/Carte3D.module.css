@@ -1,0 +1,82 @@
+/*
+ * Styles de la carte 3D. Animation uniquement par `transform` et `opacity`.
+ * Variables posées par le composant : --duree-retournement, --duree-fondu.
+ * Rappel : le tremblement s'applique à .tremble, le retournement à .pivot (jamais au même élément).
+ */
+.scene {
+  width: 100%;
+  height: 100%;
+}
+
+/* Parent du pivot : porte la perspective (la 3D se voit) et reçoit le tremblement. */
+.tremble {
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+}
+
+/* will-change seulement pendant l'attente : on ne réserve pas de ressources le reste du temps. */
+.tremble[data-tremble='true'] {
+  will-change: transform;
+}
+
+/* L'élément qui pivote. */
+.pivot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 5.5%;
+  cursor: pointer;
+  transform: rotateY(0deg);
+  transform-style: preserve-3d;
+}
+
+/* Transition seulement pendant RETOURNE et FACE : au retour en DOS, aucune transition. */
+.pivot[data-transition='true'] {
+  transition: transform var(--duree-retournement) cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+
+.pivot[data-retournee='true'] {
+  transform: rotateY(180deg);
+}
+
+/* Les deux faces cachent leur envers ; la face (recto) est déjà tournée de 180°. */
+.faceDos,
+.faceRecto {
+  position: absolute;
+  inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.faceRecto {
+  transform: rotateY(180deg);
+}
+
+/* Mouvement réduit : pas de rotation, le dos s'efface et la face apparaît par un fondu court. */
+@media (prefers-reduced-motion: reduce) {
+  .pivot,
+  .pivot[data-retournee='true'] {
+    transform: none;
+    transition: none;
+  }
+
+  .faceRecto {
+    transform: none;
+    opacity: 0;
+    transition: opacity var(--duree-fondu) ease;
+  }
+
+  .faceDos {
+    opacity: 1;
+    transition: opacity var(--duree-fondu) ease;
+  }
+
+  .pivot[data-retournee='true'] .faceRecto {
+    opacity: 1;
+  }
+
+  .pivot[data-retournee='true'] .faceDos {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,49 @@
+/*
+ * Rayons de lumière. Animation uniquement par `transform` et `opacity`.
+ * Variables posées par le composant : --rayons-taille, --rayons-couleur, --rayons-trait,
+ * --rayons-periode, --rayons-tour, --rayons-duree.
+ */
+.rayons {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--rayons-taille);
+  max-width: 140vw;
+  aspect-ratio: 1;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.rayons[data-visible='true'] {
+  opacity: 1;
+  transition: opacity var(--rayons-duree) ease-in;
+}
+
+.tourne {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    var(--rayons-couleur) 0 var(--rayons-trait),
+    transparent var(--rayons-trait) var(--rayons-periode)
+  );
+  /* Les rayons s'effacent vers le bord. */
+  -webkit-mask-image: radial-gradient(circle, #000000 18%, transparent 70%);
+  mask-image: radial-gradient(circle, #000000 18%, transparent 70%);
+  animation: tourner var(--rayons-tour) linear infinite;
+}
+
+@keyframes tourner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mouvement réduit : pas de rayons du tout (le halo suffit). */
+@media (prefers-reduced-motion: reduce) {
+  .rayons {
+    display: none;
+  }
+}

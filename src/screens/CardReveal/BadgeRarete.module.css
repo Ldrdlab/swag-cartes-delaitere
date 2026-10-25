@@ -1,0 +1,15 @@
+/* Badge de rareté : pilule. Les couleurs viennent de config/raretes.ts (posées en style par le composant). */
+.badge {
+  display: inline-block;
+  padding: 5px 16px;
+  border-radius: 999px;
+  font-family: var(--police-texte);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.petit {
+  padding: 2px 8px;
+  font-size: 10px;
+}

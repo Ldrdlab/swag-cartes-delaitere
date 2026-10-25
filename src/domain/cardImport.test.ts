@@ -47,7 +47,7 @@ describe('importCards', () => {
   it('refuse tout le fichier si une carte est invalide, avec un message par erreur', () => {
     const resultat = importCards([
       { id: 'a', name: 'Alpha', rarity: 'commune' },
-      { id: '', name: 'Sans id', rarity: 'légendaire' },
+      { id: '', name: 'Sans id', rarity: 'mythique' },
     ]);
     expect(resultat.ok).toBe(false);
     if (!resultat.ok) {
@@ -68,5 +68,18 @@ describe('importCards', () => {
     expect(importCards('n’importe quoi').ok).toBe(false);
     expect(importCards(null).ok).toBe(false);
     expect(importCards([42]).ok).toBe(false);
+  });
+});
+
+describe('importCards : légendaire', () => {
+  it('reconnaît « Légendaire » avec ou sans accent', () => {
+    const resultat = importCards([
+      { id: 'a', name: 'A', rarity: 'Légendaire' },
+      { id: 'b', name: 'B', rarity: 'legendaire' },
+    ]);
+    expect(resultat).toMatchObject({
+      ok: true,
+      cards: [{ rarity: 'legendaire' }, { rarity: 'legendaire' }],
+    });
   });
 });

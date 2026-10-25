@@ -1,0 +1,36 @@
+/* Étincelles : points dorés qui montent en s'effaçant. Animation par `transform` et `opacity`. */
+.zone {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.etincelle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff3b0 0 30%, #ffc94d 55%, rgba(255, 201, 77, 0) 75%);
+  opacity: 0;
+  animation: monter 1.6s ease-out infinite;
+}
+
+@keyframes monter {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(calc(var(--monte) * -1)) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone {
+    display: none;
+  }
+}

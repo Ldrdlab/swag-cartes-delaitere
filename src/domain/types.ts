@@ -7,7 +7,7 @@
  */
 
 /** Raretés possibles, de la plus fréquente à la plus rare. */
-export const RARITIES = ['commune', 'peu_commune', 'rare', 'ultra_rare'] as const;
+export const RARITIES = ['commune', 'peu_commune', 'rare', 'ultra_rare', 'legendaire'] as const;
 
 /** Rareté d'une carte (valeur parmi RARITIES). */
 export type Rarity = (typeof RARITIES)[number];

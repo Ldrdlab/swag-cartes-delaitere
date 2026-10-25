@@ -1,0 +1,57 @@
+/*
+ * Reflet holographique. Variable posée par le composant : --duree-reflet.
+ * Seul le balayage s'anime (transform) ; le voile irisé est fixe.
+ */
+.reflet {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.voile {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 111, 200, 0.22),
+    rgba(94, 234, 255, 0.22) 50%,
+    rgba(255, 214, 100, 0.22)
+  );
+  mix-blend-mode: screen;
+}
+
+.balayage {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.75) 50%,
+    transparent 100%
+  );
+  transform: translateX(-120%) skewX(-14deg);
+  animation: balayer var(--duree-reflet) ease-in-out infinite;
+}
+
+@keyframes balayer {
+  0%,
+  15% {
+    transform: translateX(-120%) skewX(-14deg);
+  }
+
+  70%,
+  100% {
+    transform: translateX(320%) skewX(-14deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .balayage {
+    display: none;
+  }
+}

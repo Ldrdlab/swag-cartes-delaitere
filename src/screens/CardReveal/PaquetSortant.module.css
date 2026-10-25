@@ -1,0 +1,27 @@
+/*
+ * Paquet qui s'efface. Animation uniquement par `transform` et `opacity`.
+ * Variable posée par le composant : --duree-sortie. La largeur (--carte-largeur) vient de l'écran.
+ */
+.paquet {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  width: var(--carte-largeur);
+  transform: translate(-50%, -50%);
+  animation: sortir var(--duree-sortie) ease-in forwards;
+  pointer-events: none;
+}
+
+@keyframes sortir {
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 160px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paquet {
+    display: none;
+  }
+}

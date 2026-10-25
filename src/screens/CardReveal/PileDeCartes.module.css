@@ -1,0 +1,30 @@
+/*
+ * Styles de la pile de dos. Variables posées sur chaque dos (valeurs dans config/revelation.ts) :
+ * --decalage (px vers le bas), --echelle, --assombrissement (0 à 1).
+ */
+.pile {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.dos,
+.courante {
+  position: absolute;
+  inset: 0;
+}
+
+.dos {
+  transform: translateY(var(--decalage)) scale(var(--echelle));
+  transform-origin: 50% 100%;
+}
+
+/* Voile sombre sur les dos du fond (seule son opacité varie). */
+.ombre {
+  position: absolute;
+  inset: 0;
+  border-radius: 5.5%;
+  background: #000000;
+  opacity: var(--assombrissement);
+  pointer-events: none;
+}

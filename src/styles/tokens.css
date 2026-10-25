@@ -108,4 +108,18 @@
   --couleur-rose-vif: #ff6fa8;
   /* Indicateurs de position : le point actif est violet (--couleur-violet), les autres de cette couleur. */
   --couleur-point-inactif: #c9cae6;
+
+  /* ===== Fond provisoire de l'écran de révélation des cartes (sombre) ===== */
+
+  /* Dégradé de fond, de haut en bas. */
+  --couleur-revelation-fond-1: #1b1236;
+  --couleur-revelation-fond-2: #241648;
+  --couleur-revelation-fond-3: #2a1b4d;
+  /* Halo violet au centre, derrière la carte. */
+  --couleur-revelation-halo: #3a2670;
+  /* Touches de couleur dans les coins (très discrètes). */
+  --couleur-revelation-aqua: #c9eff6; /* en haut à gauche */
+  --couleur-revelation-corail: #ff5e5b; /* en bas à droite */
+  /* Texte doré de l'attente (carte légendaire). */
+  --couleur-revelation-or: #ffd66b;
 }

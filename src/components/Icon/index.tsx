@@ -8,13 +8,14 @@
  * Dépend de : react, assets/icons/*.svg, Icon.module.css.
  */
 import type { CSSProperties } from 'react';
+import appareilPhoto from '../../assets/icons/appareil-photo.svg';
 import chevron from '../../assets/icons/chevron.svg';
 import croix from '../../assets/icons/croix.svg';
 import crayon from '../../assets/icons/crayon.svg';
 import styles from './Icon.module.css';
 
 /** Icônes disponibles. Pour en ajouter une : déposer le SVG dans assets/icons/ et l'inscrire ici. */
-const ICONES = { chevron, crayon, croix } as const;
+const ICONES = { 'appareil-photo': appareilPhoto, chevron, crayon, croix } as const;
 
 /** Nom d'une icône disponible. */
 export type NomIcone = keyof typeof ICONES;

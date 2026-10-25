@@ -29,9 +29,10 @@ src/
 │   ├── BoosterSelect/    Écran 3 — Carrousel de boosters
 │   ├── BoosterConfirm/   Écran 4 — Confirmation
 │   ├── BoosterOpening/   Écran 5 — Découpe du booster
-│   └── CardReveal/       Écran 6 — Révélation + récapitulatif
+│   └── CardReveal/       Écran 6 — Révélation (Scene, Carte3D, CarteVerso, CarteRecto, PileDeCartes, Bilan,
+│                         effets/ : Halo, RayonsLumineux, Confettis, Flash, Etincelles, ReflexHolo)
 ├── components/           Button, ScreenLayout, Carousel, CutTrail,
-│                         CardPlaceholder, CardStack, CardGrid, FloatingCard (cartes décoratives de l'accueil),
+│                         FloatingCard (cartes décoratives de l'accueil),
 │                         Icon (icônes en traits), AvatarButton (avatar rond), AvatarPicker (choix d'avatar)
 ├── content/
 │   ├── textes.ts         TOUS les textes de l'accueil, du profil et du choix du booster
@@ -39,6 +40,7 @@ src/
 ├── assets/
 │   ├── images/welcome/cartes/   Photos optionnelles des cartes flottantes de l'accueil
 │   ├── images/avatars/          Les images des avatars (5 exemples en SVG)
+│   ├── images/cartes/           Dos des cartes (dos-carte.webp utilisé, dos-carte.png = original conservé)
 │   ├── images/boosters/<id>/    Illustrations des boosters à skin « image » (paquet.webp, haut.webp…)
 │   └── icons/                   Icônes en traits (chevron, crayon, croix), colorées par le CSS
 ├── boosters/             TOUT ce qui concerne l'apparence des boosters (voir « Créer un nouveau booster »)
@@ -51,6 +53,10 @@ src/
 │   └── effets/           Foil, sertis, reflet au sol (CSS Modules + petits composants)
 ├── hooks/
 │   ├── useSwipe.ts            Tap / swipe (Pointer Events) + décalage en cours
+│   ├── useRevealSequence.ts   Séquence de révélation : machine à états + minuteries
+│   ├── useTremblement.ts      Tremblement de la carte légendaire (images-clés générées)
+│   ├── useMouvementReduit.ts  Réglage « réduire les animations » du système
+│   ├── usePageVisible.ts      Page visible ou non (pause des animations en boucle)
 │   ├── useCarousel.ts         Élément central d'un carrousel qui boucle
 │   ├── useCutGesture.ts       Geste de découpe (Pointer Events) + trace
 │   ├── cutFeedback.ts         Points d'accroche VIDES pour son et vibration
@@ -66,6 +72,10 @@ src/
 │   ├── swipe.ts          Classification tap / swipe / rien (classifyGesture)
 │   ├── cutGesture.ts     Détecteur de découpe (startCut, moveCut, endCut)
 │   ├── drawCards.ts      Tirage des cartes (aléatoire injectable)
+│   ├── revelation.ts     Machine à états de la révélation (DOS, TREMBLE, RETOURNE, FACE, BILAN) et ?forcer=
+│   ├── tremblement.ts    Images-clés du tremblement de la carte légendaire (générées, 21 étapes)
+│   ├── effets.ts         Confettis et étincelles : générés par calcul à partir du numéro, sans hasard
+│   ├── bilan.ts          Tri du bilan : les 3 plus rares en avant
 │   ├── cardImport.ts     Validation / import d'un JSON de cartes externe
 │   ├── avatarSelection.ts Choix d'avatar : fermer sans valider ne change pas l'avatar
 │   ├── validatePseudo.ts Règles du pseudonyme
@@ -75,7 +85,9 @@ src/
 │   ├── StorageService.ts       Interface (asynchrone)
 │   └── LocalStorageService.ts  Implémentation localStorage
 ├── config/
-│   ├── game.ts           Nombre de cartes, poids et libellés de rareté, taille de la pile
+│   ├── game.ts           Nombre de cartes par booster et probabilités de rareté
+│   ├── raretes.ts        Table des 5 raretés : nom, étoiles, couleurs, halo, confettis, reflet, tease
+│   ├── revelation.ts     Durées, tailles, effets et couleurs de confettis de la révélation
 │   ├── gestures.ts       Seuils swipe/tap et découpe
 │   ├── timings.ts        Durées des animations
 │   ├── boosters.ts       Taille de référence d'un booster (172 × 320, haut de 60) et géométrie du carrousel
@@ -137,6 +149,43 @@ Alternatives sans geste : bouton « Ouvrir » et touche Entrée.
 Points d'accroche son/vibration : `hooks/cutFeedback.ts` (`onCutStart`, `onCutProgress`,
 `onCutComplete`), volontairement vides.
 
+## La révélation des cartes (écran 6)
+
+Chaque carte arrive **dos visible**. L'utilisateur la touche, elle se retourne, puis il appuie sur
+« Suivant ». Après la dernière carte (ou sur « Passer »), le bilan s'affiche.
+
+```
+DOS ──toucher──▶ RETOURNE ──fin──▶ FACE ──« Suivant »──▶ DOS (carte suivante) … ──▶ BILAN
+ └─ si la rareté a un tease ─▶ TREMBLE ──fin──▶ RETOURNE
+« Passer » : depuis n'importe quel état ──▶ BILAN
+```
+
+- La séquence est une **machine à états pure** (`domain/revelation.ts`, testée). Le hook
+  `hooks/useRevealSequence.ts` y ajoute les minuteries (fin du tremblement, fin du retournement), toutes
+  nettoyées quand l'écran se ferme. Les touchers pendant TREMBLE et RETOURNE sont ignorés.
+- Chaque **rareté** (`config/raretes.ts`) décide de ses effets : halo, reflet holographique, rayons de
+  lumière, confettis, animation d'attente (« tease »), durée du retournement, couleurs. Ajouter une
+  rareté ou changer une couleur ne demande de modifier que ce fichier.
+- **Animation légendaire** (2100 ms d'attente) : tremblement progressif (21 images-clés **générées** par
+  `domain/tremblement.ts`), lueur dorée sur le dos, halo, rayons de lumière, 12 étincelles ; puis flash
+  plein écran et retournement de 900 ms ; puis reflet holographique et 40 confettis. Rien n'est tiré au
+  hasard : les confettis et les étincelles sont placés par calcul à partir de leur numéro.
+- **La 3D** (`Carte3D.tsx`) : le tremblement s'applique à un élément PARENT de celui qui pivote (les deux
+  transformations se mélangeraient sinon) ; les deux faces ont `backface-visibility: hidden` ; le pivot
+  n'a de transition que pendant RETOURNE et FACE, donc la carte suivante apparaît dos visible sans qu'on
+  voie la précédente se retourner.
+- **Bilan** (`domain/bilan.ts`) : les 3 cartes les plus rares en avant (égalité = ordre de tirage), puis
+  les autres.
+- **Accessibilité** : Entrée / Espace retourne la carte ; une fois retournée, le focus passe sur « Suivant » ;
+  une zone `aria-live` annonce « nom, rareté ». Avec « réduire les animations » : pas de tremblement,
+  de rayons, d'étincelles ni de confettis, et le retournement devient un fondu court (halo et badge restent).
+- **Performances** : seuls `transform` et `opacity` sont animés ; `will-change` n'est posé que pendant
+  l'attente ; reflet et rayons se mettent en pause quand la page n'est pas visible ; l'option
+  `EFFETS_REDUITS` de `config/revelation.ts` divise les confettis par deux et remplace les rayons par le halo.
+- **Mode développeur** : ajouter `?forcer=legendaire` à l'adresse (ex. `http://localhost:5173/?forcer=legendaire`)
+  fait commencer la révélation par une carte légendaire. Les autres raretés marchent aussi
+  (`?forcer=ultra-rare`…).
+
 ## Personnaliser le visuel
 
 Guide pour débutant : tout ce qu'on peut changer **sans toucher au code des composants**.
@@ -144,11 +193,12 @@ Après un changement, enregistre le fichier : la page ouverte dans le navigateur
 
 ### Les textes
 
-| Je veux changer…                                          | Fichier                                    |
-| --------------------------------------------------------- | ------------------------------------------ |
-| Un texte de l'**accueil**                                 | `src/content/textes.ts`, section `accueil` |
-| Un texte du **profil** (consigne, boutons, erreur…)       | `src/content/textes.ts`, section `profil`  |
-| Les textes du **choix d'avatar** (titre, Valider, Fermer) | `src/content/textes.ts`, section `profil`  |
+| Je veux changer…                                          | Fichier                                       |
+| --------------------------------------------------------- | --------------------------------------------- |
+| Un texte de l'**accueil**                                 | `src/content/textes.ts`, section `accueil`    |
+| Un texte du **profil** (consigne, boutons, erreur…)       | `src/content/textes.ts`, section `profil`     |
+| Les textes du **choix d'avatar** (titre, Valider, Fermer) | `src/content/textes.ts`, section `profil`     |
+| Les textes de l'**écran de révélation** et du bilan       | `src/content/textes.ts`, section `revelation` |
 
 Modifie ce qui est **entre guillemets**, garde les guillemets et la virgule. Dans un texte, `{pseudo}`
 est remplacé automatiquement par le pseudo du joueur : garde-le tel quel.
@@ -171,6 +221,21 @@ Fichier à modifier : **`src/config/avatars.ts`** (la liste) et le dossier **`sr
 - **Changer l'avatar par défaut** : `ID_AVATAR_PAR_DEFAUT` dans le même fichier (l'`id` doit exister dans la liste).
 
 Le champ `nom` n'est pas affiché : il sert aux lecteurs d'écran, qui ne peuvent pas décrire une image.
+
+### Les cartes (écran de révélation)
+
+| Je veux…                                                       | Fichier / démarche                                                                                                                                                                                                                      |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Changer le **dos des cartes** (pour toutes)                    | Remplacer `src/assets/images/cartes/dos-carte.webp` par une image du **même format** : 418 × 597 px, coins arrondis transparents, WebP de moins de 60 Ko. Le fichier `dos-carte.png` est l'original conservé : l'appli ne l'utilise pas |
+| Un dos différent pour **un booster**                           | Déposer une image WebP dans `src/assets/images/cartes/`, puis ajouter `dosImage: 'nom-du-fichier.webp'` dans le thème du booster (`src/boosters/themes/`)                                                                               |
+| **Modifier une rareté** (couleurs, étoiles, effets, confettis) | `src/config/raretes.ts` : une entrée par rareté                                                                                                                                                                                         |
+| Régler les **probabilités** de tirage                          | `src/config/game.ts` → `RARITY_WEIGHTS`                                                                                                                                                                                                 |
+| Régler les **durées, tailles, couleurs des confettis**         | `src/config/revelation.ts`                                                                                                                                                                                                              |
+| Alléger les effets sur un téléphone lent                       | `src/config/revelation.ts` → `EFFETS_REDUITS = true`                                                                                                                                                                                    |
+| Changer les **textes** de la révélation                        | `src/content/textes.ts`, section `revelation`                                                                                                                                                                                           |
+| Changer la couleur du **fond sombre**                          | `src/styles/tokens.css` (variables `--couleur-revelation-…`)                                                                                                                                                                            |
+| **Tester une carte légendaire**                                | Ouvrir l'appli avec `?forcer=legendaire` à la fin de l'adresse                                                                                                                                                                          |
+| Mettre une **photo** sur une carte                             | Ajouter `imageUrl` à la carte dans `src/data/cards.ts` : elle remplace « Photo à venir »                                                                                                                                                |
 
 ### Les couleurs, polices et animations
 
@@ -271,7 +336,10 @@ Pour un rendu impossible avec les deux skins existantes (calques animés, effets
 | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Changer le **nombre de cartes** par booster                                   | `config/game.ts` → `CARDS_PER_BOOSTER`                                                                                  |
 | Changer les **probabilités de rareté**                                        | `config/game.ts` → `RARITY_WEIGHTS`                                                                                     |
-| Changer les **libellés de rareté**                                            | `config/game.ts` → `RARITY_LABELS`                                                                                      |
+| Modifier une **rareté** (nom, couleurs, étoiles, effets)                      | `config/raretes.ts`                                                                                                     |
+| Régler les **durées et effets** de la révélation                              | `config/revelation.ts`                                                                                                  |
+| Changer le **dos des cartes**                                                 | Remplacer `src/assets/images/cartes/dos-carte.webp` par une image du même format                                        |
+| **Tester une carte légendaire**                                               | Ajouter `?forcer=legendaire` à l'adresse                                                                                |
 | Ajouter / retirer / renommer un **booster**                                   | `boosters/catalogue.ts` + un thème dans `boosters/themes/` (voir « Créer un nouveau booster »)                          |
 | Ajouter / modifier des **cartes**                                             | `data/cards.ts` (puis les inscrire dans `cardIds` de `boosters/catalogue.ts`)                                           |
 | Changer la **position des boosters latéraux** du carrousel                    | `config/boosters.ts` → `GEOMETRIE_CARROUSEL`                                                                            |
@@ -287,13 +355,13 @@ Pour un rendu impossible avec les deux skins existantes (calques animés, effets
 | Déplacer / ajouter / retirer une **carte flottante** de l'accueil             | `config/accueil.ts` → `CARTES_FLOTTANTES`                                                                               |
 | Mettre une **photo** sur une carte flottante                                  | Copier la photo dans `src/assets/images/welcome/cartes/`, puis `image: 'nom.png'` dans `config/accueil.ts`              |
 | Régler la **vitesse du flottement / de la pulsation** de l'accueil            | `config/accueil.ts` → `REGLAGES_ANIMATION`                                                                              |
-| Changer le **nombre de cartes visibles** dans la pile                         | `config/game.ts` → `STACK_VISIBLE_CARDS`                                                                                |
+| Changer le **nombre de dos visibles** derrière la carte                       | `config/revelation.ts` → `PILE`                                                                                         |
 | Modifier l'**ordre / les transitions des écrans**                             | `app/flowMachine.ts` (+ `app/App.tsx` pour l'affichage)                                                                 |
 | Modifier l'**apparence d'un écran**                                           | `screens/<Écran>/index.tsx` et son `.module.css`                                                                        |
 | Brancher un **backend** (profil partagé entre amis)                           | Écrire une autre implémentation de `StorageService` (`services/`), puis la passer à `<StorageProvider>` dans `main.tsx` |
 | Ajouter du **son / de la vibration** à la découpe                             | `hooks/cutFeedback.ts`                                                                                                  |
 | Importer des cartes depuis un **fichier JSON externe**                        | `domain/cardImport.ts` → `importCards()` (écrite et testée, pas encore branchée à l'interface)                          |
-| Remplacer les **cartes placeholder** par de vraies images                     | `components/CardPlaceholder` (`imageUrl` des cartes est déjà géré)                                                      |
+| Remplacer les **cartes placeholder** par de vraies images                     | `imageUrl` de la carte dans `data/cards.ts` (remplace « Photo à venir »)                                                |
 
 ## Tests
 
@@ -305,6 +373,10 @@ Pour un rendu impossible avec les deux skins existantes (calques animés, effets
 - catalogue des boosters (chaque booster pointe vers une skin existante, cartes valides) et taille
   d'un booster : `boosters/boosters.test.ts` ;
 - tirage des cartes : `domain/drawCards.test.ts` ;
+- révélation (transitions avec et sans tease, « Passer » depuis chaque état, mode `?forcer=`) :
+  `domain/revelation.test.ts` ; tri du bilan : `domain/bilan.test.ts` ; tremblement (21 images-clés,
+  amplitude croissante), confettis, étincelles : `domain/effets.test.ts` ; table des raretés (confettis par
+  rareté : 0 / 0 / 0 / 26 / 40) : `config/raretes.test.ts` ;
 - et aussi : classification des gestes, validation du pseudo, import de cartes, génération d'identifiants,
   service de stockage, cohérence des données et des réglages.
 

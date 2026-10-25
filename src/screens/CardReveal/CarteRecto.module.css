@@ -1,0 +1,94 @@
+/*
+ * Styles du recto d'une carte. Mesures en « unités de carte » : calc(N * var(--uc)), où N est en pixels
+ * pour une carte de 228 px de large. Variables posées par le composant : --uc, --bordure, --fond-carte,
+ * --fond-image, --couleur-etoiles.
+ */
+.recto {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: calc(8 * var(--uc));
+  box-sizing: border-box;
+  width: 100%;
+  padding: calc(12 * var(--uc));
+  overflow: hidden;
+  border: calc(4 * var(--uc)) solid var(--bordure);
+  border-radius: calc(16 * var(--uc));
+  background: var(--fond-carte);
+  color: var(--couleur-encre);
+  font-family: var(--police-texte);
+}
+
+.etoiles {
+  flex: none;
+  margin: 0;
+  color: var(--couleur-etoiles);
+  font-size: calc(16 * var(--uc));
+  letter-spacing: calc(2 * var(--uc));
+  line-height: 1;
+  text-align: center;
+}
+
+.zoneImage {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  place-items: center;
+  overflow: hidden;
+  border-radius: calc(10 * var(--uc));
+  background: var(--fond-image);
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Pictogramme appareil photo + « Photo à venir » (tant qu'il n'y a pas d'image). */
+.aVenir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(6 * var(--uc));
+  color: var(--couleur-texte-doux);
+  font-size: calc(12 * var(--uc));
+  font-weight: 800;
+}
+
+.pictogramme {
+  font-size: calc(38 * var(--uc));
+  line-height: 1;
+}
+
+.barres {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: calc(5 * var(--uc));
+}
+
+.barre {
+  height: calc(7 * var(--uc));
+  border-radius: 999px;
+  background: rgba(98, 94, 135, 0.25);
+}
+
+.barreMoyenne {
+  width: 86%;
+}
+
+.barreCourte {
+  width: 60%;
+}
+
+.pied {
+  flex: none;
+  margin: 0;
+  color: var(--couleur-texte-doux);
+  font-size: calc(10 * var(--uc));
+  font-weight: 800;
+  letter-spacing: calc(0.5 * var(--uc));
+  text-align: center;
+}

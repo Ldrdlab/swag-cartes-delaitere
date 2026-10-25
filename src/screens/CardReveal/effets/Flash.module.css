@@ -1,0 +1,10 @@
+/* Flash plein écran. Variables posées par le composant : --flash-centre, --flash-bord. */
+.flash {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: radial-gradient(circle at 50% 45%, var(--flash-centre), var(--flash-bord) 70%);
+  /* Invisible avant le début de l'animation. */
+  opacity: 0;
+  pointer-events: none;
+}

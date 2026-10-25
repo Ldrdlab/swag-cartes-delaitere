@@ -1,0 +1,68 @@
+/* En-tête de la révélation : nom du booster, bouton « Passer », segments de progression. */
+.enTete {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.titres {
+  min-width: 0;
+}
+
+.nom {
+  margin: 0;
+  overflow: hidden;
+  color: #ffffff;
+  font-family: var(--police-titre);
+  font-size: 19px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saison {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.passer {
+  flex: none;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 16px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-family: var(--police-texte);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.progression {
+  display: flex;
+  gap: 6px;
+}
+
+/* Un segment par carte : blanc plein quand la carte a été vue, 22 % d'opacité sinon. */
+.segment {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: #ffffff;
+  opacity: 0.22;
+}
+
+.segment[data-vu='true'] {
+  opacity: 1;
+}

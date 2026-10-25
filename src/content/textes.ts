@@ -97,6 +97,50 @@ export const TEXTES = {
   },
 
   // ---------------------------------------------------------------------------------
+  // ÉCRAN DE RÉVÉLATION DES CARTES
+  // Dans les textes, {nom}, {rarete}, {booster}, {nombre}, {numero} et {total} sont remplacés
+  // automatiquement : garde-les tels quels. (Les noms de raretés sont dans src/config/raretes.ts.)
+  // ---------------------------------------------------------------------------------
+  revelation: {
+    // Le titre de la page lu par les lecteurs d'écran (invisible à l'écran).
+    titrePage: 'Révélation des cartes',
+    // La phrase sous le dos de la carte, qui pulse doucement.
+    indicationDos: 'Touche la carte pour la retourner',
+    // La phrase dorée pendant l'attente d'une carte légendaire.
+    indicationTease: 'Quelque chose se prépare…',
+    // Le bouton sous la carte retournée.
+    suivant: 'Suivant',
+    // Le même bouton après la dernière carte.
+    voirBilan: 'Voir le bilan',
+    // Le bouton en haut à droite qui saute directement au bilan.
+    passer: 'Passer',
+    // Le texte lu par les lecteurs d'écran pour ce bouton (invisible à l'écran).
+    passerLabel: 'Passer la révélation',
+    // Le texte dans la zone image des cartes qui n'ont pas encore de photo.
+    photoAVenir: 'Photo à venir',
+    // Le pied de la carte : numéro de la carte dans la collection.
+    pied: 'SWAG · {numero} / {total}',
+    // Le texte lu par les lecteurs d'écran pour le dos de la carte (invisible à l'écran).
+    labelCarteDos: 'Retourner la carte {numero} sur {total}',
+    // Annoncé aux lecteurs d'écran quand une carte vient d'être retournée (invisible à l'écran).
+    annonce: '{nom}, {rarete}',
+    // Le texte lu pour les petits segments de progression en haut (invisible à l'écran).
+    labelProgression: 'Carte {numero} sur {total}',
+    // Le gros titre du bilan.
+    bilanTitre: 'Ouverture terminée !',
+    // Sous le titre du bilan : le nom du booster et le nombre de cartes.
+    bilanSousTitre: '{booster} · {nombre} cartes',
+    // Le titre de la rangée des 3 cartes les plus rares.
+    meilleuresCartes: 'Tes meilleures cartes',
+    // Le titre de la rangée des autres cartes.
+    autresCartes: 'Autres cartes',
+    // Le bouton corail du bilan.
+    ouvrirAutre: 'Ouvrir un autre booster',
+    // Le bouton à contour blanc du bilan.
+    accueil: 'Accueil',
+  },
+
+  // ---------------------------------------------------------------------------------
   // POUR PLUS TARD : les autres écrans s'ajouteront ici, sur le même modèle.
   // ---------------------------------------------------------------------------------
 };

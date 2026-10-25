@@ -1,0 +1,39 @@
+/*
+ * Confettis. Animation uniquement par `transform` et `opacity`.
+ * Variables posées sur chaque pièce : --derive, --chute, --rotation.
+ */
+.zone {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Départ juste au-dessus de l'écran ; une seule chute. */
+.piece {
+  position: absolute;
+  top: -24px;
+  animation-name: chuter;
+  animation-timing-function: ease-in;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+
+@keyframes chuter {
+  from {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  to {
+    opacity: 0.9;
+    transform: translate(var(--derive), var(--chute)) rotate(var(--rotation));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone {
+    display: none;
+  }
+}

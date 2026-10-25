@@ -68,4 +68,9 @@ export interface ThemeBooster {
   effets: EffetsTheme;
   /** Calques d'image pour la skin avancée « exemple-ultra » (facultatif). */
   calques?: readonly CalqueTheme[];
+  /**
+   * Dos des cartes de ce booster (facultatif) : nom d'un fichier de `src/assets/images/cartes/`
+   * (ex. `'dos-apero.webp'`). Sans lui, toutes les cartes utilisent `dos-carte.webp`.
+   */
+  dosImage?: string;
 }

@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { RARITIES } from '../domain/types';
-import { CARDS_PER_BOOSTER, RARITY_LABELS, RARITY_WEIGHTS, STACK_VISIBLE_CARDS } from './game';
+import { CARDS_PER_BOOSTER, RARITY_WEIGHTS } from './game';
 import { CUT_THRESHOLDS, SWIPE_THRESHOLDS } from './gestures';
 import { PSEUDO_MAX_LENGTH, PSEUDO_MIN_LENGTH } from './profile';
 
@@ -41,16 +41,11 @@ describe('réglages du jeu', () => {
     expect(CARDS_PER_BOOSTER).toBeGreaterThan(0);
   });
 
-  it('définit un poids positif ou nul et un libellé pour chaque rareté, avec au moins un poids > 0', () => {
+  it('définit un poids positif ou nul pour chaque rareté, avec au moins un poids > 0', () => {
     for (const rarity of RARITIES) {
       expect(RARITY_WEIGHTS[rarity]).toBeGreaterThanOrEqual(0);
-      expect(RARITY_LABELS[rarity]).not.toBe('');
     }
     expect(RARITIES.some((rarity) => RARITY_WEIGHTS[rarity] > 0)).toBe(true);
-  });
-
-  it('affiche au moins une carte dans la pile', () => {
-    expect(STACK_VISIBLE_CARDS).toBeGreaterThanOrEqual(1);
   });
 });
 

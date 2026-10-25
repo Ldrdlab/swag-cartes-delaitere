@@ -1,0 +1,35 @@
+/*
+ * Halo derrière la carte. Animation uniquement par `transform` et `opacity`.
+ * Variables posées par le composant : --halo-couleur, --halo-opacite, --halo-taille,
+ * --halo-echelle-depart, --halo-duree.
+ */
+.halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--halo-taille);
+  max-width: 130vw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--halo-couleur) 0, transparent 68%);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(var(--halo-echelle-depart));
+  pointer-events: none;
+}
+
+.halo[data-visible='true'] {
+  opacity: var(--halo-opacite);
+  transform: translate(-50%, -50%) scale(1);
+  transition:
+    opacity var(--halo-duree) ease-in,
+    transform var(--halo-duree) ease-in;
+}
+
+/* Mouvement réduit : le halo reste, sans grossir. */
+@media (prefers-reduced-motion: reduce) {
+  .halo,
+  .halo[data-visible='true'] {
+    transform: translate(-50%, -50%) scale(1);
+    transition: opacity 200ms ease;
+  }
+}

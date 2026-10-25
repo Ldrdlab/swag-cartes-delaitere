@@ -54,6 +54,7 @@ export const CATALOGUE: readonly BoosterCatalogue[] = [
       'card-08',
       'card-09',
       'card-11',
+      'card-13',
     ],
   },
   {
@@ -68,6 +69,7 @@ export const CATALOGUE: readonly BoosterCatalogue[] = [
       'card-08',
       'card-10',
       'card-12',
+      'card-13',
     ],
   },
   {
@@ -82,6 +84,7 @@ export const CATALOGUE: readonly BoosterCatalogue[] = [
       'card-09',
       'card-10',
       'card-12',
+      'card-13',
     ],
   },
 ];

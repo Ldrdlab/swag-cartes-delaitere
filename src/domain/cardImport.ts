@@ -24,6 +24,8 @@ const KNOWN_FIELDS = new Set(['id', 'name', 'rarity', 'imageUrl', 'extra']);
 function parseRarity(value: unknown): Rarity | null {
   if (typeof value !== 'string') return null;
   const normalized = value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase()
     .replace(/[\s-]+/g, '_');

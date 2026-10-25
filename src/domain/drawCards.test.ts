@@ -22,7 +22,13 @@ const booster: Booster = {
   cardIds: ['c1', 'c2', 'p1', 'r1', 'u1'],
 };
 
-const poids: Record<Rarity, number> = { commune: 60, peu_commune: 25, rare: 12, ultra_rare: 3 };
+const poids: Record<Rarity, number> = {
+  commune: 60,
+  peu_commune: 25,
+  rare: 12,
+  ultra_rare: 3,
+  legendaire: 0,
+};
 
 /** Source d'aléatoire qui renvoie toujours la même valeur. */
 const constant =
@@ -98,6 +104,7 @@ describe('drawCards', () => {
       peu_commune: 0,
       rare: 0,
       ultra_rare: 0,
+      legendaire: 0,
     };
     expect(drawCards(booster, catalogue, 4, poidsNuls, constant(0.5))).toHaveLength(4);
   });
