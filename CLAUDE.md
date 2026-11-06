@@ -22,7 +22,7 @@ toujours expliquer simplement et dire précisément ce qu'il doit faire lui-mêm
 - Front : PWA Vite + React 18 + TypeScript (le projet existant l'utilisait déjà). Pas de routeur : la navigation passe par
   une machine à états (pas d'URL), donc aucun souci de routage sur GitHub Pages.
 - Hébergement : GitHub Pages, déployé par GitHub Actions à chaque push sur `main` (`.github/workflows/deploiement.yml`).
-  Adresse : `https://<compte>.github.io/swag-cartes-delaitere/` (réglage : `src/config/deploiement.ts`).
+  Site : https://ldrdlab.github.io/swag-cartes-delaitere/ · dépôt public : https://github.com/Ldrdlab/swag-cartes-delaitere (réglage : `src/config/deploiement.ts`).
 - Backend : Supabase (offre gratuite) : comptes e-mail + mot de passe (inscriptions publiques désactivées, invitations par
   l'admin), base Postgres avec RLS sur toutes les tables, bucket privé `cards`, fonction SQL `open_booster()` (le tirage ne se
   fait JAMAIS dans le navigateur). Rôle admin attribuable uniquement depuis la base.
@@ -31,7 +31,7 @@ toujours expliquer simplement et dire précisément ce qu'il doit faire lui-mêm
 
 ## Phases
 
-0. Audit et plan — fait. 1. Fondations et mise en ligne — en cours. 2. Supabase (comptes, rôles, données). 3. Espace admin.
+0. Audit et plan — fait. 1. Fondations et mise en ligne — faite (en ligne le 2026-11-06). 2. Supabase (comptes, rôles, données). 3. Espace admin.
 1. Espace joueur. 5. Versions et mises à jour. 6. Vérifications et GUIDE.md.
 
 ## Décisions prises
