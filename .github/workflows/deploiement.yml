@@ -1,0 +1,67 @@
+# Déploiement automatique sur GitHub Pages.
+#
+# Rôle : à chaque envoi (push) sur la branche `main`, GitHub installe le projet, vérifie le code
+# (lint + tests), construit l'appli et la publie sur https://<compte>.github.io/swag-cartes-delaitere/.
+# Aucun secret n'est écrit ici. Les futures clés publiques Supabase (URL + clé « anon ») seront lues
+# dans les « secrets » du dépôt GitHub (Settings > Secrets and variables > Actions).
+name: Déploiement
+
+on:
+  push:
+    branches: [main]
+  # Permet aussi de relancer le déploiement à la main depuis l'onglet « Actions » de GitHub.
+  workflow_dispatch:
+
+# Droits minimaux nécessaires pour publier sur GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un seul déploiement à la fois ; un nouveau remplace celui en cours.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  construire:
+    name: Construire l'appli
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Vérifier le code (lint)
+        run: npm run lint
+
+      - name: Lancer les tests
+        run: npm test
+
+      - name: Construire l'appli
+        run: npm run build
+
+      - name: Préparer les fichiers à publier
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  publier:
+    name: Publier sur GitHub Pages
+    needs: construire
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - name: Publier
+        id: deploiement
+        uses: actions/deploy-pages@v4

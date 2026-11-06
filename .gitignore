@@ -3,3 +3,14 @@ dist
 coverage
 *.local
 .vite
+
+# Secrets : jamais dans Git (seul .env.example est suivi)
+.env
+.env.*
+!.env.example
+
+# Photos des cartes (amis) : JAMAIS dans le dépôt public. Elles iront dans Supabase.
+public/cartes/
+
+# Fichiers temporaires du plugin PWA en développement
+dev-dist

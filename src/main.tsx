@@ -4,7 +4,7 @@
  * Rôle : importer les styles globaux, choisir les implémentations de stockage (profil et collection de
  * cartes) et monter <App /> dans #root.
  * Expose : rien (effet de bord : rendu React).
- * Dépend de : react-dom, app/App, hooks/useStorage, hooks/useCollectionService, services/LocalStorageService,
+ * Dépend de : react-dom, app/App, app/pwa, hooks/useStorage, hooks/useCollectionService, services/LocalStorageService,
  * services/HttpCollectionService, styles/*.css,
  * @fontsource/lilita-one, @fontsource/nunito (polices).
  * Pour brancher un backend partagé plus tard, remplacer `LocalStorageService` par une autre
@@ -13,6 +13,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
+import { enregistrerPwa } from './app/pwa';
 import { CollectionProvider } from './hooks/useCollectionService';
 import { StorageProvider } from './hooks/useStorage';
 import { HttpCollectionService } from './services/HttpCollectionService';
@@ -29,6 +30,8 @@ const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error('Élément #root introuvable dans index.html');
 }
+
+enregistrerPwa();
 
 createRoot(rootElement).render(
   <StrictMode>
