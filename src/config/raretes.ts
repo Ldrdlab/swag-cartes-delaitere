@@ -121,8 +121,8 @@ export const RARETES: Readonly<Record<Rarity, DefinitionRarete>> = {
     tease: false,
     lueurBilan: false,
   },
-  ultra_rare: {
-    nom: 'Ultra-rare',
+  super_rare: {
+    nom: 'Super rare',
     etoiles: 4,
     couleurs: {
       bordure: '#B07CFF',
@@ -152,6 +152,46 @@ export const RARETES: Readonly<Record<Rarity, DefinitionRarete>> = {
       etoiles: '#FFB020',
     },
     halo: { couleur: '#FFC94D', opacite: 0.8 },
+    dureeRetournementMs: 900,
+    confettis: 40,
+    reflet: true,
+    rayons: true,
+    tease: true,
+    lueurBilan: true,
+  },
+  // Mythique et secrète : couleurs et noms propres, mais pour l'instant MÊMES EFFETS que la légendaire
+  // (des effets dédiés viendront plus tard).
+  mythique: {
+    nom: 'Mythique',
+    etoiles: 5,
+    couleurs: {
+      bordure: '#FF7A45',
+      fondCarte: 'linear-gradient(160deg, #FFE9DC, #FFC09E, #FF9A8A)',
+      fondImage: 'rgba(255, 255, 255, 0.5)',
+      badgeFond: 'linear-gradient(90deg, #FF7A45, #E8334A)',
+      badgeTexte: '#FFFFFF',
+      etoiles: '#E8512E',
+    },
+    halo: { couleur: '#FF7A45', opacite: 0.8 },
+    dureeRetournementMs: 900,
+    confettis: 40,
+    reflet: true,
+    rayons: true,
+    tease: true,
+    lueurBilan: true,
+  },
+  secrete: {
+    nom: 'Secrète',
+    etoiles: 5,
+    couleurs: {
+      bordure: '#8FA3C7',
+      fondCarte: 'linear-gradient(160deg, #F1F4FB, #D5DDF0, #F4E6C4)',
+      fondImage: 'rgba(255, 255, 255, 0.5)',
+      badgeFond: 'linear-gradient(90deg, #2A1B4D, #5A3FD6)',
+      badgeTexte: '#FFE9A8',
+      etoiles: '#6B7FA8',
+    },
+    halo: { couleur: '#C8D4F0', opacite: 0.85 },
     dureeRetournementMs: 900,
     confettis: 40,
     reflet: true,

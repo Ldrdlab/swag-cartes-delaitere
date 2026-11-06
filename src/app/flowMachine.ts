@@ -7,6 +7,7 @@
  *                          ↑______BACK_______|                                  |
  *   BOOSTER_SELECT ←──────────────── OPEN_ANOTHER ────────────────────────────┤
  *   WELCOME ←─────────────────────── GO_HOME ─────────────────────────────────┘
+ *   WELCOME → MES_CARTES (OPEN_CARDS)  ·  MES_CARTES → WELCOME (CLOSE_CARDS)
  *
  * Expose : Screen, FlowState, FlowEvent, INITIAL_FLOW_STATE, transition().
  * Dépend de : domain/types (type Card uniquement). Aucun import React : testable isolément.
@@ -15,7 +16,13 @@ import type { Card } from '../domain/types';
 
 /** Écrans du parcours. */
 export type Screen =
-  'WELCOME' | 'PROFILE' | 'BOOSTER_SELECT' | 'BOOSTER_CONFIRM' | 'BOOSTER_OPENING' | 'CARD_REVEAL';
+  | 'WELCOME'
+  | 'PROFILE'
+  | 'BOOSTER_SELECT'
+  | 'BOOSTER_CONFIRM'
+  | 'BOOSTER_OPENING'
+  | 'CARD_REVEAL'
+  | 'MES_CARTES';
 
 /** État complet du parcours. */
 export interface FlowState {
@@ -36,7 +43,9 @@ export type FlowEvent =
   | { type: 'OPEN_CONFIRMED' }
   | { type: 'OPENING_DONE'; cards: readonly Card[] }
   | { type: 'OPEN_ANOTHER' }
-  | { type: 'GO_HOME' };
+  | { type: 'GO_HOME' }
+  | { type: 'OPEN_CARDS' }
+  | { type: 'CLOSE_CARDS' };
 
 /** État au lancement de l'application. */
 export const INITIAL_FLOW_STATE: FlowState = {
@@ -86,5 +95,9 @@ export function transition(state: FlowState, event: FlowEvent): FlowState {
       return moveTo(state, 'CARD_REVEAL', 'BOOSTER_SELECT', { drawnCards: [] });
     case 'GO_HOME':
       return moveTo(state, 'CARD_REVEAL', 'WELCOME', { drawnCards: [] });
+    case 'OPEN_CARDS':
+      return moveTo(state, 'WELCOME', 'MES_CARTES');
+    case 'CLOSE_CARDS':
+      return moveTo(state, 'MES_CARTES', 'WELCOME');
   }
 }

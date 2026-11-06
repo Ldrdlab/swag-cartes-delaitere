@@ -2,7 +2,8 @@
  * Écran 1 — Accueil.
  *
  * Rôle : écran d'accueil habillé (logo, cartes flottantes, invitation). Un tap, un clic n'importe où,
- * ou la touche Entrée / Espace fait passer à l'écran Profil. Tous les textes viennent de
+ * ou la touche Entrée / Espace fait passer à l'écran Profil. Un petit bouton « Mes cartes » (en haut
+ * à droite) ouvre la collection de cartes sans lancer le parcours. Tous les textes viennent de
  * content/textes.ts, les cartes décoratives de config/accueil.ts.
  * Expose : le composant `WelcomeScreen`.
  * Dépend de : react, components/FloatingCard, content/textes, config/accueil, hooks/useGlobalActivation,
@@ -29,10 +30,12 @@ const VARIABLES_ANIMATION = {
 interface WelcomeScreenProps {
   /** Appelé pour passer à l'écran Profil. */
   onStart: () => void;
+  /** Appelé pour ouvrir l'écran « Mes cartes ». */
+  onOpenCards: () => void;
 }
 
 /** Écran d'accueil. */
-export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
+export function WelcomeScreen({ onStart, onOpenCards }: WelcomeScreenProps) {
   const textes = TEXTES.accueil;
   const storage = useStorage();
   const [pseudo, setPseudo] = useState<string | null>(null);
@@ -71,6 +74,18 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             {textes.labelJoueur} <strong>{pseudo ?? textes.pseudoAbsent}</strong>
           </span>
         </p>
+
+        {/* stopPropagation : ce clic ne doit PAS compter comme le « toucher n'importe où » qui démarre. */}
+        <button
+          type="button"
+          className={styles.boutonCartes}
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenCards();
+          }}
+        >
+          {textes.boutonMesCartes}
+        </button>
 
         <h1 className={styles.logo}>
           <span className={styles.titre}>{textes.titre}</span>

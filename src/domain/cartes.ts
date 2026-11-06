@@ -1,0 +1,292 @@
+/**
+ * Logique pure de la collection de cartes (« Mes cartes »).
+ *
+ * Rôle : vérifier les proportions d'une image, calculer ses dimensions optimisées, valider les infos
+ * d'une carte (nom, rareté, variante), filtrer / trier / compter les cartes et relire le fichier de
+ * liste. Les réglages (ratio, tolérance, variantes…) sont passés en paramètres : ils viennent de
+ * config/cartes.ts.
+ * Expose : VerdictRatio, InfosCarte, ErreurInfos, ErreursInfos, FiltreCartes, verifierRatio(),
+ * dimensionsOptimisees(), typeImageAccepte(), nomDepuisFichier(), variantesPour(), fusionnerInfos(),
+ * normaliserInfos(), validerInfos(), compterParRarete(), filtrerCartes(), trierCartes(), lireListeCartes().
+ * Dépend de : domain/types. Aucun import React ni DOM.
+ */
+import { RARITIES, VARIANTS, type Card, type Rarity, type Variant } from './types.ts';
+
+/** Résultat de la vérification des proportions d'une image. */
+export interface VerdictRatio {
+  /** `true` si les proportions sont celles d'une carte, à la tolérance près. */
+  conforme: boolean;
+  /** Écart relatif avec le ratio attendu (0.05 = 5 %). */
+  ecart: number;
+}
+
+/**
+ * Vérifie que les proportions d'une image sont celles attendues (sans jamais la déformer).
+ *
+ * @param largeur - Largeur de l'image (px).
+ * @param hauteur - Hauteur de l'image (px).
+ * @param ratioAttendu - Largeur / hauteur d'une carte.
+ * @param tolerance - Écart relatif accepté (0.02 = 2 %).
+ * @returns Le verdict ; une image de taille nulle n'est jamais conforme.
+ */
+export function verifierRatio(
+  largeur: number,
+  hauteur: number,
+  ratioAttendu: number,
+  tolerance: number,
+): VerdictRatio {
+  if (!(largeur > 0) || !(hauteur > 0) || !(ratioAttendu > 0)) {
+    return { conforme: false, ecart: Number.POSITIVE_INFINITY };
+  }
+  const ecart = Math.abs(largeur / hauteur / ratioAttendu - 1);
+  return { conforme: ecart <= tolerance, ecart };
+}
+
+/**
+ * Dimensions d'une image réduite à une largeur maximale, proportions conservées. Une image plus
+ * étroite que le maximum n'est jamais agrandie.
+ *
+ * @param largeur - Largeur d'origine (px).
+ * @param hauteur - Hauteur d'origine (px).
+ * @param largeurMax - Largeur maximale (px).
+ * @returns Les nouvelles dimensions, arrondies, d'au moins 1 px.
+ */
+export function dimensionsOptimisees(
+  largeur: number,
+  hauteur: number,
+  largeurMax: number,
+): { largeur: number; hauteur: number } {
+  const echelle = largeur > largeurMax ? largeurMax / largeur : 1;
+  return {
+    largeur: Math.max(1, Math.round(largeur * echelle)),
+    hauteur: Math.max(1, Math.round(hauteur * echelle)),
+  };
+}
+
+/**
+ * Dit si un fichier est une image acceptée : d'après son type MIME, ou à défaut son extension.
+ *
+ * @param type - Type MIME donné par le navigateur (peut être vide).
+ * @param nomFichier - Nom du fichier.
+ * @param typesAcceptes - Types MIME acceptés.
+ * @param extensionsAcceptees - Extensions acceptées, avec le point (ex. `.png`).
+ */
+export function typeImageAccepte(
+  type: string,
+  nomFichier: string,
+  typesAcceptes: readonly string[],
+  extensionsAcceptees: readonly string[],
+): boolean {
+  if (type !== '') return typesAcceptes.includes(type.toLowerCase());
+  const nom = nomFichier.toLowerCase();
+  return extensionsAcceptees.some((extension) => nom.endsWith(extension));
+}
+
+/**
+ * Propose un nom de carte à partir d'un nom de fichier : sans extension, tirets et soulignés
+ * remplacés par des espaces, première lettre en majuscule.
+ *
+ * @param nomFichier - Ex. `dragon_de_feu.png`.
+ * @param longueurMax - Nombre maximal de caractères.
+ * @returns Ex. `Dragon de feu`.
+ */
+export function nomDepuisFichier(nomFichier: string, longueurMax: number): string {
+  const sansExtension = nomFichier.replace(/\.[^./\\]+$/, '');
+  const propre = sansExtension.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const coupe = Array.from(propre).slice(0, longueurMax).join('').trim();
+  return coupe.charAt(0).toUpperCase() + coupe.slice(1);
+}
+
+/** Variantes autorisées pour une rareté (liste vide si cette rareté n'a pas de variante). */
+export function variantesPour(
+  rarete: Rarity,
+  table: Readonly<Partial<Record<Rarity, readonly Variant[]>>>,
+): readonly Variant[] {
+  return table[rarete] ?? [];
+}
+
+/** Infos modifiables d'une carte. */
+export interface InfosCarte {
+  nom: string;
+  rarete: Rarity;
+  variante?: Variant | undefined;
+}
+
+/** Problèmes possibles sur les infos d'une carte (le texte affiché dépend de l'écran). */
+export type ErreurInfos = 'nom_vide' | 'nom_trop_long' | 'variante_requise' | 'variante_invalide';
+
+/** Erreurs trouvées, par champ. */
+export interface ErreursInfos {
+  nom?: ErreurInfos;
+  variante?: ErreurInfos;
+}
+
+/**
+ * Applique un changement aux infos d'une carte en gardant la variante cohérente avec la rareté :
+ * une variante qui n'existe pas pour la nouvelle rareté est remplacée par la première autorisée
+ * (ou retirée si cette rareté n'a pas de variante).
+ *
+ * @param infos - Infos actuelles.
+ * @param changement - Champs modifiés.
+ * @param table - Variantes autorisées par rareté.
+ */
+export function fusionnerInfos(
+  infos: InfosCarte,
+  changement: Partial<InfosCarte>,
+  table: Readonly<Partial<Record<Rarity, readonly Variant[]>>>,
+): InfosCarte {
+  const fusion = { ...infos, ...changement };
+  const possibles = variantesPour(fusion.rarete, table);
+  const variante =
+    fusion.variante && possibles.includes(fusion.variante) ? fusion.variante : possibles[0];
+  return { nom: fusion.nom, rarete: fusion.rarete, variante };
+}
+
+/**
+ * Nettoie les infos : nom sans espaces autour, et variante retirée si la rareté n'en a pas.
+ *
+ * @param infos - Infos saisies.
+ * @param table - Variantes autorisées par rareté.
+ */
+export function normaliserInfos(
+  infos: InfosCarte,
+  table: Readonly<Partial<Record<Rarity, readonly Variant[]>>>,
+): InfosCarte {
+  const propre: InfosCarte = { nom: infos.nom.trim(), rarete: infos.rarete };
+  if (variantesPour(infos.rarete, table).length > 0 && infos.variante) {
+    propre.variante = infos.variante;
+  }
+  return propre;
+}
+
+/**
+ * Valide les infos d'une carte : nom obligatoire, et variante obligatoire (et autorisée) pour les
+ * raretés qui en ont une.
+ *
+ * @param infos - Infos saisies.
+ * @param table - Variantes autorisées par rareté.
+ * @param nomMax - Nombre maximal de caractères du nom.
+ * @returns Les erreurs trouvées (objet vide = tout est valide).
+ */
+export function validerInfos(
+  infos: InfosCarte,
+  table: Readonly<Partial<Record<Rarity, readonly Variant[]>>>,
+  nomMax: number,
+): ErreursInfos {
+  const erreurs: ErreursInfos = {};
+  const nom = infos.nom.trim();
+  if (nom === '') erreurs.nom = 'nom_vide';
+  else if (Array.from(nom).length > nomMax) erreurs.nom = 'nom_trop_long';
+
+  const autorisees = variantesPour(infos.rarete, table);
+  if (autorisees.length > 0) {
+    if (!infos.variante) erreurs.variante = 'variante_requise';
+    else if (!autorisees.includes(infos.variante)) erreurs.variante = 'variante_invalide';
+  }
+  return erreurs;
+}
+
+/** Nombre de cartes de chaque rareté. */
+export function compterParRarete(cartes: readonly Card[]): Record<Rarity, number> {
+  const comptes = Object.fromEntries(RARITIES.map((rarete) => [rarete, 0])) as Record<
+    Rarity,
+    number
+  >;
+  for (const carte of cartes) comptes[carte.rarity] += 1;
+  return comptes;
+}
+
+/** Critères de la galerie. */
+export interface FiltreCartes {
+  /** Rareté voulue, ou `'toutes'`. */
+  rarete: Rarity | 'toutes';
+  /** Texte cherché dans le nom (sans tenir compte des accents ni des majuscules). */
+  recherche: string;
+}
+
+/** Met un texte en minuscules, sans accents, pour comparer. */
+function simplifier(texte: string): string {
+  return texte.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+}
+
+/** Garde les cartes qui respectent le filtre de rareté ET la recherche par nom. */
+export function filtrerCartes(cartes: readonly Card[], filtre: FiltreCartes): Card[] {
+  const recherche = simplifier(filtre.recherche);
+  return cartes.filter(
+    (carte) =>
+      (filtre.rarete === 'toutes' || carte.rarity === filtre.rarete) &&
+      (recherche === '' || simplifier(carte.name).includes(recherche)),
+  );
+}
+
+/** Trie par rareté (de la plus fréquente à la plus rare), puis par nom. La liste d'origine est conservée. */
+export function trierCartes(cartes: readonly Card[]): Card[] {
+  return [...cartes].sort(
+    (a, b) =>
+      RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity) ||
+      a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }),
+  );
+}
+
+function estObjet(valeur: unknown): valeur is Record<string, unknown> {
+  return typeof valeur === 'object' && valeur !== null && !Array.isArray(valeur);
+}
+
+function texteNonVide(valeur: unknown): valeur is string {
+  return typeof valeur === 'string' && valeur.trim() !== '';
+}
+
+function nombrePositif(valeur: unknown): valeur is number {
+  return typeof valeur === 'number' && Number.isFinite(valeur) && valeur > 0;
+}
+
+/** Résultat de la lecture du fichier de liste. */
+export interface ListeCartesLue {
+  /** Cartes valides. */
+  cartes: Card[];
+  /** Nombre d'entrées illisibles qui ont été ignorées. */
+  ignorees: number;
+}
+
+/**
+ * Relit le fichier de liste des cartes (`{ "cartes": [ ... ] }`). Une entrée invalide est ignorée
+ * (elle ne bloque pas les autres) ; un fichier illisible donne une liste vide.
+ *
+ * @param json - Données déjà décodées (résultat de `JSON.parse`).
+ * @param table - Variantes autorisées par rareté (une variante non autorisée est retirée).
+ */
+export function lireListeCartes(
+  json: unknown,
+  table: Readonly<Partial<Record<Rarity, readonly Variant[]>>>,
+): ListeCartesLue {
+  const liste = estObjet(json) ? json.cartes : undefined;
+  if (!Array.isArray(liste)) return { cartes: [], ignorees: 0 };
+
+  const cartes: Card[] = [];
+  const dejaVus = new Set<string>();
+  let ignorees = 0;
+
+  for (const brut of liste as unknown[]) {
+    const rarete = RARITIES.find((r) => estObjet(brut) && r === brut.rarity);
+    if (
+      !estObjet(brut) ||
+      !rarete ||
+      !texteNonVide(brut.id) ||
+      !texteNonVide(brut.name) ||
+      !texteNonVide(brut.imageUrl) ||
+      dejaVus.has(brut.id)
+    ) {
+      ignorees += 1;
+      continue;
+    }
+    dejaVus.add(brut.id);
+    const carte: Card = { id: brut.id, name: brut.name, rarity: rarete, imageUrl: brut.imageUrl };
+    const variante = VARIANTS.find((v) => v === brut.variant);
+    if (variante && variantesPour(rarete, table).includes(variante)) carte.variant = variante;
+    if (texteNonVide(brut.thumbUrl)) carte.thumbUrl = brut.thumbUrl;
+    if (nombrePositif(brut.width)) carte.width = brut.width;
+    if (nombrePositif(brut.height)) carte.height = brut.height;
+    cartes.push(carte);
+  }
+  return { cartes, ignorees };
+}

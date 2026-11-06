@@ -1,5 +1,5 @@
 /**
- * Pluie de confettis (cartes ultra-rares et légendaires).
+ * Pluie de confettis (cartes super rares et légendaires).
  *
  * Rôle : des pièces de 6-10 × 10-16 px, certaines rondes, qui tombent UNE fois depuis le haut de
  * l'écran (environ 880 px, avec dérive et rotation), puis sont retirées. Positions calculées par

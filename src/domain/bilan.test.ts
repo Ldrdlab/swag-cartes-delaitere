@@ -15,7 +15,7 @@ function carte(id: string, rarity: Rarity): Card {
 describe('rangRarete', () => {
   it('classe les raretés de la plus fréquente à la plus rare', () => {
     expect(rangRarete('commune')).toBeLessThan(rangRarete('peu_commune'));
-    expect(rangRarete('ultra_rare')).toBeLessThan(rangRarete('legendaire'));
+    expect(rangRarete('super_rare')).toBeLessThan(rangRarete('legendaire'));
   });
 });
 
@@ -52,7 +52,7 @@ describe('composerBilan', () => {
     carte('p1', 'peu_commune'),
     carte('l1', 'legendaire'),
     carte('c2', 'commune'),
-    carte('u1', 'ultra_rare'),
+    carte('u1', 'super_rare'),
   ];
 
   it('met les 3 plus rares en avant, triées par rareté décroissante', () => {

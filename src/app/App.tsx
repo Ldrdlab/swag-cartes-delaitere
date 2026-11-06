@@ -4,7 +4,7 @@
  * Rôle : afficher l'écran correspondant à l'état de la machine à états et lui relayer les événements.
  * Expose : le composant `App`.
  * Dépend de : app/useFlow, boosters/catalogue, config/game, data/cards, domain/drawCards,
- * hooks/useViewportHeight, screens/*.
+ * hooks/useViewportHeight, screens/* (dont MesCartes : la collection de cartes).
  */
 import { getBoosterAt, versBoosterTirage } from '../boosters/catalogue';
 import { CARDS_PER_BOOSTER, RARITY_WEIGHTS } from '../config/game';
@@ -15,6 +15,7 @@ import { BoosterConfirmScreen } from '../screens/BoosterConfirm';
 import { BoosterOpeningScreen } from '../screens/BoosterOpening';
 import { BoosterSelectScreen } from '../screens/BoosterSelect';
 import { CardRevealScreen } from '../screens/CardReveal';
+import { MesCartesScreen } from '../screens/MesCartes';
 import { ProfileScreen } from '../screens/Profile';
 import { WelcomeScreen } from '../screens/Welcome';
 import { useFlow } from './useFlow';
@@ -26,7 +27,14 @@ export function App() {
 
   switch (state.screen) {
     case 'WELCOME':
-      return <WelcomeScreen onStart={() => send({ type: 'START' })} />;
+      return (
+        <WelcomeScreen
+          onStart={() => send({ type: 'START' })}
+          onOpenCards={() => send({ type: 'OPEN_CARDS' })}
+        />
+      );
+    case 'MES_CARTES':
+      return <MesCartesScreen onBack={() => send({ type: 'CLOSE_CARDS' })} />;
     case 'PROFILE':
       return <ProfileScreen onDone={() => send({ type: 'PROFILE_DONE' })} />;
     case 'BOOSTER_SELECT':

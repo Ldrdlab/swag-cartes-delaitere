@@ -3,7 +3,7 @@
  *
  * Rôle : « Ouverture terminée ! », le nom du booster et le nombre de cartes, puis « Tes meilleures
  * cartes » (les 3 plus rares, triées par rareté décroissante, 96 px de large, avec nom et badge, une
- * lueur autour des ultra-rares et légendaires) et « Autres cartes » (les suivantes, 72 px, nom seul).
+ * lueur autour des super rares et légendaires) et « Autres cartes » (les suivantes, 72 px, nom seul).
  * Deux boutons : « Ouvrir un autre booster » et « Accueil ». Le tri est fait par domain/bilan.
  * Expose : le composant `Bilan`.
  * Dépend de : react, domain/bilan, data/cards, config/raretes, config/revelation, content/textes,

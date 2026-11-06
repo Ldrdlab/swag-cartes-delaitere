@@ -141,13 +141,13 @@ describe('mode développeur ?forcer=', () => {
 
   it('lit la rareté demandée dans l’adresse', () => {
     expect(lireForcage('?forcer=legendaire')).toBe('legendaire');
-    expect(lireForcage('?autre=1&forcer=ultra-rare')).toBe('ultra_rare');
+    expect(lireForcage('?autre=1&forcer=super-rare')).toBe('super_rare');
     expect(lireForcage('?forcer=Légendaire')).toBe('legendaire');
   });
 
   it('renvoie null sans paramètre ou avec une rareté inconnue', () => {
     expect(lireForcage('')).toBeNull();
-    expect(lireForcage('?forcer=mythique')).toBeNull();
+    expect(lireForcage('?forcer=diamant')).toBeNull();
   });
 
   it('remplace la première carte par une carte de la rareté demandée', () => {
@@ -163,6 +163,6 @@ describe('mode développeur ?forcer=', () => {
 
   it('ne change rien si le catalogue n’a aucune carte de cette rareté', () => {
     const tirage = [commune];
-    expect(appliquerForcage(tirage, 'ultra_rare', catalogue)).toBe(tirage);
+    expect(appliquerForcage(tirage, 'super_rare', catalogue)).toBe(tirage);
   });
 });

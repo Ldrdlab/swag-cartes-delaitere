@@ -19,7 +19,7 @@ export const CARDS: readonly Card[] = [
   { id: 'card-08', name: 'Carte 08', rarity: 'rare' },
   { id: 'card-09', name: 'Carte 09', rarity: 'rare' },
   { id: 'card-10', name: 'Carte 10', rarity: 'rare' },
-  { id: 'card-11', name: 'Carte 11', rarity: 'ultra_rare' },
-  { id: 'card-12', name: 'Carte 12', rarity: 'ultra_rare' },
+  { id: 'card-11', name: 'Carte 11', rarity: 'super_rare' },
+  { id: 'card-12', name: 'Carte 12', rarity: 'super_rare' },
   { id: 'card-13', name: 'Carte 13', rarity: 'legendaire' },
 ];

@@ -12,7 +12,7 @@ const catalogue: Card[] = [
   { id: 'c2', name: 'C2', rarity: 'commune' },
   { id: 'p1', name: 'P1', rarity: 'peu_commune' },
   { id: 'r1', name: 'R1', rarity: 'rare' },
-  { id: 'u1', name: 'U1', rarity: 'ultra_rare' },
+  { id: 'u1', name: 'U1', rarity: 'super_rare' },
   { id: 'hors-booster', name: 'Ailleurs', rarity: 'rare' },
 ];
 
@@ -26,8 +26,10 @@ const poids: Record<Rarity, number> = {
   commune: 60,
   peu_commune: 25,
   rare: 12,
-  ultra_rare: 3,
+  super_rare: 3,
   legendaire: 0,
+  mythique: 0,
+  secrete: 0,
 };
 
 /** Source d'aléatoire qui renvoie toujours la même valeur. */
@@ -83,7 +85,7 @@ describe('drawCards', () => {
     expect(rareteAvec(0.84)).toBe('peu_commune');
     expect(rareteAvec(0.86)).toBe('rare');
     expect(rareteAvec(0.96)).toBe('rare');
-    expect(rareteAvec(0.98)).toBe('ultra_rare');
+    expect(rareteAvec(0.98)).toBe('super_rare');
   });
 
   it('ignore une rareté absente du booster', () => {
@@ -103,8 +105,10 @@ describe('drawCards', () => {
       commune: 0,
       peu_commune: 0,
       rare: 0,
-      ultra_rare: 0,
+      super_rare: 0,
       legendaire: 0,
+      mythique: 0,
+      secrete: 0,
     };
     expect(drawCards(booster, catalogue, 4, poidsNuls, constant(0.5))).toHaveLength(4);
   });

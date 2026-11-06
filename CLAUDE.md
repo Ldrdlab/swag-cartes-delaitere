@@ -26,6 +26,7 @@ Aucune dépendance sans validation préalable du porteur du projet.
 - Révélation des cartes : séquence = machine à états pure `domain/revelation.ts` ; effets et couleurs par rareté dans `src/config/raretes.ts`, durées dans `src/config/revelation.ts` ; aucun `Math.random` dans les effets (calcul à partir du numéro).
 - Boosters : un écran n'affiche un booster que via `<BoosterVisuel />` ; ajouter un booster = un thème dans `src/boosters/themes/` + une ligne dans `src/boosters/catalogue.ts`. Toute skin respecte le contrat de `src/boosters/skins/types.ts` (parties `haut` / `corps`).
 - Composants courts (~150 lignes max). Stockage : toujours via l'interface `StorageService`.
+- Collection de cartes (« Mes cartes ») : images + `cartes.json` dans `public/cartes/`, accès via l'interface `CollectionService` (`StorageService` ne gère que le profil). Un visuel de carte ne s'affiche que via `<Carte />` (`components/Carte`). Écriture = API de `tools/cartesPlugin.ts` (`npm run dev` uniquement), protégée par `ADMIN_CODE` (`.env.local`, jamais commité). Réglages dans `config/cartes.ts`, logique pure dans `domain/cartes.ts`. Les fichiers atteints par `vite.config.ts` (`tools/`, `config/cartes.ts`, `domain/cartes.ts`, `types.ts`, `id.ts`) importent avec l'extension `.ts`.
 - Pas de `crypto.randomUUID` (indisponible en HTTP sur le réseau local) : utiliser `domain/id.ts`.
 
 Structure et « où modifier quoi » : `docs/ARCHITECTURE.md`. Installation et test sur téléphone : `README.md`.

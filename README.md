@@ -12,6 +12,9 @@ vibration, de backend ni de multijoueur.
 Accueil → Profil → Choix du booster → Confirmation → Ouverture (découpe) → Révélation des cartes
 → « Ouvrir un autre booster » (retour au choix) ou « Accueil ».
 
+Depuis l'accueil, le bouton **Mes cartes** ouvre la collection des visuels de cartes (voir
+« Mes cartes : ajouter les visuels des cartes » plus bas).
+
 ## Prérequis
 
 - Node.js 22.12 ou plus récent (développé avec Node 24) et npm. Cette version est exigée par Vitest ;
@@ -43,6 +46,40 @@ L'application s'ouvre sur l'adresse affichée par Vite (en général `http://loc
 | `npm run format`     | Formate tout le code avec Prettier               |
 | `npm test`           | Tests unitaires Vitest (une exécution)           |
 | `npm run test:watch` | Tests en mode surveillance                       |
+
+## Mes cartes : ajouter les visuels des cartes
+
+L'écran **Mes cartes** (bouton en haut à droite de l'accueil) affiche toutes les cartes dans une galerie
+(recherche par nom, filtre par rareté, compteurs). Tout le monde peut la consulter ; **seul toi** peux
+ajouter, modifier ou supprimer des cartes.
+
+**Où sont stockées les cartes ?** Dans le projet, dossier `public/cartes/` : les images (WebP ou PNG
+optimisées) et le fichier `cartes.json` (nom, rareté, variante de chaque carte). Ces fichiers sont
+publiés avec l'appli, donc visibles par tous tes amis sur tous leurs appareils.
+
+**Mise en place (une seule fois) :**
+
+1. Copie le fichier `.env.example` sous le nom `.env.local`.
+2. Ouvre `.env.local` et remplace la valeur de `ADMIN_CODE` par ton code secret. Ce fichier n'est
+   jamais envoyé sur Internet (il est ignoré par git).
+
+**Ajouter des cartes :**
+
+1. Lance `npm run dev` sur ton ordinateur et ouvre **Mes cartes**.
+2. Clique sur **Gérer mes cartes**, saisis ton code, puis **Ajouter des cartes** (choix de fichiers ou
+   glisser-déposer, plusieurs images d'un coup ; PNG, JPG ou WebP).
+3. Pour chaque image : vérifie le nom, choisis la rareté (et la variante pour Mythique et Secrète), puis
+   **Enregistrer**. Une image qui n'a pas les proportions d'une carte (≈ 5:7) est signalée par un
+   avertissement ; elle n'est jamais déformée.
+4. **Publie** le site pour que tes amis voient les nouvelles cartes : les fichiers de `public/cartes/`
+   font partie du projet (commit puis déploiement, comme le reste de l'appli).
+
+**Pourquoi tes amis ne peuvent-ils rien modifier ?** L'ajout, la modification et la suppression n'existent
+que dans `npm run dev` (sur ton ordinateur) et exigent ton code, vérifié par le serveur. Dans le site
+publié (`npm run build`), il n'y a aucun moyen d'écrire : la galerie est en lecture seule.
+
+> Si tu lances `npm run dev -- --host` (test sur téléphone), les appareils du même Wi-Fi peuvent voir le
+> bouton « Gérer mes cartes », mais n'ont pas ton code : ils ne peuvent rien changer.
 
 ## Tester sur téléphone (réseau local)
 
@@ -79,15 +116,17 @@ Remarques :
 ```
 src/
 ├── app/         Point d'entrée de l'application : routeur d'écrans, machine à états du parcours
-├── screens/     Un dossier par écran (Welcome, Profile, BoosterSelect, BoosterConfirm, BoosterOpening, CardReveal)
+├── screens/     Un dossier par écran (Welcome, Profile, BoosterSelect, BoosterConfirm, BoosterOpening, CardReveal, MesCartes)
 ├── boosters/    Apparence des boosters : catalogue, thèmes, skins, effets, BoosterVisuel
 ├── components/  Composants réutilisables (Button, ScreenLayout, Carousel, CardStack...)
 ├── hooks/       Logique React réutilisable (gestes, carrousel, stockage)
 ├── domain/      Logique métier pure, sans React ni DOM (types, tirage, détection de gestes...)
-├── services/    StorageService (interface) et ses implémentations
+├── services/    StorageService et CollectionService (interfaces), leurs implémentations, optimisation d'images
 ├── config/      Tous les seuils, durées et réglages
 ├── data/        Données factices : boosters et cartes
 └── styles/      Variables CSS globales et reset
+tools/        Plugin Vite d'administration des cartes (Node, uniquement avec `npm run dev`)
+public/cartes/         Images et liste des cartes ajoutées depuis « Mes cartes » (créé au premier ajout)
 docs/ARCHITECTURE.md   Détail de l'architecture et « où modifier quoi »
 ```
 

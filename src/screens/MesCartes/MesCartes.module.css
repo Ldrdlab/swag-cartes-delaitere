@@ -1,0 +1,187 @@
+/*
+ * Styles de l'écran « Mes cartes » (page, en-tête, galerie, filtres, code admin).
+ * Mobile d'abord : galerie à 2 colonnes. Sur ordinateur : colonnes automatiques (190 px minimum),
+ * contenu centré sur 1100 px au maximum. Chaque carte est dans un cadre 5:7 (voir components/Carte).
+ */
+.page {
+  /* Hauteur réellement visible sur mobile (publiée par hooks/useViewportHeight), repli : 100dvh. */
+  height: var(--viewport-height, 100dvh);
+  overflow-y: auto;
+  background: var(--color-bg-screen);
+}
+
+.contenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-3);
+}
+
+/* ----- En-tête ----- */
+.entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.titre {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-title);
+}
+
+.total {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* ----- Code admin ----- */
+.formCode {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-3);
+}
+
+.labelCode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.labelCode input {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-placeholder);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+}
+
+.erreurCode {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.message {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+/* ----- Galerie ----- */
+.galerie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.compteurs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compteur {
+  padding: 2px 10px;
+  border: 2px solid;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  font-size: 13px;
+}
+
+/* Une rareté sans carte reste visible, mais discrète. */
+.vide {
+  opacity: 0.5;
+}
+
+.filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.recherche,
+.selecteur {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-placeholder);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: var(--font-size-base);
+}
+
+.recherche {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.selecteur {
+  flex: 0 1 220px;
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .grille {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  }
+}
+
+/* La vignette est un vrai bouton (clavier et lecteurs d'écran) : il n'a aucun fond ni bordure. */
+.vignette {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.nomCarte {
+  font-size: 14px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.rareteCarte {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.badgeRatio {
+  align-self: flex-start;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: #fff3d6;
+  color: #7a4b00;
+  font-size: 12px;
+  font-weight: 700;
+}

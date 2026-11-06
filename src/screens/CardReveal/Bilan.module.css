@@ -61,7 +61,7 @@
   border-radius: 8px;
 }
 
-/* Lueur autour des cartes ultra-rares et légendaires. */
+/* Lueur autour des cartes super rares et légendaires. */
 .carte[data-lueur='true'] {
   box-shadow:
     0 0 14px 3px var(--lueur-bilan),

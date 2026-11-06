@@ -29,9 +29,12 @@ src/
 │   ├── BoosterSelect/    Écran 3 — Carrousel de boosters
 │   ├── BoosterConfirm/   Écran 4 — Confirmation
 │   ├── BoosterOpening/   Écran 5 — Découpe du booster
+│   ├── MesCartes/        Collection de cartes (hors parcours, depuis l'accueil) : Galerie, CarteDetail,
+│   │                     AjoutCartes, BrouillonCarte, FormulaireInfos, CodeAdmin
 │   └── CardReveal/       Écran 6 — Révélation (Scene, Carte3D, CarteVerso, CarteRecto, PileDeCartes, Bilan,
 │                         effets/ : Halo, RayonsLumineux, Confettis, Flash, Etincelles, ReflexHolo)
 ├── components/           Button, ScreenLayout, Carousel, CutTrail,
+│                         Carte (affichage UNIQUE d'un visuel de carte, ratio 5:7, emplacement des futurs effets),
 │                         FloatingCard (cartes décoratives de l'accueil),
 │                         Icon (icônes en traits), AvatarButton (avatar rond), AvatarPicker (choix d'avatar)
 ├── content/
@@ -65,9 +68,15 @@ src/
 │   ├── useElementSize.ts      Mesure un élément (place disponible pour un booster…)
 │   ├── useInclinaison.ts      Inclinaison 3D : souris ou orientation du téléphone
 │   ├── useStorage.tsx         Fournit le StorageService aux composants (contexte)
+│   ├── useCollectionService.tsx  Fournit le CollectionService aux composants (contexte)
+│   ├── useCollection.ts       Cartes + statut de l'administration + code admin (en mémoire seulement)
+│   ├── useAjoutCartes.ts      Ajout de plusieurs cartes : vérifications, optimisation, enregistrement
+│   ├── useEditionCarte.ts     Vue détaillée : modifier, supprimer avec confirmation
 │   └── useViewportHeight.ts   Suit la zone visible (clavier virtuel mobile)
 ├── domain/               Logique métier pure
-│   ├── types.ts          Player, Booster, Card, Rarity
+│   ├── types.ts          Player, Booster, Card, Rarity (7 raretés), Variant
+│   ├── cartes.ts         Collection : ratio, dimensions optimisées, validation des infos, filtres, compteurs,
+│   │                     relecture de cartes.json
 │   ├── carousel.ts       Index circulaire et positions du carrousel (carouselPositions)
 │   ├── swipe.ts          Classification tap / swipe / rien (classifyGesture)
 │   ├── cutGesture.ts     Détecteur de découpe (startCut, moveCut, endCut)
@@ -83,10 +92,15 @@ src/
 │   └── id.ts             generateId() sans crypto.randomUUID
 ├── services/
 │   ├── StorageService.ts       Interface (asynchrone)
-│   └── LocalStorageService.ts  Implémentation localStorage
+│   ├── LocalStorageService.ts  Implémentation localStorage
+│   ├── CollectionService.ts    Interface de la collection de cartes (lire, ajouter, modifier, supprimer)
+│   ├── HttpCollectionService.ts  Lit cartes/cartes.json ; écrit via l'API de développement /api/cartes
+│   └── imageOptimizer.ts       Réduit à 744 px max, WebP avec transparence, miniature (Canvas)
 ├── config/
 │   ├── game.ts           Nombre de cartes par booster et probabilités de rareté
-│   ├── raretes.ts        Table des 5 raretés : nom, étoiles, couleurs, halo, confettis, reflet, tease
+│   ├── raretes.ts        Table des 7 raretés : nom, étoiles, couleurs, halo, confettis, reflet, tease
+│   ├── cartes.ts         Dimensions et ratio d'une carte (744 × 1040), tolérance 2 %, formats acceptés,
+│   │                     optimisation, variantes par rareté, adresses de stockage
 │   ├── revelation.ts     Durées, tailles, effets et couleurs de confettis de la révélation
 │   ├── gestures.ts       Seuils swipe/tap et découpe
 │   ├── timings.ts        Durées des animations
@@ -95,11 +109,15 @@ src/
 │   ├── accueil.ts        Cartes flottantes de l'accueil (position, taille, couleur, photo) et durées
 │   └── profile.ts        Longueur du pseudo, clé de sauvegarde
 ├── data/
-│   └── cards.ts          Les cartes factices
+│   └── cards.ts          Les cartes factices (utilisées par le tirage ; pas encore reliées à « Mes cartes »)
 └── styles/
     ├── tokens.css        Couleurs, polices, dégradés, espacements, dimensions
     └── reset.css         Remise à zéro, focus visible
 ```
+
+Hors de `src/` : `tools/` (code Node du serveur de développement : `cartesPlugin.ts` = API d'administration,
+`cartesStockage.ts` = écriture dans `public/cartes/`, `codeAdmin.ts` = vérification du code) et
+`public/cartes/` (images et `cartes.json`).
 
 ## Flux des écrans
 
@@ -108,6 +126,7 @@ WELCOME → PROFILE → BOOSTER_SELECT → BOOSTER_CONFIRM → BOOSTER_OPENING �
                        ↑______BACK_______|                                   |
 BOOSTER_SELECT ←────────────── OPEN_ANOTHER ─────────────────────────────────┤
 WELCOME ←──────────────────────── GO_HOME ──────────────────────────────────┘
+WELCOME → MES_CARTES (OPEN_CARDS) · MES_CARTES → WELCOME (CLOSE_CARDS)
 ```
 
 Toutes les transitions passent par **une seule fonction** : `transition(state, event)` dans
@@ -123,6 +142,8 @@ Toutes les transitions passent par **une seule fonction** : `transition(state, e
 | `OPENING_DONE`   | BOOSTER_OPENING → CARD_REVEAL     | Découpe validée (le tirage est fait à ce moment)   |
 | `OPEN_ANOTHER`   | CARD_REVEAL → BOOSTER_SELECT      | Bouton « Ouvrir un autre booster »                 |
 | `GO_HOME`        | CARD_REVEAL → WELCOME             | Bouton « Accueil »                                 |
+| `OPEN_CARDS`     | WELCOME → MES_CARTES              | Bouton « Mes cartes » de l'accueil                 |
+| `CLOSE_CARDS`    | MES_CARTES → WELCOME              | Bouton « Retour »                                  |
 
 Si un profil existe déjà, l'écran Profil propose « Continuer en tant que… » ou « Modifier mon profil ».
 
@@ -184,7 +205,43 @@ DOS ──toucher──▶ RETOURNE ──fin──▶ FACE ──« Suivant »�
   `EFFETS_REDUITS` de `config/revelation.ts` divise les confettis par deux et remplace les rayons par le halo.
 - **Mode développeur** : ajouter `?forcer=legendaire` à l'adresse (ex. `http://localhost:5173/?forcer=legendaire`)
   fait commencer la révélation par une carte légendaire. Les autres raretés marchent aussi
-  (`?forcer=ultra-rare`…).
+  (`?forcer=super-rare`…).
+
+## Les cartes (« Mes cartes »)
+
+**Principe.** Les visuels de cartes sont des images finies (cadre, nom, PV, illustration déjà dans
+l'image). Elles sont stockées DANS LE PROJET (`public/cartes/` : images + `cartes.json`) et publiées avec
+l'appli : tous les appareils les voient. Ce choix évite tout service externe, mais impose que
+l'administration se fasse sur l'ordinateur du propriétaire (voir « Sécurité »).
+
+**Raretés et variantes.** 7 raretés : `commune`, `peu_commune`, `rare`, `super_rare`, `legendaire`,
+`mythique`, `secrete` (`RARITIES` dans `domain/types.ts`, noms et effets dans `config/raretes.ts`). Variantes :
+Mythique = Feu ou Bronze, Secrète = Argent ou Or (`VARIANTES_PAR_RARETE` dans `config/cartes.ts`) ; la
+variante est obligatoire pour ces deux raretés. Mythique et secrète réutilisent pour l'instant les effets
+de la légendaire (et un poids de tirage provisoire très faible dans `config/game.ts`).
+
+**Format de `cartes.json`.** `{ "version": 1, "cartes": [ { id, name, rarity, variant?, imageUrl, thumbUrl,
+width, height } ] }`, adresses relatives au site (`cartes/xxx.webp`). Les entrées illisibles sont ignorées
+(`lireListeCartes`). Pour que le tirage utilise ces cartes plus tard, il suffira de lire cette liste au
+lieu de `data/cards.ts` (même type `Card`).
+
+**Images.** Vérification du ratio avec 2 % de tolérance (`TOLERANCE_RATIO`) : un avertissement s'affiche,
+l'image n'est jamais déformée (`object-fit: contain` dans un cadre 5:7). Optimisation dans le navigateur
+(`services/imageOptimizer.ts`) : largeur max 744 px (jamais agrandie), WebP qualité 0,92 avec transparence
+(PNG si le navigateur ne sait pas écrire du WebP, ex. Safari), miniature de 372 px pour la galerie.
+
+**Le composant `Carte`** (`components/Carte`) est le seul endroit qui affiche un visuel de carte. Pour
+ajouter plus tard un effet selon la rareté : le cadre porte `data-rarete` et `data-variante` (ciblables en
+CSS) et la prop `calques` accepte des éléments posés par-dessus l'image. L'écran de révélation n'utilise pas
+encore ce composant (il affiche toujours ses cartes factices).
+
+**Sécurité.** L'écriture passe par une API `/api/cartes` ajoutée au serveur de développement par
+`tools/cartesPlugin.ts` (`apply: 'serve'` : elle n'existe PAS dans `npm run build`). Chaque écriture exige le
+code admin (`ADMIN_CODE` dans `.env.local`, ignoré par git, jamais envoyé au navigateur) dans l'en-tête
+`x-code-admin`, comparé en temps constant ; une pause suit chaque mauvais code. Le serveur valide aussi les
+données (nom, rareté, variante, dimensions) et le format réel des images (octets d'en-tête), refuse les
+identifiants piégés et écrit la liste de façon atomique. Le code saisi reste en mémoire : recharger la
+page reverrouille.
 
 ## Personnaliser le visuel
 

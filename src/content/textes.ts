@@ -36,6 +36,8 @@ export const TEXTES = {
     pseudoAbsent: '—',
     // Les mentions légales, tout en bas de l'écran.
     mentions: '© Cartes Délaitère 2026',
+    // Le petit bouton qui ouvre la collection de cartes (en haut à droite).
+    boutonMesCartes: 'Mes cartes',
   },
 
   // ---------------------------------------------------------------------------------
@@ -138,6 +140,97 @@ export const TEXTES = {
     ouvrirAutre: 'Ouvrir un autre booster',
     // Le bouton à contour blanc du bilan.
     accueil: 'Accueil',
+  },
+
+  // ---------------------------------------------------------------------------------
+  // ÉCRAN « MES CARTES » (collection, ajout, modification)
+  // Dans les textes, {nombre}, {nom}, {largeur}, {hauteur}, {attendu} et {max} sont remplacés
+  // automatiquement : garde-les tels quels. (Les noms de raretés sont dans src/config/raretes.ts,
+  // ceux des variantes dans src/config/cartes.ts.)
+  // ---------------------------------------------------------------------------------
+  mesCartes: {
+    // Le titre de la page.
+    titre: 'Mes cartes',
+    // Le bouton qui ramène à l'accueil.
+    retour: 'Retour',
+    // Le compteur de cartes (au singulier, puis au pluriel).
+    totalUne: '{nombre} carte',
+    totalPlusieurs: '{nombre} cartes',
+    // Le texte lu par les lecteurs d'écran pour la liste des compteurs par rareté (invisible).
+    labelCompteurs: 'Nombre de cartes par rareté',
+    // Messages de la galerie.
+    chargement: 'Chargement des cartes…',
+    erreurChargement: 'Impossible de charger les cartes.',
+    reessayer: 'Réessayer',
+    vide: 'Aucune carte pour le moment.',
+    videAdmin: 'Utilise « Ajouter des cartes » pour commencer.',
+    aucunResultat: 'Aucune carte ne correspond à ta recherche.',
+    // Les filtres.
+    labelRecherche: 'Rechercher une carte',
+    placeholderRecherche: 'Nom de la carte',
+    labelFiltreRarete: 'Rareté',
+    toutesRaretes: 'Toutes les raretés',
+    labelGalerie: 'Cartes de la collection',
+    // Le petit badge sur une carte dont les proportions ne sont pas celles d'une carte.
+    badgeRatio: 'Ratio ≠ 5:7',
+
+    // --- Accès administrateur ---
+    boutonGerer: 'Gérer mes cartes',
+    labelCode: 'Code admin',
+    boutonDeverrouiller: 'Déverrouiller',
+    boutonVerrouiller: 'Verrouiller',
+    erreurCodeIncorrect: 'Code incorrect.',
+    erreurCodeNonDefini:
+      'Aucun code admin n’est défini. Copie le fichier .env.example en .env.local, choisis ton code, puis relance « npm run dev ».',
+    erreurReseau: 'Le serveur ne répond pas. Vérifie que « npm run dev » tourne.',
+    erreurInconnue: 'Une erreur est survenue. Réessaie.',
+    erreurInfosInvalides: 'Le serveur refuse ces informations.',
+    erreurImageInvalide: 'Le serveur refuse cette image.',
+    erreurTropGros: 'Les images sont trop lourdes pour être envoyées.',
+    erreurIntrouvable: 'Cette carte n’existe plus.',
+
+    // --- Ajout de cartes ---
+    boutonAjouter: 'Ajouter des cartes',
+    zoneConsigne: 'Glisse tes images ici',
+    zoneOu: 'ou',
+    zoneChoisir: 'Choisis des fichiers',
+    zoneFormats: 'PNG, JPG ou WebP · plusieurs à la fois',
+    optimisation: 'Optimisation de l’image…',
+    envoi: 'Enregistrement…',
+    labelApercu: 'Aperçu de {nom}',
+    // Avertissement quand l'image n'a pas les proportions d'une carte.
+    alerteRatio:
+      'Proportions inhabituelles ({largeur} × {hauteur} px). Une carte fait environ {attendu} px. L’image ne sera pas déformée.',
+    // Les raisons pour lesquelles un fichier est refusé.
+    erreurFormat: 'Format non accepté : seuls PNG, JPG et WebP sont acceptés.',
+    erreurTaille: 'Fichier trop lourd.',
+    erreurIllisible: 'Image illisible.',
+    retirer: 'Retirer',
+    enregistrerTout: 'Enregistrer les cartes',
+    enregistrerUne: 'Enregistrer la carte',
+    fermerAjout: 'Fermer',
+    // Le bilan, après l'enregistrement.
+    bilanUne: '{nombre} carte enregistrée.',
+    bilanPlusieurs: '{nombre} cartes enregistrées.',
+
+    // --- Infos d'une carte (formulaire) ---
+    labelNom: 'Nom de la carte',
+    labelRarete: 'Rareté',
+    labelVariante: 'Variante',
+    erreurNomVide: 'Le nom est obligatoire.',
+    erreurNomTropLong: 'Nom trop long ({max} caractères maximum).',
+    erreurVarianteRequise: 'Choisis une variante.',
+    erreurVarianteInvalide: 'Cette variante n’existe pas pour cette rareté.',
+
+    // --- Vue détaillée d'une carte ---
+    modifier: 'Modifier',
+    supprimer: 'Supprimer',
+    fermer: 'Fermer',
+    enregistrer: 'Enregistrer',
+    annuler: 'Annuler',
+    confirmerSuppression: 'Supprimer « {nom} » ? Cette action est définitive.',
+    confirmerOui: 'Oui, supprimer',
+    infoRatio: 'Image de {largeur} × {hauteur} px : proportions inhabituelles.',
   },
 
   // ---------------------------------------------------------------------------------

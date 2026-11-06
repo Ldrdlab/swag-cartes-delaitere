@@ -29,11 +29,11 @@ describe('importCards', () => {
   it('reconnaît les raretés écrites avec espaces, tirets ou majuscules', () => {
     const resultat = importCards([
       { id: 'a', name: 'A', rarity: 'Peu commune' },
-      { id: 'b', name: 'B', rarity: 'ultra-rare' },
+      { id: 'b', name: 'B', rarity: 'super-rare' },
     ]);
     expect(resultat).toMatchObject({
       ok: true,
-      cards: [{ rarity: 'peu_commune' }, { rarity: 'ultra_rare' }],
+      cards: [{ rarity: 'peu_commune' }, { rarity: 'super_rare' }],
     });
   });
 
@@ -47,7 +47,7 @@ describe('importCards', () => {
   it('refuse tout le fichier si une carte est invalide, avec un message par erreur', () => {
     const resultat = importCards([
       { id: 'a', name: 'Alpha', rarity: 'commune' },
-      { id: '', name: 'Sans id', rarity: 'mythique' },
+      { id: '', name: 'Sans id', rarity: 'diamant' },
     ]);
     expect(resultat.ok).toBe(false);
     if (!resultat.ok) {

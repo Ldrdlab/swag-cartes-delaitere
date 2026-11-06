@@ -6,7 +6,7 @@
  *
  * Formats acceptés : un tableau de cartes, ou un objet `{ "cards": [ ... ] }`.
  * Chaque carte : `id` et `name` (texte non vide), `rarity` ("commune", "peu commune", "rare",
- * "ultra-rare" ; majuscules, espaces, tirets et underscores tolérés), `imageUrl` optionnel. Tout autre
+ * "super-rare" ; majuscules, espaces, tirets et underscores tolérés), `imageUrl` optionnel. Tout autre
  * champ est conservé dans `extra` (champs libres), avec le contenu d'un éventuel champ `extra`.
  *
  * Expose : CardImportResult, importCards().
@@ -20,7 +20,7 @@ export type CardImportResult = { ok: true; cards: Card[] } | { ok: false; errors
 /** Champs reconnus : tout le reste va dans `extra`. */
 const KNOWN_FIELDS = new Set(['id', 'name', 'rarity', 'imageUrl', 'extra']);
 
-/** Reconnaît une rareté écrite de façons variées ("Peu commune", "ultra-rare"...). */
+/** Reconnaît une rareté écrite de façons variées ("Peu commune", "super-rare"...). */
 function parseRarity(value: unknown): Rarity | null {
   if (typeof value !== 'string') return null;
   const normalized = value

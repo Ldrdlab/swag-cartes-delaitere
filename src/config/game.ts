@@ -14,12 +14,15 @@ export const CARDS_PER_BOOSTER = 5;
 
 /**
  * Poids de tirage de chaque rareté (relatifs entre eux : 60/25/11/3/1 donne 60 % / 25 % / 11 % / 3 % / 1 %).
- * Une rareté absente du booster est ignorée.
+ * Une rareté absente du booster est ignorée. Mythique et secrète sont volontairement très rares
+ * (valeurs provisoires, à ajuster quand ces cartes entreront en jeu).
  */
 export const RARITY_WEIGHTS: Readonly<Record<Rarity, number>> = {
   commune: 60,
   peu_commune: 25,
   rare: 11,
-  ultra_rare: 3,
+  super_rare: 3,
   legendaire: 1,
+  mythique: 0.5,
+  secrete: 0.25,
 };

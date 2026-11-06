@@ -139,6 +139,23 @@
   line-height: 1.1;
 }
 
+/* ----- En haut à droite : accès à la collection de cartes ----- */
+.boutonCartes {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 2;
+  min-height: var(--touch-target-min);
+  padding: var(--space-1) var(--space-3);
+  border: 2px solid var(--couleur-encre);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--couleur-encre);
+  font-family: var(--police-texte);
+  font-size: 15px;
+  font-weight: 800;
+}
+
 /* ----- En bas : invitation et mentions ----- */
 .bas {
   display: flex;
