@@ -1,8 +1,8 @@
 /**
  * Vue détaillée d'une carte (fenêtre).
  *
- * Rôle : montrer une carte en grand avec ses infos. Avec l'administration déverrouillée, propose
- * « Modifier » (formulaire) et « Supprimer » (avec confirmation). Construite sur l'élément natif
+ * Rôle : montrer une carte en grand avec ses infos. Pour un administrateur, propose « Modifier »
+ * (formulaire), « Désactiver » / « Activer » et « Supprimer » (les deux avec confirmation). Construite sur l'élément natif
  * <dialog> : Échap et le bouton « Fermer » ferment ; le focus reste dans la fenêtre.
  * L'état (mode, brouillon, erreurs) vient de hooks/useEditionCarte.
  * Expose : le composant `CarteDetail`.
@@ -81,6 +81,7 @@ export function CarteDetail({ carte, admin, onFermer }: CarteDetailProps) {
             {carte.variant && (
               <span className={styles.variante}>{NOMS_VARIANTES[carte.variant]}</span>
             )}
+            {!edition.active && <span className={styles.variante}>{textes.badgeInactive}</span>}
           </p>
           {ratioAnormal && carte.width && carte.height && (
             <p className={styles.alerte}>
@@ -106,6 +107,12 @@ export function CarteDetail({ carte, admin, onFermer }: CarteDetailProps) {
             </p>
           )}
 
+          {edition.mode === 'desactivation' && (
+            <p className={styles.confirmation} role="alert">
+              {remplir(textes.confirmerDesactivation, { nom: carte.name })}
+            </p>
+          )}
+
           {edition.erreurServeur && (
             <p className={styles.erreur} role="alert">
               {texteErreurCollection(edition.erreurServeur)}
@@ -116,6 +123,19 @@ export function CarteDetail({ carte, admin, onFermer }: CarteDetailProps) {
             {edition.mode === 'vue' && admin && (
               <>
                 <Button onClick={edition.commencerEdition}>{textes.modifier}</Button>
+                {edition.active ? (
+                  <Button variant="secondary" onClick={edition.demanderDesactivation}>
+                    {textes.desactiver}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    disabled={edition.enCours}
+                    onClick={() => void edition.reactiver()}
+                  >
+                    {textes.activer}
+                  </Button>
+                )}
                 <Button variant="secondary" onClick={edition.demanderSuppression}>
                   {textes.supprimer}
                 </Button>
@@ -125,6 +145,19 @@ export function CarteDetail({ carte, admin, onFermer }: CarteDetailProps) {
               <>
                 <Button disabled={edition.enCours} onClick={() => void edition.sauvegarder()}>
                   {textes.enregistrer}
+                </Button>
+                <Button variant="secondary" disabled={edition.enCours} onClick={edition.annuler}>
+                  {textes.annuler}
+                </Button>
+              </>
+            )}
+            {edition.mode === 'desactivation' && (
+              <>
+                <Button
+                  disabled={edition.enCours}
+                  onClick={() => void edition.confirmerDesactivation()}
+                >
+                  {textes.confirmerDesactiverOui}
                 </Button>
                 <Button variant="secondary" disabled={edition.enCours} onClick={edition.annuler}>
                   {textes.annuler}

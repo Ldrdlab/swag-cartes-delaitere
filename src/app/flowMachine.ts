@@ -7,7 +7,7 @@
  *                          ↑______BACK_______|                                  |
  *   BOOSTER_SELECT ←──────────────── OPEN_ANOTHER ────────────────────────────┤
  *   WELCOME ←─────────────────────── GO_HOME ─────────────────────────────────┘
- *   WELCOME → MES_CARTES (OPEN_CARDS)  ·  MES_CARTES → WELCOME (CLOSE_CARDS)
+ *   WELCOME → ADMIN (OPEN_ADMIN)  ·  ADMIN → WELCOME (CLOSE_ADMIN)   (administrateurs seulement : écran Admin)
  *
  * Expose : Screen, FlowState, FlowEvent, INITIAL_FLOW_STATE, transition().
  * Dépend de : domain/types (type Card uniquement). Aucun import React : testable isolément.
@@ -22,7 +22,7 @@ export type Screen =
   | 'BOOSTER_CONFIRM'
   | 'BOOSTER_OPENING'
   | 'CARD_REVEAL'
-  | 'MES_CARTES';
+  | 'ADMIN';
 
 /** État complet du parcours. */
 export interface FlowState {
@@ -44,8 +44,8 @@ export type FlowEvent =
   | { type: 'OPENING_DONE'; cards: readonly Card[] }
   | { type: 'OPEN_ANOTHER' }
   | { type: 'GO_HOME' }
-  | { type: 'OPEN_CARDS' }
-  | { type: 'CLOSE_CARDS' };
+  | { type: 'OPEN_ADMIN' }
+  | { type: 'CLOSE_ADMIN' };
 
 /** État au lancement de l'application. */
 export const INITIAL_FLOW_STATE: FlowState = {
@@ -95,9 +95,9 @@ export function transition(state: FlowState, event: FlowEvent): FlowState {
       return moveTo(state, 'CARD_REVEAL', 'BOOSTER_SELECT', { drawnCards: [] });
     case 'GO_HOME':
       return moveTo(state, 'CARD_REVEAL', 'WELCOME', { drawnCards: [] });
-    case 'OPEN_CARDS':
-      return moveTo(state, 'WELCOME', 'MES_CARTES');
-    case 'CLOSE_CARDS':
-      return moveTo(state, 'MES_CARTES', 'WELCOME');
+    case 'OPEN_ADMIN':
+      return moveTo(state, 'WELCOME', 'ADMIN');
+    case 'CLOSE_ADMIN':
+      return moveTo(state, 'ADMIN', 'WELCOME');
   }
 }

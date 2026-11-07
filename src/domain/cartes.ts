@@ -2,15 +2,15 @@
  * Logique pure de la collection de cartes (« Mes cartes »).
  *
  * Rôle : vérifier les proportions d'une image, calculer ses dimensions optimisées, valider les infos
- * d'une carte (nom, rareté, variante), filtrer / trier / compter les cartes et relire le fichier de
- * liste. Les réglages (ratio, tolérance, variantes…) sont passés en paramètres : ils viennent de
+ * d'une carte (nom, rareté, variante, effet, activation), filtrer / trier / compter les cartes.
+ * Les réglages (ratio, tolérance, variantes…) sont passés en paramètres : ils viennent de
  * config/cartes.ts.
  * Expose : VerdictRatio, InfosCarte, ErreurInfos, ErreursInfos, FiltreCartes, verifierRatio(),
  * dimensionsOptimisees(), typeImageAccepte(), nomDepuisFichier(), variantesPour(), fusionnerInfos(),
- * normaliserInfos(), validerInfos(), compterParRarete(), filtrerCartes(), trierCartes(), lireListeCartes().
+ * normaliserInfos(), validerInfos(), compterParRarete(), filtrerCartes(), trierCartes().
  * Dépend de : domain/types. Aucun import React ni DOM.
  */
-import { RARITIES, VARIANTS, type Card, type Rarity, type Variant } from './types.ts';
+import { RARITIES, type Card, type Rarity, type Variant } from './types.ts';
 
 /** Résultat de la vérification des proportions d'une image. */
 export interface VerdictRatio {
@@ -110,6 +110,10 @@ export interface InfosCarte {
   nom: string;
   rarete: Rarity;
   variante?: Variant | undefined;
+  /** Clé de l'effet (registre src/effects/). Absente = inchangée / aucun effet. */
+  effet?: string | undefined;
+  /** Carte active (peut sortir des boosters). Absente = inchangée / active. */
+  active?: boolean | undefined;
 }
 
 /** Problèmes possibles sur les infos d'une carte (le texte affiché dépend de l'écran). */
@@ -139,7 +143,7 @@ export function fusionnerInfos(
   const possibles = variantesPour(fusion.rarete, table);
   const variante =
     fusion.variante && possibles.includes(fusion.variante) ? fusion.variante : possibles[0];
-  return { nom: fusion.nom, rarete: fusion.rarete, variante };
+  return { ...fusion, variante };
 }
 
 /**
@@ -156,6 +160,8 @@ export function normaliserInfos(
   if (variantesPour(infos.rarete, table).length > 0 && infos.variante) {
     propre.variante = infos.variante;
   }
+  if (infos.effet !== undefined) propre.effet = infos.effet;
+  if (infos.active !== undefined) propre.active = infos.active;
   return propre;
 }
 
@@ -226,67 +232,4 @@ export function trierCartes(cartes: readonly Card[]): Card[] {
       RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity) ||
       a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }),
   );
-}
-
-function estObjet(valeur: unknown): valeur is Record<string, unknown> {
-  return typeof valeur === 'object' && valeur !== null && !Array.isArray(valeur);
-}
-
-function texteNonVide(valeur: unknown): valeur is string {
-  return typeof valeur === 'string' && valeur.trim() !== '';
-}
-
-function nombrePositif(valeur: unknown): valeur is number {
-  return typeof valeur === 'number' && Number.isFinite(valeur) && valeur > 0;
-}
-
-/** Résultat de la lecture du fichier de liste. */
-export interface ListeCartesLue {
-  /** Cartes valides. */
-  cartes: Card[];
-  /** Nombre d'entrées illisibles qui ont été ignorées. */
-  ignorees: number;
-}
-
-/**
- * Relit le fichier de liste des cartes (`{ "cartes": [ ... ] }`). Une entrée invalide est ignorée
- * (elle ne bloque pas les autres) ; un fichier illisible donne une liste vide.
- *
- * @param json - Données déjà décodées (résultat de `JSON.parse`).
- * @param table - Variantes autorisées par rareté (une variante non autorisée est retirée).
- */
-export function lireListeCartes(
-  json: unknown,
-  table: Readonly<Partial<Record<Rarity, readonly Variant[]>>>,
-): ListeCartesLue {
-  const liste = estObjet(json) ? json.cartes : undefined;
-  if (!Array.isArray(liste)) return { cartes: [], ignorees: 0 };
-
-  const cartes: Card[] = [];
-  const dejaVus = new Set<string>();
-  let ignorees = 0;
-
-  for (const brut of liste as unknown[]) {
-    const rarete = RARITIES.find((r) => estObjet(brut) && r === brut.rarity);
-    if (
-      !estObjet(brut) ||
-      !rarete ||
-      !texteNonVide(brut.id) ||
-      !texteNonVide(brut.name) ||
-      !texteNonVide(brut.imageUrl) ||
-      dejaVus.has(brut.id)
-    ) {
-      ignorees += 1;
-      continue;
-    }
-    dejaVus.add(brut.id);
-    const carte: Card = { id: brut.id, name: brut.name, rarity: rarete, imageUrl: brut.imageUrl };
-    const variante = VARIANTS.find((v) => v === brut.variant);
-    if (variante && variantesPour(rarete, table).includes(variante)) carte.variant = variante;
-    if (texteNonVide(brut.thumbUrl)) carte.thumbUrl = brut.thumbUrl;
-    if (nombrePositif(brut.width)) carte.width = brut.width;
-    if (nombrePositif(brut.height)) carte.height = brut.height;
-    cartes.push(carte);
-  }
-  return { cartes, ignorees };
 }

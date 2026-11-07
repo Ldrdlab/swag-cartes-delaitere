@@ -1,5 +1,5 @@
 -- ============================================================================
--- TEST DE SÉCURITÉ — à lancer dans l'éditeur SQL de Supabase APRÈS les 4 migrations
+-- TEST DE SÉCURITÉ — à lancer dans l'éditeur SQL de Supabase APRÈS les 5 migrations
 -- ============================================================================
 -- Rôle : vérifier automatiquement que les règles d'accès tiennent (joueur, admin, visiteur non connecté)
 -- et que le tirage des boosters se fait bien côté serveur.
@@ -68,6 +68,7 @@ declare
   v_ko integer;
   v_rapport text := '';
   v_r text;
+  v_attendu text;
 begin
   create temp table resultats (nom text not null, ok boolean not null, detail text) on commit drop;
 
@@ -166,6 +167,15 @@ begin
   v_r := pg_temp.valeur(null, 'anon', 'select count(*) from storage.objects');
   insert into resultats values ('Stockage : un visiteur ne voit rien', v_r = '0' or v_r like 'erreur:%', v_r);
 
+  -- E-mail du compte copié dans le profil
+  v_r := pg_temp.valeur(v_j1, 'authenticated', 'select email from public.profiles where id = auth.uid()');
+  insert into resultats values ('Profil : l''e-mail du compte est copié', v_r = 'test-joueur1@exemple.invalid', v_r);
+  v_r := pg_temp.tente(v_j1, 'authenticated', 'update public.profiles set email = ''autre@exemple.invalid'' where id = auth.uid()');
+  insert into resultats values ('Joueur : ne peut pas modifier l''e-mail de son profil', v_r like 'erreur:%', v_r);
+  update auth.users set email = 'test-joueur1-nouveau@exemple.invalid' where id = v_j1;
+  select email into v_r from public.profiles where id = v_j1;
+  insert into resultats values ('Profil : suit le changement d''e-mail du compte', v_r = 'test-joueur1-nouveau@exemple.invalid', v_r);
+
   -- ---------- C. Administrateur ----------
   v_r := pg_temp.valeur(v_admin, 'authenticated', 'select count(*) from public.profiles');
   insert into resultats values ('Admin : voit tous les profils', v_r::integer >= 3, v_r);
@@ -189,6 +199,13 @@ begin
   insert into resultats values ('Carte possédée par un joueur : suppression refusée', v_r like 'erreur:%', v_r);
   v_r := pg_temp.tente(v_admin, 'authenticated', 'insert into storage.objects (bucket_id, name) values (''cards'', ''admin.webp'')');
   insert into resultats values ('Stockage : l''admin peut déposer une image', v_r = 'ok', v_r);
+  v_r := pg_temp.valeur(v_j1, 'authenticated', 'select count(*) from public.admin_list_players()');
+  insert into resultats values ('Joueur : ne peut pas lister les joueurs', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.valeur(null, 'anon', 'select count(*) from public.admin_list_players()');
+  insert into resultats values ('Visiteur : ne peut pas lister les joueurs', v_r like 'erreur:%', v_r);
+  select sum(quantity)::text || '/' || count(*)::text into v_attendu from public.user_cards where user_id = v_j1;
+  v_r := pg_temp.valeur(v_admin, 'authenticated', format('select total_cards || ''/'' || distinct_cards from public.admin_list_players() where player_id = %L', v_j1));
+  insert into resultats values ('Admin : la liste des joueurs donne les bons nombres de cartes', v_r = v_attendu, v_r || ' au lieu de ' || v_attendu);
   v_r := pg_temp.valeur(v_admin, 'authenticated', 'select count(*) from public.user_cards');
   insert into resultats values ('Admin : voit toutes les collections', v_r::integer >= 3, v_r);
 

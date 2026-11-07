@@ -29,8 +29,9 @@ src/
 │   ├── BoosterSelect/    Écran 3 — Carrousel de boosters
 │   ├── BoosterConfirm/   Écran 4 — Confirmation
 │   ├── BoosterOpening/   Écran 5 — Découpe du booster
-│   ├── MesCartes/        Collection de cartes (hors parcours, depuis l'accueil) : Galerie, CarteDetail,
-│   │                     AjoutCartes, BrouillonCarte, FormulaireInfos, CodeAdmin
+│   ├── Login/            Connexion (e-mail + mot de passe), états « chargement » et « erreur »
+│   ├── Admin/            Administration (réservée aux admins) : onglets Cartes (Galerie, CarteDetail, AjoutCartes,
+│   │                     BrouillonCarte, FormulaireInfos), Boosters, Joueurs, Version
 │   └── CardReveal/       Écran 6 — Révélation (Scene, Carte3D, CarteVerso, CarteRecto, PileDeCartes, Bilan,
 │                         effets/ : Halo, RayonsLumineux, Confettis, Flash, Etincelles, ReflexHolo)
 ├── components/           Button, ScreenLayout, Carousel, CutTrail,
@@ -94,13 +95,21 @@ src/
 │   ├── StorageService.ts       Interface (asynchrone)
 │   ├── LocalStorageService.ts  Implémentation localStorage
 │   ├── CollectionService.ts    Interface de la collection de cartes (lire, ajouter, modifier, supprimer)
-│   ├── HttpCollectionService.ts  Lit cartes/cartes.json ; écrit via l'API de développement /api/cartes
+│   ├── SupabaseCollectionService.ts  Cartes : table `cards` + images signées du bucket privé « cards »
+│   ├── AdministrationService.ts / SupabaseAdministrationService.ts  Réglages (app_config) et liste des joueurs
+│   ├── AuthService.ts / SupabaseAuthService.ts  Connexion e-mail + mot de passe, profil et rôle
+│   ├── supabaseClient.ts       Le client Supabase unique (URL + clé publique du fichier .env)
+│   ├── erreurs.ts              Traduit les erreurs Supabase en codes simples (droits, réseau, carte possédée…)
 │   └── imageOptimizer.ts       Réduit à 744 px max, WebP avec transparence, miniature (Canvas)
 ├── config/
 │   ├── game.ts           Nombre de cartes par booster et probabilités de rareté
 │   ├── raretes.ts        Table des 7 raretés : nom, étoiles, couleurs, halo, confettis, reflet, tease
 │   ├── cartes.ts         Dimensions et ratio d'une carte (744 × 1040), tolérance 2 %, formats acceptés,
-│   │                     optimisation, variantes par rareté, adresses de stockage
+│   │                     optimisation, variantes par rareté
+│   ├── reglages.ts       Valeurs par défaut et bornes des réglages de booster (admin)
+│   ├── supabase.ts       Nom du bucket des images, durée des adresses signées
+│   ├── deploiement.ts    Nom du dépôt, chemin de base, manifest de la PWA
+│   ├── version.ts        Version de l'appli (lue dans package.json à la construction)
 │   ├── revelation.ts     Durées, tailles, effets et couleurs de confettis de la révélation
 │   ├── gestures.ts       Seuils swipe/tap et découpe
 │   ├── timings.ts        Durées des animations
@@ -109,15 +118,15 @@ src/
 │   ├── accueil.ts        Cartes flottantes de l'accueil (position, taille, couleur, photo) et durées
 │   └── profile.ts        Longueur du pseudo, clé de sauvegarde
 ├── data/
-│   └── cards.ts          Les cartes factices (utilisées par le tirage ; pas encore reliées à « Mes cartes »)
+│   └── cards.ts          Les cartes factices (utilisées par le tirage ; remplacées en phase 4 par les vraies cartes)
 └── styles/
     ├── tokens.css        Couleurs, polices, dégradés, espacements, dimensions
     └── reset.css         Remise à zéro, focus visible
 ```
 
-Hors de `src/` : `tools/` (code Node du serveur de développement : `cartesPlugin.ts` = API d'administration,
-`cartesStockage.ts` = écriture dans `public/cartes/`, `codeAdmin.ts` = vérification du code) et
-`public/cartes/` (images et `cartes.json`).
+Hors de `src/` : `supabase/` (migrations SQL, test de sécurité, guide) et `public/icons/` (icônes de la PWA).
+Dossiers ajoutés en phase 3 : `src/effects/` (registre des effets de cartes : pour l'instant « aucun »),
+`src/screens/Login/` (connexion) et `src/screens/Admin/` (cartes, boosters, joueurs, version).
 
 ## Flux des écrans
 
@@ -142,8 +151,8 @@ Toutes les transitions passent par **une seule fonction** : `transition(state, e
 | `OPENING_DONE`   | BOOSTER_OPENING → CARD_REVEAL     | Découpe validée (le tirage est fait à ce moment)   |
 | `OPEN_ANOTHER`   | CARD_REVEAL → BOOSTER_SELECT      | Bouton « Ouvrir un autre booster »                 |
 | `GO_HOME`        | CARD_REVEAL → WELCOME             | Bouton « Accueil »                                 |
-| `OPEN_CARDS`     | WELCOME → MES_CARTES              | Bouton « Mes cartes » de l'accueil                 |
-| `CLOSE_CARDS`    | MES_CARTES → WELCOME              | Bouton « Retour »                                  |
+| `OPEN_ADMIN`     | WELCOME → ADMIN                   | Bouton « Administration » (administrateurs)        |
+| `CLOSE_ADMIN`    | ADMIN → WELCOME                   | Bouton « Retour »                                  |
 
 Si un profil existe déjà, l'écran Profil propose « Continuer en tant que… » ou « Modifier mon profil ».
 
@@ -207,41 +216,45 @@ DOS ──toucher──▶ RETOURNE ──fin──▶ FACE ──« Suivant »�
   fait commencer la révélation par une carte légendaire. Les autres raretés marchent aussi
   (`?forcer=super-rare`…).
 
-## Les cartes (« Mes cartes »)
+## Les cartes et l'espace administrateur
 
 **Principe.** Les visuels de cartes sont des images finies (cadre, nom, PV, illustration déjà dans
-l'image). Elles sont stockées DANS LE PROJET (`public/cartes/` : images + `cartes.json`) et publiées avec
-l'appli : tous les appareils les voient. Ce choix évite tout service externe, mais impose que
-l'administration se fasse sur l'ordinateur du propriétaire (voir « Sécurité »).
+l'image). Elles sont dans **Supabase** : la ligne de chaque carte dans la table `cards`, l'image et sa
+miniature dans le bucket **privé** `cards`. Jamais dans le dépôt GitHub (les photos représentent des amis).
+Les adresses d'images sont « signées » (temporaires, 2 h) et seul un utilisateur connecté peut les obtenir.
 
 **Raretés et variantes.** 7 raretés : `commune`, `peu_commune`, `rare`, `super_rare`, `legendaire`,
-`mythique`, `secrete` (`RARITIES` dans `domain/types.ts`, noms et effets dans `config/raretes.ts`). Variantes :
-Mythique = Feu ou Bronze, Secrète = Argent ou Or (`VARIANTES_PAR_RARETE` dans `config/cartes.ts`) ; la
-variante est obligatoire pour ces deux raretés. Mythique et secrète réutilisent pour l'instant les effets
-de la légendaire (et un poids de tirage provisoire très faible dans `config/game.ts`).
+`mythique`, `secrete` (`RARITIES` dans `domain/types.ts`, noms et effets de révélation dans
+`config/raretes.ts`). Variantes : Mythique = Feu ou Bronze, Secrète = Argent ou Or
+(`VARIANTES_PAR_RARETE` dans `config/cartes.ts`), obligatoires pour ces deux raretés. La base impose les
+mêmes règles.
 
-**Format de `cartes.json`.** `{ "version": 1, "cartes": [ { id, name, rarity, variant?, imageUrl, thumbUrl,
-width, height } ] }`, adresses relatives au site (`cartes/xxx.webp`). Les entrées illisibles sont ignorées
-(`lireListeCartes`). Pour que le tirage utilise ces cartes plus tard, il suffira de lire cette liste au
-lieu de `data/cards.ts` (même type `Card`).
+**Accès aux données.** Les écrans passent par des interfaces (`CollectionService`, `AdministrationService`,
+`AuthService`) dont l'implémentation est Supabase, branchée dans `main.tsx`. Les conversions base ↔ appli
+sont des fonctions pures testées (`domain/cartesBase.ts`, `domain/administration.ts`).
 
 **Images.** Vérification du ratio avec 2 % de tolérance (`TOLERANCE_RATIO`) : un avertissement s'affiche,
 l'image n'est jamais déformée (`object-fit: contain` dans un cadre 5:7). Optimisation dans le navigateur
 (`services/imageOptimizer.ts`) : largeur max 744 px (jamais agrandie), WebP qualité 0,92 avec transparence
 (PNG si le navigateur ne sait pas écrire du WebP, ex. Safari), miniature de 372 px pour la galerie.
 
-**Le composant `Carte`** (`components/Carte`) est le seul endroit qui affiche un visuel de carte. Pour
-ajouter plus tard un effet selon la rareté : le cadre porte `data-rarete` et `data-variante` (ciblables en
-CSS) et la prop `calques` accepte des éléments posés par-dessus l'image. L'écran de révélation n'utilise pas
-encore ce composant (il affiche toujours ses cartes factices).
+**Le composant `Carte`** (`components/Carte`) est le seul endroit qui affiche un visuel de carte. Il pose
+automatiquement l'**effet** de la carte (champ `effect`, clé du registre `src/effects/`) par-dessus l'image ;
+pour l'instant seul « aucun » existe. Le cadre porte aussi `data-rarete` et `data-variante` (ciblables en CSS)
+et la prop `calques` accepte d'autres éléments. L'écran de révélation n'utilise pas encore ce composant.
 
-**Sécurité.** L'écriture passe par une API `/api/cartes` ajoutée au serveur de développement par
-`tools/cartesPlugin.ts` (`apply: 'serve'` : elle n'existe PAS dans `npm run build`). Chaque écriture exige le
-code admin (`ADMIN_CODE` dans `.env.local`, ignoré par git, jamais envoyé au navigateur) dans l'en-tête
-`x-code-admin`, comparé en temps constant ; une pause suit chaque mauvais code. Le serveur valide aussi les
-données (nom, rareté, variante, dimensions) et le format réel des images (octets d'en-tête), refuse les
-identifiants piégés et écrit la liste de façon atomique. Le code saisi reste en mémoire : recharger la
-page reverrouille.
+**Effets (à ajouter plus tard).** `src/effects/index.ts` associe une clé à un composant. L'espace admin lit ce
+registre pour sa liste déroulante « Effet » ; en base, « aucun » s'écrit avec un texte vide
+(`effects/cles.ts` fait la traduction).
+
+**Sécurité.** Rien n'est protégé par l'appli : tout l'est par la base (Row Level Security, voir
+`supabase/migrations/…000200_securite.sql` et le test `supabase/tests/securite.sql`). Le rôle « admin »
+ne peut être donné que depuis l'éditeur SQL. L'appli masque l'espace admin aux joueurs, mais même sans ce
+masque, la base refuse toute écriture. Le tirage des boosters se fera dans la fonction SQL `open_booster()`.
+
+**Réglages modifiables par l'admin** (table `app_config`, une seule ligne) : cartes par booster, boosters par
+jour, probabilité de chaque rareté (total = 100 %), version minimum requise. Valeurs par défaut et bornes :
+`config/reglages.ts` ; validation : `domain/reglages.ts`.
 
 ## Personnaliser le visuel
 

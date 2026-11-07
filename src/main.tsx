@@ -1,23 +1,28 @@
 /**
  * Point d'entrée de l'application.
  *
- * Rôle : importer les styles globaux, choisir les implémentations de stockage (profil et collection de
- * cartes) et monter <App /> dans #root.
+ * Rôle : importer les styles globaux, créer les services (connexion, collection de cartes,
+ * administration : tous basés sur Supabase ; profil local pour l'instant) et monter <App /> dans #root.
+ * Si le fichier `.env` (URL et clé Supabase) est vide, l'appli affiche un message de configuration.
  * Expose : rien (effet de bord : rendu React).
- * Dépend de : react-dom, app/App, app/pwa, hooks/useStorage, hooks/useCollectionService, services/LocalStorageService,
- * services/HttpCollectionService, styles/*.css,
- * @fontsource/lilita-one, @fontsource/nunito (polices).
- * Pour brancher un backend partagé plus tard, remplacer `LocalStorageService` par une autre
- * implémentation de `StorageService` ci-dessous : aucun écran n'est à modifier.
+ * Dépend de : react-dom, app/App, app/pwa, hooks/useAuth, hooks/useStorage, hooks/useCollectionService,
+ * hooks/useAdministrationService, services/*, styles/*.css, @fontsource/lilita-one, @fontsource/nunito (polices).
+ * Pour changer d'hébergeur de données plus tard, remplacer les services `Supabase…` ci-dessous :
+ * aucun écran n'est à modifier.
  */
-import { StrictMode } from 'react';
+import { StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
 import { enregistrerPwa } from './app/pwa';
+import { AdministrationProvider } from './hooks/useAdministrationService';
+import { AuthProvider } from './hooks/useAuth';
 import { CollectionProvider } from './hooks/useCollectionService';
 import { StorageProvider } from './hooks/useStorage';
-import { HttpCollectionService } from './services/HttpCollectionService';
 import { LocalStorageService } from './services/LocalStorageService';
+import { SupabaseAdministrationService } from './services/SupabaseAdministrationService';
+import { SupabaseAuthService } from './services/SupabaseAuthService';
+import { SupabaseCollectionService } from './services/SupabaseCollectionService';
+import { supabase } from './services/supabaseClient';
 // Polices installées dans l'appli (aucun lien externe) : titre = Lilita One, texte = Nunito 600/800/900.
 import '@fontsource/lilita-one/latin-400.css';
 import '@fontsource/nunito/latin-600.css';
@@ -33,20 +38,29 @@ if (!rootElement) {
 
 enregistrerPwa();
 
+// Services créés une seule fois (Supabase configuré) ou absents (appli affichant un message de configuration).
+const authService = supabase ? new SupabaseAuthService(supabase) : null;
+const collectionService = supabase ? new SupabaseCollectionService(supabase) : null;
+const administrationService = supabase ? new SupabaseAdministrationService(supabase) : null;
+
+/** Branche les services de collection et d'administration (seulement si Supabase est configuré). */
+function Services({ children }: { children: ReactNode }) {
+  if (!collectionService || !administrationService) return <>{children}</>;
+  return (
+    <CollectionProvider service={collectionService}>
+      <AdministrationProvider service={administrationService}>{children}</AdministrationProvider>
+    </CollectionProvider>
+  );
+}
+
 createRoot(rootElement).render(
   <StrictMode>
     <StorageProvider service={new LocalStorageService()}>
-      {/* import.meta.env.DEV : l'administration des cartes n'existe qu'avec « npm run dev ». */}
-      <CollectionProvider
-        service={
-          new HttpCollectionService({
-            baseUrl: import.meta.env.BASE_URL,
-            administration: import.meta.env.DEV,
-          })
-        }
-      >
-        <App />
-      </CollectionProvider>
+      <AuthProvider service={authService}>
+        <Services>
+          <App />
+        </Services>
+      </AuthProvider>
     </StorageProvider>
   </StrictMode>,
 );

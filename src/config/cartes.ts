@@ -2,11 +2,10 @@
  * Réglages de l'espace « Mes cartes » (collection de visuels de cartes).
  *
  * Rôle : centraliser les dimensions d'une carte, la tolérance sur les proportions, les formats d'image
- * acceptés, les réglages d'optimisation, les variantes autorisées par rareté et les adresses utilisées
- * pour enregistrer / lire les cartes.
+ * acceptés, les réglages d'optimisation et les variantes autorisées par rareté.
  * Expose : CARTE_LARGEUR_PX, CARTE_HAUTEUR_PX, DIMENSIONS_CARTE_TEXTE, RATIO_CARTE, TOLERANCE_RATIO, TYPES_IMAGE_ACCEPTES,
  * EXTENSIONS_IMAGE_ACCEPTEES, TAILLE_MAX_SOURCE_OCTETS, OPTIMISATION, NOM_CARTE_MAX, VARIANTES_PAR_RARETE,
- * NOMS_VARIANTES, STOCKAGE_CARTES.
+ * NOMS_VARIANTES.
  * Dépend de : domain/types (types uniquement).
  *
  * ┌─ COMMENT MODIFIER (pour débutant) ────────────────────────────────────────────────┐
@@ -63,21 +62,3 @@ export const NOMS_VARIANTES: Readonly<Record<Variant, string>> = {
   argent: 'Argent',
   or: 'Or',
 };
-
-/** Où les cartes sont enregistrées et comment l'espace d'administration y accède. */
-export const STOCKAGE_CARTES = {
-  /** Dossier (dans `public/`) qui contient les images et le fichier de liste. */
-  dossier: 'cartes',
-  /** Fichier de liste des cartes, dans ce dossier. */
-  fichierListe: 'cartes.json',
-  /** Version du format du fichier de liste. */
-  versionListe: 1,
-  /** Début des adresses de l'API d'administration (existe seulement avec `npm run dev`). */
-  racineApi: '/api/cartes',
-  /** Nom de l'en-tête HTTP qui transporte le code admin. */
-  enteteCode: 'x-code-admin',
-  /** Poids maximal d'une requête d'enregistrement (octets). */
-  tailleMaxRequeteOctets: 12 * 1024 * 1024,
-  /** Pause après un mauvais code admin (ms) : ralentit les essais au hasard. */
-  delaiMauvaisCodeMs: 800,
-} as const;

@@ -6,7 +6,7 @@
  * enregistrer le tout, une carte après l'autre.
  * Expose : Brouillon, ErreurFichier, useAjoutCartes().
  * Dépend de : react, config/cartes, domain/cartes, domain/id, hooks/useCollection (type),
- * services/imageOptimizer, services/CollectionService.
+ * effects/cles, services/imageOptimizer, services/erreurs.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -31,7 +31,8 @@ import {
   type VerdictRatio,
 } from '../domain/cartes';
 import { generateId } from '../domain/id';
-import { ErreurCollection, type CodeErreurCollection } from '../services/CollectionService';
+import { CLE_EFFET_AUCUN } from '../effects/cles';
+import { ErreurService, type CodeErreur } from '../services/erreurs';
 import { optimiserImage, type ImageOptimisee } from '../services/imageOptimizer';
 import type { ActionsAdmin } from './useCollection';
 
@@ -54,12 +55,17 @@ export interface Brouillon {
   /** Erreurs de saisie (affichées après un essai d'enregistrement). */
   erreurs: ErreursInfos;
   /** Échec de l'envoi au serveur. */
-  erreurEnvoi?: CodeErreurCollection;
+  erreurEnvoi?: CodeErreur;
 }
 
 /** Infos de départ d'une carte. */
 function infosParDefaut(nomFichier: string): InfosCarte {
-  return { nom: nomDepuisFichier(nomFichier, NOM_CARTE_MAX), rarete: 'commune' };
+  return {
+    nom: nomDepuisFichier(nomFichier, NOM_CARTE_MAX),
+    rarete: 'commune',
+    effet: CLE_EFFET_AUCUN,
+    active: true,
+  };
 }
 
 /** Gère la liste des cartes en cours d'ajout. */
@@ -196,9 +202,9 @@ export function useAjoutCartes(admin: ActionsAdmin | null) {
         reussies += 1;
         if (actif.current) retirer(brouillon.cle);
       } catch (erreur) {
-        const code = erreur instanceof ErreurCollection ? erreur.code : 'inconnue';
+        const code = erreur instanceof ErreurService ? erreur.code : 'inconnue';
         if (actif.current) modifier(brouillon.cle, { etat: 'pret', erreurEnvoi: code });
-        if (code === 'code_incorrect' || code === 'reseau') break; // inutile d'insister
+        if (code === 'non_autorise' || code === 'non_connecte' || code === 'reseau') break; // inutile d'insister
       }
     }
     if (actif.current) setEnregistrement(false);

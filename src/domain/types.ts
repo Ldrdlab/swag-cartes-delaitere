@@ -50,6 +50,10 @@ export interface Card {
   /** Dimensions de l'image enregistrée, en pixels (pour vérifier ses proportions). */
   width?: number;
   height?: number;
+  /** Clé de l'effet visuel de la carte (registre src/effects/). Vide ou absente = aucun effet. */
+  effect?: string;
+  /** Vrai si la carte peut sortir des boosters. Une carte désactivée reste dans les collections. */
+  active?: boolean;
   /** Champs libres pour la personnalisation future (ex. export d'un outil externe de création de cartes). */
   extra?: Record<string, unknown>;
 }

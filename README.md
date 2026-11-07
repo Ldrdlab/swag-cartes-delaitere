@@ -12,8 +12,9 @@ vibration, de backend ni de multijoueur.
 Accueil → Profil → Choix du booster → Confirmation → Ouverture (découpe) → Révélation des cartes
 → « Ouvrir un autre booster » (retour au choix) ou « Accueil ».
 
-Depuis l'accueil, le bouton **Mes cartes** ouvre la collection des visuels de cartes (voir
-« Mes cartes : ajouter les visuels des cartes » plus bas).
+Avant tout, on se **connecte** (e-mail + mot de passe : les comptes sont créés par l'administrateur, voir
+`supabase/README.md`). Depuis l'accueil, un administrateur voit en plus un bouton **Administration**
+(cartes, boosters, joueurs, version ; voir « Espace administrateur » plus bas).
 
 ## Prérequis
 
@@ -47,39 +48,29 @@ L'application s'ouvre sur l'adresse affichée par Vite (en général `http://loc
 | `npm test`           | Tests unitaires Vitest (une exécution)           |
 | `npm run test:watch` | Tests en mode surveillance                       |
 
-## Mes cartes : ajouter les visuels des cartes
+## Espace administrateur : cartes, boosters, joueurs, version
 
-L'écran **Mes cartes** (bouton en haut à droite de l'accueil) affiche toutes les cartes dans une galerie
-(recherche par nom, filtre par rareté, compteurs). Tout le monde peut la consulter ; **seul toi** peux
-ajouter, modifier ou supprimer des cartes.
+Les comptes, les cartes et leurs images sont dans **Supabase** (voir `supabase/README.md` pour la mise en
+place : projet, clés, fichiers SQL, premier compte admin). L'appli lit l'URL et la clé publique du projet
+dans le fichier `.env` (modèle : `.env.example`).
 
-**Où sont stockées les cartes ?** Dans le projet, dossier `public/cartes/` : les images (WebP ou PNG
-optimisées) et le fichier `cartes.json` (nom, rareté, variante de chaque carte). Ces fichiers sont
-publiés avec l'appli, donc visibles par tous tes amis sur tous leurs appareils.
+Un compte dont le rôle est **admin** voit le bouton **Administration** sur l'accueil, avec quatre onglets :
 
-**Mise en place (une seule fois) :**
+- **Cartes** : ajout de plusieurs visuels (choix de fichiers ou glisser-déposer ; PNG, JPG ou WebP), galerie
+  avec recherche, filtre par rareté et compteurs, fiche d'une carte (nom, rareté, variante, effet,
+  active oui/non) avec Modifier / Désactiver / Supprimer. Une image qui n'a pas les proportions d'une
+  carte (744 × 1040, ≈ 5:7) est signalée ; elle n'est jamais déformée.
+- **Boosters** : nombre de cartes par booster, boosters par joueur et par jour, probabilité de chaque
+  rareté (le total doit faire 100 %), bouton « Valeurs par défaut ».
+- **Joueurs** : liste des joueurs avec leur nombre de cartes (lecture seule).
+- **Version** : version en ligne et « version minimum requise ».
 
-1. Copie le fichier `.env.example` sous le nom `.env.local`.
-2. Ouvre `.env.local` et remplace la valeur de `ADMIN_CODE` par ton code secret. Ce fichier n'est
-   jamais envoyé sur Internet (il est ignoré par git).
+**Pourquoi un joueur ne peut-il rien modifier ?** Le bouton n'est qu'un confort : toutes les actions sont
+vérifiées par la **base de données** (règles de sécurité « RLS »). Même en bricolant l'appli, un joueur est
+refusé. Le rôle admin ne peut être donné que depuis l'éditeur SQL de Supabase.
 
-**Ajouter des cartes :**
-
-1. Lance `npm run dev` sur ton ordinateur et ouvre **Mes cartes**.
-2. Clique sur **Gérer mes cartes**, saisis ton code, puis **Ajouter des cartes** (choix de fichiers ou
-   glisser-déposer, plusieurs images d'un coup ; PNG, JPG ou WebP).
-3. Pour chaque image : vérifie le nom, choisis la rareté (et la variante pour Mythique et Secrète), puis
-   **Enregistrer**. Une image qui n'a pas les proportions d'une carte (≈ 5:7) est signalée par un
-   avertissement ; elle n'est jamais déformée.
-4. **Publie** le site pour que tes amis voient les nouvelles cartes : les fichiers de `public/cartes/`
-   font partie du projet (commit puis déploiement, comme le reste de l'appli).
-
-**Pourquoi tes amis ne peuvent-ils rien modifier ?** L'ajout, la modification et la suppression n'existent
-que dans `npm run dev` (sur ton ordinateur) et exigent ton code, vérifié par le serveur. Dans le site
-publié (`npm run build`), il n'y a aucun moyen d'écrire : la galerie est en lecture seule.
-
-> Si tu lances `npm run dev -- --host` (test sur téléphone), les appareils du même Wi-Fi peuvent voir le
-> bouton « Gérer mes cartes », mais n'ont pas ton code : ils ne peuvent rien changer.
+**Les images des cartes** (photos d'amis) sont dans un stockage **privé** : jamais dans le dépôt GitHub,
+visibles seulement par les utilisateurs connectés.
 
 ## Tester sur téléphone (réseau local)
 
@@ -116,7 +107,7 @@ Remarques :
 ```
 src/
 ├── app/         Point d'entrée de l'application : routeur d'écrans, machine à états du parcours
-├── screens/     Un dossier par écran (Welcome, Profile, BoosterSelect, BoosterConfirm, BoosterOpening, CardReveal, MesCartes)
+├── screens/     Un dossier par écran (Welcome, Profile, BoosterSelect, BoosterConfirm, BoosterOpening, CardReveal, Login, Admin)
 ├── boosters/    Apparence des boosters : catalogue, thèmes, skins, effets, BoosterVisuel
 ├── components/  Composants réutilisables (Button, ScreenLayout, Carousel, CardStack...)
 ├── hooks/       Logique React réutilisable (gestes, carrousel, stockage)
@@ -125,8 +116,8 @@ src/
 ├── config/      Tous les seuils, durées et réglages
 ├── data/        Données factices : boosters et cartes
 └── styles/      Variables CSS globales et reset
-tools/        Plugin Vite d'administration des cartes (Node, uniquement avec `npm run dev`)
-public/cartes/         Images et liste des cartes ajoutées depuis « Mes cartes » (créé au premier ajout)
+supabase/     Base de données : migrations SQL, test de sécurité, guide pas à pas (supabase/README.md)
+public/icons/ Icônes de l'appli installée (provisoires)
 docs/ARCHITECTURE.md   Détail de l'architecture et « où modifier quoi »
 ```
 

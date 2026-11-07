@@ -1,0 +1,59 @@
+/* Styles du formulaire des infos d'une carte (voir FormulaireInfos.tsx). */
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.champ label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Taille de saisie >= 16 px : évite le zoom automatique d'iOS. */
+.champ input:not([type='checkbox']),
+.champ select {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-placeholder);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: var(--font-size-base);
+}
+
+.caseActive {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target-min);
+}
+
+.aide {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.champ input[aria-invalid='true'],
+.champ select[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.champ input:disabled,
+.champ select:disabled {
+  background: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+}
+
+.erreur {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 600;
+}

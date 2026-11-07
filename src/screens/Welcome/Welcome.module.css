@@ -140,11 +140,18 @@
 }
 
 /* ----- En haut à droite : accès à la collection de cartes ----- */
-.boutonCartes {
+.actionsHaut {
   position: absolute;
   top: var(--space-3);
   right: var(--space-3);
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.boutonHaut {
   min-height: var(--touch-target-min);
   padding: var(--space-1) var(--space-3);
   border: 2px solid var(--couleur-encre);

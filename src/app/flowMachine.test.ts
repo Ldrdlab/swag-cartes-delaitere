@@ -66,16 +66,16 @@ describe('transition', () => {
     expect(etat.drawnCards).toEqual([]);
   });
 
-  it('ouvre « Mes cartes » depuis l’accueil et en revient', () => {
-    const ouvert = jouer({ type: 'OPEN_CARDS' });
-    expect(ouvert.screen).toBe('MES_CARTES');
-    expect(transition(ouvert, { type: 'CLOSE_CARDS' }).screen).toBe('WELCOME');
+  it('ouvre l’administration depuis l’accueil et en revient', () => {
+    const ouvert = jouer({ type: 'OPEN_ADMIN' });
+    expect(ouvert.screen).toBe('ADMIN');
+    expect(transition(ouvert, { type: 'CLOSE_ADMIN' }).screen).toBe('WELCOME');
   });
 
-  it('n’ouvre « Mes cartes » que depuis l’accueil', () => {
+  it('n’ouvre l’administration que depuis l’accueil', () => {
     const enProfil = jouer({ type: 'START' });
-    expect(transition(enProfil, { type: 'OPEN_CARDS' })).toBe(enProfil);
-    expect(transition(INITIAL_FLOW_STATE, { type: 'CLOSE_CARDS' })).toBe(INITIAL_FLOW_STATE);
+    expect(transition(enProfil, { type: 'OPEN_ADMIN' })).toBe(enProfil);
+    expect(transition(INITIAL_FLOW_STATE, { type: 'CLOSE_ADMIN' })).toBe(INITIAL_FLOW_STATE);
   });
 
   it('ignore un événement interdit depuis l’écran courant (même référence d’état)', () => {
@@ -87,7 +87,7 @@ describe('transition', () => {
       { type: 'OPENING_DONE', cards: cartesDeTest },
       { type: 'OPEN_ANOTHER' },
       { type: 'GO_HOME' },
-      { type: 'CLOSE_CARDS' },
+      { type: 'CLOSE_ADMIN' },
     ];
     for (const evenement of interdits) {
       expect(transition(INITIAL_FLOW_STATE, evenement)).toBe(INITIAL_FLOW_STATE);

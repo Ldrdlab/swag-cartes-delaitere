@@ -1,0 +1,231 @@
+/*
+ * Styles des sections de l'espace admin (onglets, formulaires de réglages, liste des joueurs).
+ * La page, l'en-tête, la galerie et les messages sont dans MesCartes.module.css.
+ */
+
+/* ----- Onglets ----- */
+.onglets {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  border-bottom: 2px solid var(--color-placeholder);
+}
+
+.onglet {
+  flex: 0 0 auto;
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-bottom: 4px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.onglet[aria-selected='true'] {
+  border-bottom-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.onglet:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: -3px;
+}
+
+/* ----- Formulaires ----- */
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 560px;
+}
+
+.sousTitre {
+  margin: 0;
+  font-size: 20px;
+}
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.champ label,
+.label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Taille de saisie >= 16 px : évite le zoom automatique d'iOS. */
+.champ input[type='text'],
+.champ input:not([type]),
+.champ input[inputmode] {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-placeholder);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: var(--font-size-base);
+}
+
+.champ input[aria-invalid='true'],
+.probabilites input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.aide {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.valeurGrosse {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.probabilites {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  border: 2px solid var(--color-placeholder);
+  border-radius: var(--radius-md);
+}
+
+.probabilites legend {
+  padding: 0 var(--space-2);
+  font-weight: 800;
+}
+
+.ligneProba {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-left: var(--space-2);
+  border-left: 6px solid;
+}
+
+.ligneProba label {
+  font-weight: 700;
+}
+
+.ligneProba input {
+  width: 110px;
+  min-height: var(--touch-target-min);
+  padding: var(--space-2);
+  border: 2px solid var(--color-placeholder);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: var(--font-size-base);
+  text-align: right;
+}
+
+.totalOk,
+.totalKo {
+  margin: 0;
+  font-weight: 800;
+}
+
+.totalOk {
+  color: #1e7e4f;
+}
+
+.totalKo {
+  color: var(--color-danger);
+}
+
+.boutons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.erreur {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.succes {
+  margin: 0;
+  color: #1e7e4f;
+  font-weight: 700;
+}
+
+.alerte {
+  padding: var(--space-3);
+  border: 2px solid var(--color-focus);
+  border-radius: var(--radius-sm);
+  background: #fff6e0;
+  font-weight: 600;
+}
+
+.alerte p {
+  margin: 0 0 var(--space-2);
+}
+
+.caseConfirmation {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target-min);
+  font-weight: 700;
+}
+
+/* ----- Joueurs ----- */
+.joueurs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.joueur {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 12%);
+}
+
+.joueur p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.nomJoueur {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.discret {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.badge {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  font-size: 12px;
+  font-weight: 800;
+}

@@ -1,11 +1,12 @@
 /**
- * Formulaire des infos d'une carte (nom, rareté, variante).
+ * Formulaire des infos d'une carte (nom, rareté, variante, effet, activation).
  *
  * Rôle : champs réutilisés pour une nouvelle carte (ajout) et pour une carte existante (modification).
- * La variante n'apparaît que pour les raretés qui en ont une (mythique, secrète).
+ * La variante n'apparaît que pour les raretés qui en ont une (mythique, secrète). La liste des effets
+ * vient du registre src/effects/ (pour l'instant : « Aucun » seulement).
  * Expose : le composant `FormulaireInfos`.
  * Dépend de : react, config/cartes, config/raretes, content/messagesCartes, content/textes,
- * domain/cartes, domain/types, Formulaire.module.css.
+ * domain/cartes, domain/types, effects, Formulaire.module.css.
  */
 import { useId } from 'react';
 import { NOM_CARTE_MAX, NOMS_VARIANTES, VARIANTES_PAR_RARETE } from '../../config/cartes';
@@ -14,6 +15,8 @@ import { texteErreurInfos } from '../../content/messagesCartes';
 import { TEXTES } from '../../content/textes';
 import { variantesPour, type ErreursInfos, type InfosCarte } from '../../domain/cartes';
 import { RARITIES, type Rarity, type Variant } from '../../domain/types';
+import { CLE_EFFET_AUCUN } from '../../effects/cles';
+import { listerEffets } from '../../effects';
 import styles from './Formulaire.module.css';
 
 interface FormulaireInfosProps {
@@ -97,6 +100,35 @@ export function FormulaireInfos({
           )}
         </div>
       )}
+
+      <div className={styles.champ}>
+        <label htmlFor={`${base}-effet`}>{textes.labelEffet}</label>
+        <select
+          id={`${base}-effet`}
+          value={infos.effet ?? CLE_EFFET_AUCUN}
+          disabled={disabled}
+          onChange={(event) => onChange({ effet: event.target.value })}
+        >
+          {listerEffets().map((effet) => (
+            <option key={effet.cle} value={effet.cle}>
+              {effet.nom}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className={styles.champ}>
+        <label className={styles.caseActive}>
+          <input
+            type="checkbox"
+            checked={infos.active ?? true}
+            disabled={disabled}
+            onChange={(event) => onChange({ active: event.target.checked })}
+          />
+          {textes.labelActive}
+        </label>
+        <p className={styles.aide}>{textes.aideActive}</p>
+      </div>
     </div>
   );
 }

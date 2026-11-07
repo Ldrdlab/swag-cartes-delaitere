@@ -2,7 +2,7 @@
  * Tests de la logique de la collection de cartes.
  *
  * Rôle : vérifier le ratio, les dimensions optimisées, la validation des infos, le filtrage, le tri,
- * les compteurs et la relecture du fichier de liste.
+ * les compteurs, ainsi que l'effet et l'activation d'une carte.
  * Dépend de : vitest, domain/cartes, config/cartes.
  */
 import { describe, expect, it } from 'vitest';
@@ -21,7 +21,6 @@ import {
   dimensionsOptimisees,
   filtrerCartes,
   fusionnerInfos,
-  lireListeCartes,
   nomDepuisFichier,
   normaliserInfos,
   trierCartes,
@@ -123,6 +122,15 @@ describe('fusionnerInfos', () => {
     );
     expect(infos).toEqual({ nom: 'Dragon', rarete: 'rare', variante: undefined });
   });
+
+  it('conserve l’effet et l’activation lors d’un changement de rareté', () => {
+    const infos = fusionner(
+      { nom: 'A', rarete: 'rare', effet: 'holo', active: false },
+      { rarete: 'mythique' },
+    );
+    expect(infos.effet).toBe('holo');
+    expect(infos.active).toBe(false);
+  });
 });
 
 describe('validerInfos et normaliserInfos', () => {
@@ -155,6 +163,14 @@ describe('validerInfos et normaliserInfos', () => {
       VARIANTES_PAR_RARETE,
     );
     expect(infos).toEqual({ nom: 'Pomme', rarete: 'rare' });
+  });
+
+  it('garde l’effet et l’activation quand ils sont renseignés', () => {
+    const infos = normaliserInfos(
+      { nom: 'A', rarete: 'commune', effet: 'aucun', active: false },
+      VARIANTES_PAR_RARETE,
+    );
+    expect(infos).toEqual({ nom: 'A', rarete: 'commune', effet: 'aucun', active: false });
   });
 });
 
@@ -203,67 +219,5 @@ describe('trierCartes', () => {
   it('trie par rareté puis par nom, sans modifier la liste d’origine', () => {
     expect(trierCartes(cartes).map((c) => c.id)).toEqual(['2', '4', '1', '3']);
     expect(cartes[0]?.id).toBe('1');
-  });
-});
-
-describe('lireListeCartes', () => {
-  const lire = (json: unknown) => lireListeCartes(json, VARIANTES_PAR_RARETE);
-
-  it('relit une carte complète', () => {
-    const { cartes: lues, ignorees } = lire({
-      cartes: [
-        {
-          id: 'a',
-          name: 'Dragon',
-          rarity: 'mythique',
-          variant: 'feu',
-          imageUrl: 'cartes/a.webp',
-          thumbUrl: 'cartes/a-mini.webp',
-          width: 744,
-          height: 1040,
-        },
-      ],
-    });
-    expect(ignorees).toBe(0);
-    expect(lues).toEqual([
-      {
-        id: 'a',
-        name: 'Dragon',
-        rarity: 'mythique',
-        variant: 'feu',
-        imageUrl: 'cartes/a.webp',
-        thumbUrl: 'cartes/a-mini.webp',
-        width: 744,
-        height: 1040,
-      },
-    ]);
-  });
-
-  it('ignore les entrées invalides et les doublons sans bloquer les autres', () => {
-    const bonne = { id: 'a', name: 'A', rarity: 'rare', imageUrl: 'cartes/a.webp' };
-    const { cartes: lues, ignorees } = lire({
-      cartes: [
-        bonne,
-        bonne,
-        { id: 'b', name: '', rarity: 'rare', imageUrl: 'x' },
-        { id: 'c', name: 'C', rarity: 'inconnue', imageUrl: 'x' },
-        { id: 'd', name: 'D', rarity: 'rare' },
-        'pas un objet',
-      ],
-    });
-    expect(lues).toHaveLength(1);
-    expect(ignorees).toBe(5);
-  });
-
-  it('retire une variante interdite pour la rareté', () => {
-    const { cartes: lues } = lire({
-      cartes: [{ id: 'a', name: 'A', rarity: 'rare', variant: 'feu', imageUrl: 'x' }],
-    });
-    expect(lues[0]?.variant).toBeUndefined();
-  });
-
-  it('renvoie une liste vide pour un fichier illisible', () => {
-    expect(lire(null)).toEqual({ cartes: [], ignorees: 0 });
-    expect(lire({ cartes: 'non' })).toEqual({ cartes: [], ignorees: 0 });
   });
 });

@@ -28,16 +28,18 @@ export const TEXTES = {
     nomAppli: 'Booster',
     // La phrase qui clignote doucement en bas de l'écran.
     invitation: 'Touchez pour commencer',
-    // Le numéro de version, en haut à gauche.
-    version: 'Version 0.1.0',
+    // Le numéro de version, en haut à gauche ({version} est remplacé par le vrai numéro : garde-le tel quel).
+    version: 'Version {version}',
     // Le mot qui précède le pseudo, en haut à gauche (sous la version).
     labelJoueur: 'Joueur :',
     // Ce qui s'affiche à la place du pseudo quand aucun profil n'est enregistré.
     pseudoAbsent: '—',
     // Les mentions légales, tout en bas de l'écran.
     mentions: '© Cartes Délaitère 2026',
-    // Le petit bouton qui ouvre la collection de cartes (en haut à droite).
-    boutonMesCartes: 'Mes cartes',
+    // Le petit bouton qui ouvre l'espace d'administration (en haut à droite, visible des administrateurs seulement).
+    boutonAdmin: 'Administration',
+    // Le petit bouton qui ferme la session (en haut à droite, sous le précédent).
+    boutonDeconnexion: 'Se déconnecter',
   },
 
   // ---------------------------------------------------------------------------------
@@ -149,10 +151,6 @@ export const TEXTES = {
   // ceux des variantes dans src/config/cartes.ts.)
   // ---------------------------------------------------------------------------------
   mesCartes: {
-    // Le titre de la page.
-    titre: 'Mes cartes',
-    // Le bouton qui ramène à l'accueil.
-    retour: 'Retour',
     // Le compteur de cartes (au singulier, puis au pluriel).
     totalUne: '{nombre} carte',
     totalPlusieurs: '{nombre} cartes',
@@ -174,15 +172,12 @@ export const TEXTES = {
     // Le petit badge sur une carte dont les proportions ne sont pas celles d'une carte.
     badgeRatio: 'Ratio ≠ 5:7',
 
-    // --- Accès administrateur ---
-    boutonGerer: 'Gérer mes cartes',
-    labelCode: 'Code admin',
-    boutonDeverrouiller: 'Déverrouiller',
-    boutonVerrouiller: 'Verrouiller',
-    erreurCodeIncorrect: 'Code incorrect.',
-    erreurCodeNonDefini:
-      'Aucun code admin n’est défini. Copie le fichier .env.example en .env.local, choisis ton code, puis relance « npm run dev ».',
-    erreurReseau: 'Le serveur ne répond pas. Vérifie que « npm run dev » tourne.',
+    // --- Messages d'erreur ---
+    erreurNonConnecte: 'Ta session a expiré. Reconnecte-toi.',
+    erreurNonAutorise: 'Action refusée : seul un administrateur peut faire cela.',
+    erreurCartePossedee:
+      'Cette carte est possédée par au moins un joueur : elle ne peut pas être supprimée. Désactive-la plutôt.',
+    erreurReseau: 'Impossible de joindre le serveur. Vérifie ta connexion.',
     erreurInconnue: 'Une erreur est survenue. Réessaie.',
     erreurInfosInvalides: 'Le serveur refuse ces informations.',
     erreurImageInvalide: 'Le serveur refuse cette image.',
@@ -217,6 +212,10 @@ export const TEXTES = {
     labelNom: 'Nom de la carte',
     labelRarete: 'Rareté',
     labelVariante: 'Variante',
+    labelEffet: 'Effet',
+    labelActive: 'Carte active',
+    aideActive: 'Une carte désactivée ne sort plus des boosters, mais reste dans les collections.',
+    badgeInactive: 'Désactivée',
     erreurNomVide: 'Le nom est obligatoire.',
     erreurNomTropLong: 'Nom trop long ({max} caractères maximum).',
     erreurVarianteRequise: 'Choisis une variante.',
@@ -230,7 +229,107 @@ export const TEXTES = {
     annuler: 'Annuler',
     confirmerSuppression: 'Supprimer « {nom} » ? Cette action est définitive.',
     confirmerOui: 'Oui, supprimer',
+    desactiver: 'Désactiver',
+    activer: 'Activer',
+    confirmerDesactivation:
+      'Désactiver « {nom} » ? Elle ne sortira plus des boosters, mais restera dans les collections.',
+    confirmerDesactiverOui: 'Oui, désactiver',
     infoRatio: 'Image de {largeur} × {hauteur} px : proportions inhabituelles.',
+  },
+
+  // ---------------------------------------------------------------------------------
+  // CONNEXION
+  // ---------------------------------------------------------------------------------
+  connexion: {
+    titre: 'Connexion',
+    consigne: 'Connecte-toi avec ton compte.',
+    labelEmail: 'Adresse e-mail',
+    labelMotDePasse: 'Mot de passe',
+    boutonConnecter: 'Se connecter',
+    enCours: 'Connexion…',
+    note: 'Pas encore de compte ? Demande une invitation à l’administrateur.',
+    chargement: 'Chargement…',
+    erreurChamps: 'Renseigne ton adresse e-mail et ton mot de passe.',
+    erreurIdentifiants: 'Adresse e-mail ou mot de passe incorrect.',
+    erreurTropDeTentatives: 'Trop d’essais. Attends quelques minutes, puis réessaie.',
+    erreurReseau: 'Impossible de joindre le serveur. Vérifie ta connexion.',
+    erreurInconnue: 'Connexion impossible. Réessaie.',
+    erreurProfil: 'Impossible de lire ton profil. Réessaie, ou déconnecte-toi.',
+    reessayer: 'Réessayer',
+    deconnexion: 'Se déconnecter',
+    nonConfigure:
+      'La connexion n’est pas configurée : le fichier .env (URL et clé Supabase) est manquant. Voir supabase/README.md.',
+  },
+
+  // ---------------------------------------------------------------------------------
+  // ESPACE ADMINISTRATEUR
+  // Dans les textes, {nombre}, {min}, {max}, {nom}… sont remplacés automatiquement : garde-les tels quels.
+  // ---------------------------------------------------------------------------------
+  admin: {
+    titre: 'Administration',
+    retour: 'Retour',
+    labelOnglets: 'Sections de l’administration',
+    refuse: 'Cet espace est réservé aux administrateurs.',
+    onglets: { cartes: 'Cartes', boosters: 'Boosters', joueurs: 'Joueurs', version: 'Version' },
+    chargement: 'Chargement…',
+    erreurChargement: 'Impossible de charger cette section.',
+    reessayer: 'Réessayer',
+
+    boosters: {
+      titre: 'Boosters',
+      labelCartes: 'Cartes par booster',
+      aideCartes: 'Un nombre entier entre {min} et {max}.',
+      labelParJour: 'Boosters par joueur et par jour',
+      aideParJour:
+        'Entre {min} et {max}. La limite se remet à zéro chaque jour à minuit (heure de Paris).',
+      titreProbabilites: 'Probabilité de chaque rareté (en %)',
+      aideProbabilites: 'Le total doit faire exactement 100 %.',
+      total: 'Total : {total} %',
+      totalOk: 'Le total fait bien 100 %.',
+      totalManque: 'Il manque {ecart} % pour arriver à 100 %.',
+      totalDepasse: 'Il y a {ecart} % de trop.',
+      boutonDefaut: 'Valeurs par défaut',
+      boutonEnregistrer: 'Enregistrer',
+      enregistrement: 'Enregistrement…',
+      succes: 'Réglages enregistrés.',
+      erreurCartes: 'Le nombre de cartes doit être un entier entre {min} et {max}.',
+      erreurParJour: 'Le nombre de boosters par jour doit être un entier entre {min} et {max}.',
+      erreurProbabilite:
+        'Chaque probabilité doit être un nombre positif, avec 2 décimales au maximum.',
+    },
+
+    joueurs: {
+      titre: 'Joueurs',
+      total: { un: '{nombre} joueur', plusieurs: '{nombre} joueurs' },
+      aide: 'Lecture seule. Pour ajouter un joueur ou changer un rôle, utilise Supabase (voir supabase/README.md).',
+      sansPseudo: 'Pas encore de pseudo',
+      badgeAdmin: 'Admin',
+      cartes: {
+        aucune: 'Aucune carte',
+        une: '{nombre} carte ({differentes} différente)',
+        plusieurs: '{nombre} cartes ({differentes} différentes)',
+      },
+      inscritLe: 'Inscrit le {date}',
+      vide: 'Aucun joueur pour le moment.',
+    },
+
+    version: {
+      titre: 'Version',
+      labelEnLigne: 'Version en ligne',
+      aideEnLigne:
+        'C’est la version de l’appli que tu utilises en ce moment (celle qui est publiée).',
+      labelMin: 'Version minimum requise',
+      aideMin:
+        'Un joueur dont l’appli est plus ancienne que cette version verra un écran « Mise à jour obligatoire ».',
+      erreurFormat:
+        'Écris la version avec trois nombres séparés par des points, par exemple 0.1.0.',
+      alerteTropHaute:
+        'Attention : {min} est plus récente que la version en ligne ({enLigne}). Personne, toi compris, ne pourrait plus utiliser l’appli tant que cette version n’est pas publiée.',
+      confirmerTropHaute: 'Je comprends, enregistrer quand même',
+      boutonEnregistrer: 'Enregistrer',
+      enregistrement: 'Enregistrement…',
+      succes: 'Version minimum enregistrée.',
+    },
   },
 
   // ---------------------------------------------------------------------------------

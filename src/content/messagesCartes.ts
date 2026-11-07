@@ -5,26 +5,27 @@
  * content/textes.ts, section `mesCartes`).
  * Expose : texteErreurCollection(), texteErreurInfos(), texteErreurFichier(), texteTotal().
  * Dépend de : config/cartes, content/textes, content/formatTexte, domain/cartes (type),
- * hooks/useAjoutCartes (type), services/CollectionService (type).
+ * hooks/useAjoutCartes (type), services/erreurs (type).
  */
 import { NOM_CARTE_MAX } from '../config/cartes';
 import type { ErreurInfos } from '../domain/cartes';
 import type { ErreurFichier } from '../hooks/useAjoutCartes';
-import type { CodeErreurCollection } from '../services/CollectionService';
+import type { CodeErreur } from '../services/erreurs';
 import { remplir } from './formatTexte';
 import { TEXTES } from './textes';
 
 const textes = TEXTES.mesCartes;
 
-/** Texte d'une erreur renvoyée par le service (code admin, réseau, serveur…). */
-export function texteErreurCollection(code: CodeErreurCollection): string {
-  const messages: Record<CodeErreurCollection, string> = {
-    code_incorrect: textes.erreurCodeIncorrect,
-    code_non_defini: textes.erreurCodeNonDefini,
+/** Texte d'une erreur renvoyée par un service (droits, réseau, serveur…). */
+export function texteErreurCollection(code: CodeErreur): string {
+  const messages: Record<CodeErreur, string> = {
+    non_connecte: textes.erreurNonConnecte,
+    non_autorise: textes.erreurNonAutorise,
     infos_invalides: textes.erreurInfosInvalides,
     image_invalide: textes.erreurImageInvalide,
     trop_gros: textes.erreurTropGros,
     introuvable: textes.erreurIntrouvable,
+    carte_possedee: textes.erreurCartePossedee,
     reseau: textes.erreurReseau,
     inconnue: textes.erreurInconnue,
   };

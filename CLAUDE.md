@@ -34,7 +34,8 @@ toujours expliquer simplement et dire précisément ce qu'il doit faire lui-mêm
 - Phase 0 : audit et plan — faite.
 - Phase 1 : fondations et mise en ligne — faite (en ligne le 2026-11-06).
 - Phase 2 : Supabase (comptes, rôles, données) — faite le 2026-11-07 (projet `gbaiedvbxtwmuphjmdxn`, schéma SQL dans `supabase/`, guide : `supabase/README.md`). Inscriptions publiques désactivées ; compte admin du porteur créé.
-- Phase 3 : espace admin. Phase 4 : espace joueur. Phase 5 : versions et mises à jour. Phase 6 : vérifications et `GUIDE.md`.
+- Phase 3 : espace admin — faite et testée en réel le 2026-11-07 (connexion, onglets Cartes / Boosters / Joueurs / Version, registre d'effets ; ajout, modification, désactivation et suppression d'une carte vérifiés avec des cartes de test, ensuite supprimées).
+- Phase 4 : espace joueur. Phase 5 : versions et mises à jour. Phase 6 : vérifications et `GUIDE.md`.
 
 ## Décisions prises
 
@@ -55,6 +56,8 @@ toujours expliquer simplement et dire précisément ce qu'il doit faire lui-mêm
   Variante obligatoire pour Mythique (feu/bronze) et Secrète (argent/or), interdite ailleurs. Bucket privé `cards` (2 Mo, webp/png/jpeg).
 - Tests de la base : `supabase/tests/securite.sql` (à lancer dans Supabase ; annule tout ce qu'il crée). Il a aussi été validé sur une
   base PostgreSQL locale (PGlite) hors du projet, y compris avec des failles volontaires pour vérifier qu'il les détecte.
+- Migration 5 (`…000500_email_et_joueurs.sql`) : `profiles.email` (copié du compte, non modifiable par l'appli) et `admin_list_players()` (admin seulement). Le test de sécurité compte maintenant 50 vérifications.
+- Phase 3 : l'ancien système local (plugin Vite `tools/`, `ADMIN_CODE`, `public/cartes` écrit en dev) est supprimé. Le tirage du parcours joueur utilise encore les cartes factices (`data/cards.ts`) jusqu'à la phase 4.
 - Le front lit `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` (`.env` local, secrets GitHub) via `src/services/supabaseClient.ts`.
 
 ## Stack
@@ -81,7 +84,7 @@ Tests : Vitest (environnement `node`). Qualité : ESLint 9 + Prettier.
 - Révélation des cartes : séquence = machine à états pure `domain/revelation.ts` ; effets et couleurs par rareté dans `src/config/raretes.ts`, durées dans `src/config/revelation.ts` ; aucun `Math.random` dans les effets (calcul à partir du numéro).
 - Boosters : un écran n'affiche un booster que via `<BoosterVisuel />` ; ajouter un booster = un thème dans `src/boosters/themes/` + une ligne dans `src/boosters/catalogue.ts`. Toute skin respecte le contrat de `src/boosters/skins/types.ts` (parties `haut` / `corps`).
 - Composants courts (~150 lignes max). Stockage : toujours via l'interface `StorageService`.
-- Collection de cartes (« Mes cartes ») : accès via l'interface `CollectionService` (`StorageService` ne gère que le profil) ; implémentation actuelle = fichiers locaux `public/cartes/` (git-ignorés) écrits par `tools/cartesPlugin.ts` (`npm run dev` uniquement, code `ADMIN_CODE` dans `.env.local`) ; elle sera remplacée par une implémentation Supabase (phases 2-3). Un visuel de carte ne s'affiche que via `<Carte />` (`components/Carte`). Réglages dans `config/cartes.ts`, logique pure dans `domain/cartes.ts`. Les fichiers atteints par `vite.config.ts` (`tools/`, `config/cartes.ts`, `config/deploiement.ts`, `domain/cartes.ts`, `types.ts`, `id.ts`) importent avec l'extension `.ts`.
+- Cartes et administration : accès UNIQUEMENT via les interfaces `CollectionService`, `AdministrationService` et `AuthService` (implémentations Supabase, branchées dans `main.tsx`) ; `StorageService` ne gère que le profil local. Un visuel de carte ne s'affiche que via `<Carte />` (`components/Carte`), qui pose aussi l'effet de la carte (registre `src/effects/`, pour l'instant « aucun » ; en base, vide = aucun, voir `effects/cles.ts`). Réglages dans `config/cartes.ts` et `config/reglages.ts`, logique pure dans `domain/cartes.ts`, `domain/reglages.ts`, `domain/version.ts`, conversions base ↔ appli dans `domain/cartesBase.ts` et `domain/administration.ts`. Le rôle lu dans le profil ne sert qu'à AFFICHER l'espace admin : la sécurité est dans la base. Erreurs Supabase : `services/erreurs.ts`. Le seul fichier atteint par `vite.config.ts` est `config/deploiement.ts` (import avec l'extension `.ts`) ; `domain/cartes.ts`, `types.ts` et `id.ts` gardent l'extension `.ts` dans leurs imports.
 - Pas de `crypto.randomUUID` (indisponible en HTTP sur le réseau local) : utiliser `domain/id.ts`.
 - PWA : le chemin de base n'est appliqué qu'au `build` et à `preview` ; `dev` reste à la racine. Les visuels de cartes ne sont jamais précachés par le service worker.
 

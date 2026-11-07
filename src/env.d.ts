@@ -13,3 +13,6 @@ interface ImportMetaEnv {
   /** Clé publique « anon » du projet Supabase (conçue pour être visible dans le navigateur). */
   readonly VITE_SUPABASE_ANON_KEY?: string;
 }
+
+/** Numéro de version de l'appli, injecté par vite.config.ts à partir de package.json. */
+declare const __VERSION_APPLI__: string;

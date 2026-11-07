@@ -101,6 +101,9 @@ export function Galerie({ cartes, administrateur, onOuvrir }: GalerieProps) {
                 <Carte carte={carte} taille="miniature" decorative />
                 <span className={styles.nomCarte}>{carte.name}</span>
                 <span className={styles.rareteCarte}>{RARETES[carte.rarity].nom}</span>
+                {carte.active === false && (
+                  <span className={styles.badgeRatio}>{textes.badgeInactive}</span>
+                )}
                 {ratioAnormal && <span className={styles.badgeRatio}>{textes.badgeRatio}</span>}
               </button>
             </li>

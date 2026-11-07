@@ -1,11 +1,11 @@
 /**
- * État de la vue détaillée d'une carte : consulter, modifier, supprimer (avec confirmation).
+ * État de la vue détaillée d'une carte : consulter, modifier, désactiver, supprimer (avec confirmation).
  *
  * Rôle : gérer le mode courant, le brouillon des infos pendant la modification, la validation, les
  * erreurs et les appels d'écriture. Les composants ne font qu'afficher cet état.
  * Expose : ModeCarte, useEditionCarte().
  * Dépend de : react, config/cartes, domain/cartes, domain/types (type), hooks/useCollection (type),
- * services/CollectionService.
+ * effects/cles, services/erreurs.
  */
 import { useState } from 'react';
 import { NOM_CARTE_MAX, VARIANTES_PAR_RARETE } from '../config/cartes';
@@ -17,19 +17,26 @@ import {
   type InfosCarte,
 } from '../domain/cartes';
 import type { Card } from '../domain/types';
-import { ErreurCollection, type CodeErreurCollection } from '../services/CollectionService';
+import { CLE_EFFET_AUCUN, cleDepuisBase } from '../effects/cles';
+import { ErreurService, type CodeErreur } from '../services/erreurs';
 import type { ActionsAdmin } from './useCollection';
 
-/** Ce que la vue détaillée montre : la carte seule, le formulaire de modification, ou la confirmation. */
-export type ModeCarte = 'vue' | 'edition' | 'suppression';
+/** Ce que la vue détaillée montre : la carte seule, le formulaire, ou une confirmation. */
+export type ModeCarte = 'vue' | 'edition' | 'desactivation' | 'suppression';
 
 /** Infos actuelles d'une carte, sous la forme du formulaire. */
 function infosDe(carte: Card): InfosCarte {
-  return { nom: carte.name, rarete: carte.rarity, variante: carte.variant };
+  return {
+    nom: carte.name,
+    rarete: carte.rarity,
+    variante: carte.variant,
+    effet: cleDepuisBase(carte.effect ?? CLE_EFFET_AUCUN),
+    active: carte.active ?? true,
+  };
 }
 
 /**
- * Gère la modification et la suppression d'une carte.
+ * Gère la modification, la désactivation et la suppression d'une carte.
  *
  * @param carte - Carte affichée.
  * @param admin - Actions d'écriture (`null` : lecture seule).
@@ -39,8 +46,9 @@ export function useEditionCarte(carte: Card, admin: ActionsAdmin | null, onSuppr
   const [mode, setMode] = useState<ModeCarte>('vue');
   const [infos, setInfos] = useState<InfosCarte>(() => infosDe(carte));
   const [erreurs, setErreurs] = useState<ErreursInfos>({});
-  const [erreurServeur, setErreurServeur] = useState<CodeErreurCollection | null>(null);
+  const [erreurServeur, setErreurServeur] = useState<CodeErreur | null>(null);
   const [enCours, setEnCours] = useState(false);
+  const active = carte.active ?? true;
 
   /** Revient à la simple consultation. */
   const revenir = () => {
@@ -57,11 +65,18 @@ export function useEditionCarte(carte: Card, admin: ActionsAdmin | null, onSuppr
     try {
       await operation(admin);
     } catch (erreur) {
-      setErreurServeur(erreur instanceof ErreurCollection ? erreur.code : 'inconnue');
+      setErreurServeur(erreur instanceof ErreurService ? erreur.code : 'inconnue');
     } finally {
       setEnCours(false);
     }
   };
+
+  /** Active ou désactive la carte (les autres infos ne changent pas). */
+  const changerActivation = (nouvelleValeur: boolean) =>
+    executer(async (actions) => {
+      await actions.modifier(carte.id, { ...infosDe(carte), active: nouvelleValeur });
+      revenir();
+    });
 
   return {
     mode,
@@ -69,6 +84,7 @@ export function useEditionCarte(carte: Card, admin: ActionsAdmin | null, onSuppr
     erreurs,
     erreurServeur,
     enCours,
+    active,
     commencerEdition: () => {
       setInfos(infosDe(carte));
       setMode('edition');
@@ -88,6 +104,10 @@ export function useEditionCarte(carte: Card, admin: ActionsAdmin | null, onSuppr
         revenir();
       });
     },
+    // Désactiver demande confirmation ; réactiver se fait directement.
+    demanderDesactivation: () => setMode('desactivation'),
+    confirmerDesactivation: () => changerActivation(false),
+    reactiver: () => changerActivation(true),
     demanderSuppression: () => setMode('suppression'),
     confirmerSuppression: () =>
       executer(async (actions) => {
