@@ -33,7 +33,7 @@ toujours expliquer simplement et dire précisément ce qu'il doit faire lui-mêm
 
 - Phase 0 : audit et plan — faite.
 - Phase 1 : fondations et mise en ligne — faite (en ligne le 2026-11-06).
-- Phase 2 : Supabase (comptes, rôles, données) — en cours (schéma SQL dans `supabase/`, guide : `supabase/README.md`).
+- Phase 2 : Supabase (comptes, rôles, données) — faite le 2026-11-07 (projet `gbaiedvbxtwmuphjmdxn`, schéma SQL dans `supabase/`, guide : `supabase/README.md`). Inscriptions publiques désactivées ; compte admin du porteur créé.
 - Phase 3 : espace admin. Phase 4 : espace joueur. Phase 5 : versions et mises à jour. Phase 6 : vérifications et `GUIDE.md`.
 
 ## Décisions prises
