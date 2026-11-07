@@ -48,6 +48,11 @@ jobs:
 
       - name: Construire l'appli
         run: npm run build
+        env:
+          # URL et clé PUBLIQUE « anon » de Supabase, lues dans les secrets du dépôt GitHub
+          # (jamais la clé « service_role »).
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Préparer les fichiers à publier
         uses: actions/upload-pages-artifact@v3

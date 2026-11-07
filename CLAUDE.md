@@ -31,8 +31,10 @@ toujours expliquer simplement et dire précisément ce qu'il doit faire lui-mêm
 
 ## Phases
 
-0. Audit et plan — fait. 1. Fondations et mise en ligne — faite (en ligne le 2026-11-06). 2. Supabase (comptes, rôles, données). 3. Espace admin.
-1. Espace joueur. 5. Versions et mises à jour. 6. Vérifications et GUIDE.md.
+- Phase 0 : audit et plan — faite.
+- Phase 1 : fondations et mise en ligne — faite (en ligne le 2026-11-06).
+- Phase 2 : Supabase (comptes, rôles, données) — en cours (schéma SQL dans `supabase/`, guide : `supabase/README.md`).
+- Phase 3 : espace admin. Phase 4 : espace joueur. Phase 5 : versions et mises à jour. Phase 6 : vérifications et `GUIDE.md`.
 
 ## Décisions prises
 
@@ -45,6 +47,15 @@ toujours expliquer simplement et dire précisément ce qu'il doit faire lui-mêm
 - « Version minimum requise » : confort d'utilisation, pas une sécurité (à renforcer côté `open_booster()` si besoin).
 - L'outil de création des cartes (images JPEG) est un autre projet : il n'est pas intégré à l'appli.
 - Icônes de l'appli (`public/icons/`) : provisoires (S sur dégradé), à remplacer par les vraies.
+- Base de données (`supabase/migrations/`, appliquée à la main dans l'éditeur SQL de Supabase, dans l'ordre) :
+  `profiles`, `cards` (+ `thumb_path`), `user_cards`, `booster_openings`, `app_config` (1 seule ligne ; probabilités en JSON, total = 100 %).
+  `profiles.role` n'est modifiable que depuis la base (droit de colonne + déclencheur). Joueur : lit cartes actives + cartes possédées,
+  sa collection, son profil. `app_config` : admin seulement ; les joueurs passent par les fonctions `get_min_version()` (aussi pour
+  les visiteurs non connectés) et `get_booster_status()`. Collections modifiées uniquement par `open_booster(p_booster)`.
+  Variante obligatoire pour Mythique (feu/bronze) et Secrète (argent/or), interdite ailleurs. Bucket privé `cards` (2 Mo, webp/png/jpeg).
+- Tests de la base : `supabase/tests/securite.sql` (à lancer dans Supabase ; annule tout ce qu'il crée). Il a aussi été validé sur une
+  base PostgreSQL locale (PGlite) hors du projet, y compris avec des failles volontaires pour vérifier qu'il les détecte.
+- Le front lit `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` (`.env` local, secrets GitHub) via `src/services/supabaseClient.ts`.
 
 ## Stack
 
