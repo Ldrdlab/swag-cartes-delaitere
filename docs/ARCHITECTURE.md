@@ -264,12 +264,17 @@ WebGL pour le feu) ajoutée à l'affichage.
   (fonction pure : contexte → calques). `EffetCarte.tsx` empile les calques dans la zone choisie et gère les modes
   (statique, animé, interactif), la pause hors écran et « Effets réduits » (`preferences.ts`).
 - `domain/effetsCartes.ts` : logique pure (zones, intensité, qualité, inclinaison, réglages JSON, `resoudreEffet`).
-  `config/effets.ts` : zones en pourcentages, seuils d'appareil modeste, gyroscope, effet par défaut par rareté,
+  `config/effets.ts` : zones en pourcentages, seuils d'appareil modeste, orbite et geste, nombre de feux animés, effet par défaut par rareté,
   éclat de révélation.
 - Base (migration 6) : `cards.effect_override` (vide = automatique, `aucun`, ou une clé), `cards.effect_params`
   (JSON), table `rarity_effects` (effet par défaut de chaque rareté, admin seulement), fonction
   `get_rarity_effects()` pour les joueurs (lue une fois par `hooks/useReglesEffets`).
 - Admin : onglet « Effets » (`SectionEffets`, `EditeurEffets`, `EffetsTable`) ; fiche de carte `ChampEffet`.
+- Animation (V0.2) : `effects/socle/horloge.ts` = UNE horloge (`requestAnimationFrame`) pour toutes les cartes
+  visibles ; elle écrit `--effet-x/y` sur le cadre de chaque carte (orbite au repos, geste lissé, retour doux) et le CSS
+  de `components/Carte/Carte.module.css` incline la carte. `socle/useOrbite.ts` inscrit la carte à l'horloge,
+  `socle/usePointeurEffet.ts` gère le geste (Pointer Events, capture, appui ou glissé), `webgl/arbitre.ts` choisit les
+  feux qui animent. Calculs purs et testés : `domain/animationEffets.ts`. Réglages joueur : `effects/preferences.ts`.
 - Poids : effets chargés à la demande ≈ 8 Ko gzip ; textures : 0 Ko (SVG générés dans `socle/textures.ts`).
 
 **Sécurité.** Rien n'est protégé par l'appli : tout l'est par la base (Row Level Security, voir

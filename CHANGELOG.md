@@ -9,6 +9,13 @@ ces points sous le numéro de la nouvelle version.
 
 ## Non publié
 
+- Les effets des cartes bougent maintenant en continu, même sans les toucher : les reflets glissent doucement et la carte s'incline légèrement, dans la collection comme à l'ouverture des boosters.
+- Tu peux incliner une carte au doigt ou à la souris : ouvre-la en grand (ou retourne-la à l'ouverture d'un booster) et glisse le doigt dessus, les reflets et l'inclinaison te suivent ; quand tu lèves le doigt, elle revient doucement. La page ne défile pas pendant que tu manipules la carte, mais défile toujours normalement partout ailleurs.
+- Dans la collection, la page défile comme avant au doigt. Sur ordinateur, la carte suit ta souris quand tu la survoles.
+- Nouveau réglage « Qualité des effets » dans le profil : Auto (l'appli choisit selon ton appareil), Élevée ou Économie. La case « Effets réduits » arrête les mouvements, mais les reflets suivent toujours ton doigt.
+- L'inclinaison du téléphone (gyroscope) n'est plus utilisée : le doigt suffit.
+- Espace administrateur : nouvel onglet « Essai » avec une grille de cartes et un compteur d'images par seconde, pour juger la fluidité sur ton téléphone.
+
 ## [0.1.5] - 2026-11-08
 
 - Les cartes brillent maintenant selon leur rareté : un reflet doux pour les Peu communes, un effet holographique pour les Rares, des couleurs qui changent avec l'angle pour les Super rares, un arc-en-ciel pour les Légendaires, des flammes pour les Mythiques Feu, du métal pour les Mythiques Bronze et les Secrètes Argent et Or.

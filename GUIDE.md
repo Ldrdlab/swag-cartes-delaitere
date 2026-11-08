@@ -221,9 +221,15 @@ raretés élevées. Sinon la carte aurait un effet dessiné dans l'image **et** 
 - Tu peux régler l'intensité et la zone ; **« Revenir à l'automatique »** efface tout et remet l'effet de la rareté.
 - La liste des cartes a un filtre **Effet** (automatique, forcé, aucun) et un badge « Effet : … » ou « Sans effet ».
 
-**Pour les joueurs** : dans la collection, les cartes restent calmes (image fixe). En vue agrandie et à la révélation,
-l'effet bouge et suit la souris, l'inclinaison du téléphone ou le doigt. La case **« Effets réduits »** (écran Profil)
-rend les cartes plus simples et sans animation : conseille-la à un ami dont le téléphone chauffe ou rame.
+**Pour les joueurs** : les effets bougent en continu, même sans toucher la carte (reflets qui glissent, légère
+inclinaison), dans la collection comme à l'ouverture des boosters. En vue agrandie et à la révélation, le joueur glisse
+le doigt (ou la souris) sur la carte pour l'incliner ; elle revient doucement quand il lâche. La page ne défile pas
+pendant ce geste, mais défile normalement partout ailleurs, et dans la collection le doigt ne bloque jamais le
+défilement. Le gyroscope n'est plus utilisé. Dans l'écran **Profil**, deux réglages (retenus sur l'appareil) :
+
+- **Qualité des effets** : Auto (l'appli choisit : Économie sur un téléphone modeste), Élevée ou Économie.
+- **Effets réduits** : cartes plus simples, sans mouvement (les reflets suivent encore le doigt). Conseille-le à un ami
+  dont le téléphone chauffe ou rame.
 
 **Si un effet te semble trop lourd** : baisse son intensité, ou choisis un effet plus léger (Lustre, Holo, Prisme sont
 les plus légers ; Feu est le plus gourmand).
@@ -233,8 +239,8 @@ registre) et complète `CREDITS.md`.
 
 ### Tester sur ton téléphone AVANT de publier
 
-Le gyroscope (effets qui suivent l'inclinaison) ne marche qu'en **HTTPS** : un simple lien sur ton réseau Wi-Fi ne
-suffit pas. Méthode recommandée (gratuite, sans compte) :
+Pour tester comme un vrai joueur (installation, mises à jour), il faut une adresse **HTTPS** : un simple lien sur ton
+réseau Wi-Fi ne convient pas toujours. Méthode recommandée (gratuite, sans compte) :
 
 1. **Une seule fois** : installe l'outil `cloudflared` (tunnel HTTPS temporaire). Dans un terminal Windows :
    `winget install Cloudflare.cloudflared` (puis ferme et rouvre le terminal).
@@ -245,11 +251,18 @@ suffit pas. Méthode recommandée (gratuite, sans compte) :
 5. Quand tu as fini, ferme les deux terminaux (Ctrl + C) : l'adresse n'existe plus.
 
 L'appli de test utilise **tes vraies données** Supabase : ne supprime rien. Autre option sans installation (mais sans
-le gyroscope) : `npm run dev -- --host` et ouvre l'adresse réseau affichée, sur le même Wi-Fi.
+le HTTPS) : `npm run dev -- --host` et ouvre l'adresse réseau affichée, sur le même Wi-Fi.
 
-**Quoi vérifier** : collection fluide en faisant défiler ; vue agrandie qui suit l'inclinaison (iPhone : accepte la
-permission au premier toucher ; si tu la refuses, glisser le doigt marche) ; ouverture d'un booster avec un effet à la
-révélation ; case « Effets réduits » qui fige tout.
+**Quoi vérifier** : collection qui défile normalement au doigt avec des effets qui bougent ; appui sur une carte qui
+l'ouvre ; vue agrandie : le doigt incline la carte, la page ne défile pas, la carte revient doucement ; un glissé ne
+ferme ni ne retourne rien ; ouverture d'un booster avec un effet (et un éclat dès Légendaire) ; pas de menu
+« Enregistrer l'image » à l'appui long (iPhone) ; réglages « Qualité » et « Effets réduits » du Profil.
+
+**Mesurer la fluidité** (Admin > **Essai**) : une grille de cartes fictives et un compteur d'images par seconde (60 =
+très fluide, 30 = correct, moins = saccadé ; le temps « plus lente 5 % du temps » doit rester sous 33 ms). Fais défiler
+la grille avec 50 cartes, en qualité Élevée puis Économie ; compare « Une horloge (JavaScript) » et « CSS pur » ; règle
+« Feux animés en même temps » (0, 1, 2, 4…) et note jusqu'où le téléphone reste fluide : c'est ce qui fixe les valeurs
+`WEBGL_ANIMES_MAX` de `src/config/effets.ts`. Teste en mode normal et en « Effets réduits ».
 
 ---
 

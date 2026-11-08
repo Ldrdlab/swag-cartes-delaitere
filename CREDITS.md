@@ -16,6 +16,12 @@ de tiers n'est copié. Les sources ci-dessous n'ont fourni qu'un **principe**, r
 | Argent, Or                  | [O'Brien Media — doré brossé en CSS](https://obrienmedia.co.uk/?p=212092)                   | article        | Doré en trois couches (idée)                            |
 | Textures aléatoires         | mulberry32 (Tommy Ettinger)                                                                 | domaine public | Générateur pseudo-aléatoire à graine fixe               |
 
+**Mécanique d'animation (V0.2)** : l'orbite au repos, l'inclinaison 3D du cadre (9°, perspective), la position
+du pointeur écrite dans des variables CSS une fois par image et la pause hors écran reprennent la mécanique de l'outil
+de création du même auteur, écrite ici de façon originale (aucun code de tiers). Le principe des variables CSS de pointeur
+vient de [codeweb-dev/holo-card](https://github.com/codeweb-dev/holo-card) (MIT), déjà cité ci-dessus ; le partage d'un
+seul contexte WebGL est un principe courant (pas de code repris).
+
 **Écarté** : `simeydotme/pokemon-cards-css` (GPL-3.0, textures de tiers) : rien n'en est copié.
 
 Ce fichier est à compléter quand un effet est ajouté (voir l'en-tête de `src/effects/index.ts`).
