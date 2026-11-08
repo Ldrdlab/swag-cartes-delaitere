@@ -1,5 +1,5 @@
 -- ============================================================================
--- TEST DE SÉCURITÉ — à lancer dans l'éditeur SQL de Supabase APRÈS les 5 migrations
+-- TEST DE SÉCURITÉ — à lancer dans l'éditeur SQL de Supabase APRÈS les 6 migrations
 -- ============================================================================
 -- Rôle : vérifier automatiquement que les règles d'accès tiennent (joueur, admin, visiteur non connecté)
 -- et que le tirage des boosters se fait bien côté serveur.
@@ -219,6 +219,65 @@ begin
   insert into resultats values ('Probabilités 100 % commune : 5 cartes tirées en plus de la 1re (1 + 5 = 6)', v_r = '6', v_r);
   select count(*)::text into v_r from public.user_cards where user_id = v_j2 and card_id = v_rare;
   insert into resultats values ('Probabilités 100 % commune : aucune carte rare tirée', v_r = '0', v_r);
+
+  -- ---------- D2. Effets visuels des cartes (migration 6) ----------
+  -- Anciennes versions de l'appli : l'ancien champ « effect » est toujours renvoyé par le tirage.
+  v_r := pg_temp.valeur(v_j2, 'authenticated', 'select (public.open_booster() -> ''cards'' -> 0) ? ''effect''');
+  insert into resultats values ('Effets : le tirage renvoie toujours l''ancien champ « effect »', v_r = 'true', v_r);
+  select count(*)::text into v_r from public.cards where effect_override <> '' or effect_params <> '{}'::jsonb;
+  insert into resultats values ('Effets : aucune carte n''est forcée par défaut (mode automatique)', v_r = '0', v_r);
+  update public.cards set effect_override = 'aucun', effect_params = '{"intensity": 40}' where id = v_commune;
+  v_r := pg_temp.valeur(v_j2, 'authenticated', 'select public.open_booster() -> ''cards'' -> 0 ->> ''effect_override''');
+  insert into resultats values ('Effets : le tirage renvoie l''effet choisi pour la carte', v_r = 'aucun', v_r);
+  update public.cards set effect_override = '', effect_params = '{}' where id = v_commune;
+
+  v_r := pg_temp.valeur(null, 'anon', 'select count(*) from public.rarity_effects');
+  insert into resultats values ('Effets : un visiteur ne lit pas la table des effets', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.valeur(null, 'anon', 'select public.get_rarity_effects()::text');
+  insert into resultats values ('Effets : un visiteur ne peut pas appeler get_rarity_effects', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.valeur(v_j1, 'authenticated', 'select count(*) from public.rarity_effects');
+  insert into resultats values ('Effets : un joueur ne lit pas la table des effets', v_r = '0' or v_r like 'erreur:%', v_r);
+  v_r := pg_temp.valeur(v_j1, 'authenticated', 'select jsonb_array_length(public.get_rarity_effects())::text');
+  insert into resultats values ('Effets : un joueur reçoit les 9 effets par défaut', v_r = '9', v_r);
+  v_r := pg_temp.valeur(v_j1, 'authenticated', 'with u as (update public.rarity_effects set effect = ''feu'' returning 1) select count(*) from u');
+  insert into resultats values ('Effets : un joueur ne peut pas changer un effet par défaut', v_r = '0' or v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_j1, 'authenticated', 'insert into public.rarity_effects (rarity, effect) values (''commune'', ''feu'')');
+  insert into resultats values ('Effets : un joueur ne peut pas ajouter de ligne', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.valeur(v_j1, 'authenticated', format('with u as (update public.cards set effect_override = ''feu'' where id = %L returning 1) select count(*) from u', v_rare));
+  insert into resultats values ('Effets : un joueur ne peut pas choisir l''effet d''une carte', v_r = '0' or v_r like 'erreur:%', v_r);
+
+  v_r := pg_temp.valeur(v_admin, 'authenticated', 'select count(*) from public.rarity_effects');
+  insert into resultats values ('Effets : l''admin lit les 9 effets par défaut', v_r = '9', v_r);
+  v_r := pg_temp.valeur(v_admin, 'authenticated', 'with u as (update public.rarity_effects set effect = ''prisme'', params = ''{"intensity": 70, "zone": "interieur", "settings": {"vitesse": 1.5}}'' where rarity = ''rare'' returning 1) select count(*) from u');
+  insert into resultats values ('Effets : l''admin peut changer l''effet d''une rareté et ses réglages', v_r = '1', v_r);
+  v_r := pg_temp.valeur(v_j1, 'authenticated', 'select (select e ->> ''effect'' from jsonb_array_elements(public.get_rarity_effects()) e where e ->> ''rarity'' = ''rare'')');
+  insert into resultats values ('Effets : le changement de l''admin est visible par les joueurs', v_r = 'prisme', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', 'update public.rarity_effects set updated_at = now() where rarity = ''rare''');
+  insert into resultats values ('Effets : l''admin ne peut modifier que l''effet et ses réglages (pas le reste de la ligne)', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', 'insert into public.rarity_effects (rarity, effect) values (''rare'', ''feu'')');
+  insert into resultats values ('Effets : l''admin ne peut pas ajouter de ligne', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.valeur(v_admin, 'authenticated', 'with d as (delete from public.rarity_effects returning 1) select count(*) from d');
+  insert into resultats values ('Effets : l''admin ne peut pas supprimer de ligne', v_r = '0' or v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', 'update public.rarity_effects set effect = ''Feu !'' where rarity = ''rare''');
+  insert into resultats values ('Effets : une clé d''effet invalide est refusée', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', 'update public.rarity_effects set params = ''{"intensity": 150}'' where rarity = ''rare''');
+  insert into resultats values ('Effets : une intensité hors de 0 à 100 est refusée', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', 'update public.rarity_effects set params = ''{"intensity": "fort"}'' where rarity = ''rare''');
+  insert into resultats values ('Effets : une intensité qui n''est pas un nombre est refusée', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', 'update public.rarity_effects set params = ''{"zone": "partout"}'' where rarity = ''rare''');
+  insert into resultats values ('Effets : une zone inconnue est refusée', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', 'update public.rarity_effects set params = ''{"couleur": "rouge"}'' where rarity = ''rare''');
+  insert into resultats values ('Effets : un réglage inconnu est refusé', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', 'update public.rarity_effects set params = ''{"settings": {"vitesse": 99}}'' where rarity = ''rare''');
+  insert into resultats values ('Effets : un réglage d''effet hors bornes est refusé', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', 'update public.rarity_effects set params = ''[1]'' where rarity = ''rare''');
+  insert into resultats values ('Effets : des réglages qui ne sont pas un objet sont refusés', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', format('update public.cards set effect_override = ''feu'', effect_params = ''{"intensity": 50, "zone": "carte"}'' where id = %L', v_rare));
+  insert into resultats values ('Effets : l''admin peut forcer l''effet d''une carte', v_r = 'ok', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', format('update public.cards set effect_override = ''Feu !'' where id = %L', v_rare));
+  insert into resultats values ('Effets : une clé d''effet de carte invalide est refusée', v_r like 'erreur:%', v_r);
+  v_r := pg_temp.tente(v_admin, 'authenticated', format('update public.cards set effect_params = ''{"intensity": -5}'' where id = %L', v_rare));
+  insert into resultats values ('Effets : des réglages de carte invalides sont refusés', v_r like 'erreur:%', v_r);
 
   -- ---------- E. Le rôle admin peut être donné depuis la base ----------
   update public.profiles set role = 'admin' where id = v_j2;

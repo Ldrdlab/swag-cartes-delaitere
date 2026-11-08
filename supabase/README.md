@@ -3,14 +3,15 @@
 Supabase héberge les comptes, la base de données et les images des cartes (offre gratuite).
 Ce dossier contient tout le schéma, écrit en SQL :
 
-| Fichier                                          | Rôle                                                                    |
-| ------------------------------------------------ | ----------------------------------------------------------------------- |
-| `migrations/20261107000100_schema.sql`           | Tables : profils, cartes, collections, historique, réglages             |
-| `migrations/20261107000200_securite.sql`         | Qui peut lire / écrire quoi (Row Level Security), rôle admin verrouillé |
-| `migrations/20261107000300_fonctions.sql`        | Tirage des boosters côté serveur, limite quotidienne, version minimale  |
-| `migrations/20261107000400_stockage.sql`         | Bucket privé « cards » pour les images                                  |
-| `migrations/20261107000500_email_et_joueurs.sql` | E-mail dans les profils + liste des joueurs pour l'admin                |
-| `tests/securite.sql`                             | Test automatique de toutes ces règles (n'enregistre rien)               |
+| Fichier                                           | Rôle                                                                         |
+| ------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `migrations/20261107000100_schema.sql`            | Tables : profils, cartes, collections, historique, réglages                  |
+| `migrations/20261107000200_securite.sql`          | Qui peut lire / écrire quoi (Row Level Security), rôle admin verrouillé      |
+| `migrations/20261107000300_fonctions.sql`         | Tirage des boosters côté serveur, limite quotidienne, version minimale       |
+| `migrations/20261107000400_stockage.sql`          | Bucket privé « cards » pour les images                                       |
+| `migrations/20261107000500_email_et_joueurs.sql`  | E-mail dans les profils + liste des joueurs pour l'admin                     |
+| `migrations/20261108000600_effets_des_cartes.sql` | Effets visuels des cartes : effet par rareté, effet forcé par carte (V0.1.5) |
+| `tests/securite.sql`                              | Test automatique de toutes ces règles (n'enregistre rien)                    |
 
 ## 1. Créer le compte et le projet
 
@@ -49,7 +50,7 @@ VITE_SUPABASE_ANON_KEY=la-cle-publique
 
 1. Dans Supabase : **SQL Editor** → **New query**.
 2. Ouvre `migrations/20261107000100_schema.sql` dans ton éditeur, copie tout, colle dans Supabase, clique **Run**. Message attendu : _Success. No rows returned_.
-3. Fais de même, **dans l'ordre**, avec les fichiers `…000200_securite.sql`, `…000300_fonctions.sql`, `…000400_stockage.sql`, puis `…000500_email_et_joueurs.sql`.
+3. Fais de même, **dans l'ordre**, avec les fichiers `…000200_securite.sql`, `…000300_fonctions.sql`, `…000400_stockage.sql`, puis `…000500_email_et_joueurs.sql`. (Mise à jour V0.1.5 : si ton projet existe déjà, il ne te manque que `…000600_effets_des_cartes.sql` : applique-le seul, une fois.)
 
 Chaque fichier ne s'applique **qu'une seule fois** (une 2e fois, Supabase répond « already exists » : sans danger, rien ne change). En cas d'erreur, copie le message et envoie-le-moi.
 
@@ -57,7 +58,7 @@ Chaque fichier ne s'applique **qu'une seule fois** (une 2e fois, Supabase répon
 
 1. **SQL Editor → New query**, colle tout `tests/securite.sql`, clique **Run**.
 2. Un cadre **rouge** s'affiche : c'est normal, c'est comme ça que le test annule tout ce qu'il a créé.
-3. Lis le message : **TOUT EST BON : 50 vérifications réussies** = parfait. **ECHEC** = envoie-moi la liste.
+3. Lis le message : **TOUT EST BON : 76 vérifications réussies** = parfait. **ECHEC** = envoie-moi la liste.
 
 ## 6. Créer ton compte et te passer admin
 
