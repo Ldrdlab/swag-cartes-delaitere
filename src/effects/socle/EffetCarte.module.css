@@ -1,0 +1,74 @@
+/*
+ * Animations des effets de carte et règles de pause.
+ *
+ * Les animations ne touchent que `transform` et `opacity` (calculées par le processeur graphique).
+ * Elles s'arrêtent quand l'effet n'est pas visible (`data-actif='false'`), et disparaissent avec
+ * « animations réduites » ou « Effets réduits » (`data-fige='oui'`) : le rendu reste la pose figée.
+ */
+
+.racine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.racine[data-actif='false'],
+.racine[data-actif='false'] * {
+  animation-play-state: paused !important;
+}
+
+.racine[data-fige='oui'],
+.racine[data-fige='oui'] * {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .racine,
+  .racine * {
+    animation: none !important;
+  }
+}
+
+/* Dérive lente : le calque est agrandi, il glisse sans montrer de bord. */
+@keyframes drift {
+  from {
+    transform: translate3d(-4%, -3%, 0) scale(1.12);
+  }
+  to {
+    transform: translate3d(4%, 3%, 0) scale(1.12);
+  }
+}
+
+/* Scintillement : seule l'opacité varie. */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: var(--twinkle-low, 0.25);
+  }
+  50% {
+    opacity: var(--twinkle-high, 1);
+  }
+}
+
+/* Balayage lumineux : une bande traverse la carte en diagonale. */
+@keyframes sweep {
+  0% {
+    transform: translate3d(-120%, 0, 0) rotate(20deg);
+  }
+  60%,
+  100% {
+    transform: translate3d(120%, 0, 0) rotate(20deg);
+  }
+}
+
+/* Pulsation (lueur chaude du feu). */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: var(--pulse-low, 0.55);
+  }
+  50% {
+    opacity: var(--pulse-high, 0.9);
+  }
+}

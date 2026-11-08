@@ -1,12 +1,12 @@
 /**
  * Écran « Administration » (réservé aux administrateurs).
  *
- * Rôle : cadre de l'espace admin avec ses quatre sections (Cartes, Boosters, Joueurs, Version) sous forme
+ * Rôle : cadre de l'espace admin avec ses cinq sections (Cartes, Boosters, Joueurs, Effets, Version) sous forme
  * d'onglets. L'écran ne s'affiche que si le profil lu dans la base a le rôle « admin » ; mais la vraie
  * protection est dans la base : même en contournant l'écran, un joueur est refusé.
  * Expose : le composant `AdminScreen`.
  * Dépend de : react, content/textes, hooks/useAuth, SectionCartes, SectionBoosters,
- * SectionJoueurs, SectionVersion, MesCartes.module.css, Admin.module.css.
+ * SectionJoueurs, SectionEffets, SectionVersion, MesCartes.module.css, Admin.module.css.
  */
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { TEXTES } from '../../content/textes';
@@ -15,11 +15,12 @@ import adminStyles from './Admin.module.css';
 import styles from './MesCartes.module.css';
 import { SectionBoosters } from './SectionBoosters';
 import { SectionCartes } from './SectionCartes';
+import { SectionEffets } from './SectionEffets';
 import { SectionJoueurs } from './SectionJoueurs';
 import { SectionVersion } from './SectionVersion';
 
-type Onglet = 'cartes' | 'boosters' | 'joueurs' | 'version';
-const ONGLETS: readonly Onglet[] = ['cartes', 'boosters', 'joueurs', 'version'];
+type Onglet = 'cartes' | 'boosters' | 'joueurs' | 'effets' | 'version';
+const ONGLETS: readonly Onglet[] = ['cartes', 'boosters', 'joueurs', 'effets', 'version'];
 
 /** Espace d'administration. */
 export function AdminScreen() {
@@ -81,6 +82,7 @@ export function AdminScreen() {
               {onglet === 'cartes' && <SectionCartes />}
               {onglet === 'boosters' && <SectionBoosters />}
               {onglet === 'joueurs' && <SectionJoueurs />}
+              {onglet === 'effets' && <SectionEffets />}
               {onglet === 'version' && <SectionVersion />}
             </div>
           </>

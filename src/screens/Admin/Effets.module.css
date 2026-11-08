@@ -1,0 +1,98 @@
+/* Styles de la section « Effets » de l'espace admin (banc d'essai des effets de cartes). */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.titre,
+.sousTitre {
+  margin: 0;
+  font-weight: 800;
+}
+
+.sousTitre {
+  margin-top: var(--space-3);
+  font-size: 1.1rem;
+}
+
+.aide {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Aperçu à gauche (ou en haut sur téléphone), réglages à droite. */
+.banc {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.apercu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@media (max-width: 599px) {
+  .banc {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .apercu {
+    max-width: 260px;
+    margin-inline: auto;
+  }
+}
+
+/* Table « rareté → effet par défaut » : une petite carte par ligne. */
+.table {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ligne {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-2);
+  border: 2px solid var(--color-placeholder);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.ligne[aria-pressed='true'] {
+  border-color: var(--color-primary);
+}
+
+.ligne:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.miniature {
+  display: block;
+  width: 70%;
+  margin-inline: auto;
+}
+
+.nom {
+  font-weight: 800;
+}
+
+.effet {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}

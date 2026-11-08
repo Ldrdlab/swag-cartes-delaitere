@@ -29,9 +29,13 @@
   overflow-wrap: anywhere;
 }
 
-/* Emplacement des futurs effets : par-dessus l'image, sans bloquer les clics. */
+/*
+ * Par-dessus l'image, sans bloquer les clics : effets et calques. `container-type` : les motifs des
+ * effets sont dimensionnés en `cqw` (pourcentage de la largeur de la carte).
+ */
 .calques {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  container-type: inline-size;
 }

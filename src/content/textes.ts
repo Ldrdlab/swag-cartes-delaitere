@@ -438,10 +438,48 @@ export const TEXTES = {
     titre: 'Administration',
     labelOnglets: 'Sections de l’administration',
     refuse: 'Cet espace est réservé aux administrateurs.',
-    onglets: { cartes: 'Cartes', boosters: 'Boosters', joueurs: 'Joueurs', version: 'Version' },
+    onglets: {
+      cartes: 'Cartes',
+      boosters: 'Boosters',
+      joueurs: 'Joueurs',
+      effets: 'Effets',
+      version: 'Version',
+    },
     chargement: 'Chargement…',
     erreurChargement: 'Impossible de charger cette section.',
     reessayer: 'Réessayer',
+
+    // Page de démonstration des effets visuels (V0.1.5) : sur une carte fictive, sans photo.
+    effets: {
+      titre: 'Effets des cartes',
+      intro:
+        'Teste chaque effet sur une carte fictive (aucune photo). L’image d’une carte reste fixe : l’effet est une couche ajoutée à l’affichage.',
+      labelApercu: 'Aperçu de l’effet',
+      aideApercu:
+        'Passe la souris sur la carte, ou incline ton téléphone, ou glisse le doigt dessus.',
+      effet: 'Effet',
+      mode: 'Mode',
+      modes: {
+        statique: 'Image fixe (grilles)',
+        anime: 'Animé',
+        interactif: 'Animé et interactif',
+      },
+      zone: 'Zone',
+      zones: {
+        defaut: 'Zone de l’effet',
+        carte: 'Toute la carte',
+        interieur: 'Intérieur du cadre',
+        illustration: 'Illustration encadrée',
+        cadre: 'Cadre seulement',
+      },
+      intensite: 'Intensité : {valeur} %',
+      effetsReduits: 'Effets réduits (qualité éco, sans animation)',
+      titreDefaut: 'Effet par défaut selon la rareté',
+      aideDefaut:
+        'Choisir une ligne l’affiche dans l’aperçu. Les petites cartes sont en image fixe, comme dans une collection.',
+      sansVariante: '{rarete}',
+      avecVariante: '{rarete} · {variante}',
+    },
 
     boosters: {
       titre: 'Boosters',
