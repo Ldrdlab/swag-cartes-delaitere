@@ -36,7 +36,7 @@ export function CarteRecto({
   carte,
   taille = 'grande',
   avecReflet = true,
-  modeEffet = 'statique',
+  modeEffet = 'anime',
   retournee = false,
 }: CarteRectoProps) {
   const rarete = RARETES[carte.rarity];

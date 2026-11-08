@@ -9,8 +9,10 @@
  *   - l'effet visuel est une COUCHE ajoutée à l'affichage par <EffetCarte /> : l'image reste une photo
  *     fixe, sans effet incrusté. Sans la prop `effet`, la carte décide seule (domain/effetsCartes :
  *     resoudreEffet) : effet imposé, aucun, ou effet de sa rareté (règles lues une fois par
- *     hooks/useReglesEffets). `modeEffet` dit comment l'effet vit : statique par défaut (grilles : image
- *     fixe, qualité allégée pour les miniatures), animé, ou interactif (vue agrandie, révélation).
+ *     hooks/useReglesEffets). `modeEffet` dit comment l'effet vit : animé par défaut (grilles : effets en
+ *     continu et léger mouvement au repos), interactif (vue agrandie, révélation : suit aussi la souris ou
+ *     le doigt) ou statique (figé).
+ *   - le cadre s'incline en 3D d'après les variables CSS de l'animation (voir Carte.module.css).
  * Expose : le composant `Carte`.
  * Dépend de : react, config/cartes, config/effets, domain/types (type), domain/effetsCartes, effects,
  * hooks/useReglesEffets, Carte.module.css.
@@ -45,7 +47,7 @@ export function Carte({
   taille = 'miniature',
   decorative = false,
   calques,
-  modeEffet = 'statique',
+  modeEffet = 'anime',
   effet,
 }: CarteProps) {
   const cadre = useRef<HTMLDivElement>(null);
@@ -60,48 +62,50 @@ export function Carte({
     effetAffiche !== null && effetAffiche.cle !== CLE_EFFET_AUCUN && effetAffiche.intensite > 0;
 
   return (
-    <div
-      ref={cadre}
-      className={styles.cadre}
-      style={{ aspectRatio: String(RATIO_CARTE) }}
-      data-rarete={carte.rarity}
-      data-variante={carte.variant}
-    >
-      {adresse && adresse !== adresseEnEchec ? (
-        <img
-          className={styles.image}
-          src={adresse}
-          alt={decorative ? '' : carte.name}
-          loading="lazy"
-          decoding="async"
-          draggable={false}
-          onError={() => setAdresseEnEchec(adresse)}
-        />
-      ) : (
-        // Image absente ou illisible : un repli neutre, avec le nom de la carte.
-        <span
-          className={styles.repli}
-          {...(decorative ? {} : { role: 'img', 'aria-label': carte.name })}
-        >
-          {carte.name}
-        </span>
-      )}
-      {(calques || avecEffet) && (
-        <div className={styles.calques}>
-          {avecEffet && (
-            <EffetCarte
-              cle={effetAffiche.cle}
-              intensite={effetAffiche.intensite}
-              mode={modeEffet}
-              cible={cadre}
-              leger={taille === 'miniature'}
-              {...(effetAffiche.zone ? { zone: effetAffiche.zone } : {})}
-              {...(effetAffiche.reglages ? { reglages: effetAffiche.reglages } : {})}
-            />
-          )}
-          {calques}
-        </div>
-      )}
+    <div className={styles.scene}>
+      <div
+        ref={cadre}
+        className={styles.cadre}
+        style={{ aspectRatio: String(RATIO_CARTE) }}
+        data-rarete={carte.rarity}
+        data-variante={carte.variant}
+      >
+        {adresse && adresse !== adresseEnEchec ? (
+          <img
+            className={styles.image}
+            src={adresse}
+            alt={decorative ? '' : carte.name}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            onError={() => setAdresseEnEchec(adresse)}
+          />
+        ) : (
+          // Image absente ou illisible : un repli neutre, avec le nom de la carte.
+          <span
+            className={styles.repli}
+            {...(decorative ? {} : { role: 'img', 'aria-label': carte.name })}
+          >
+            {carte.name}
+          </span>
+        )}
+        {(calques || avecEffet) && (
+          <div className={styles.calques}>
+            {avecEffet && (
+              <EffetCarte
+                cle={effetAffiche.cle}
+                intensite={effetAffiche.intensite}
+                mode={modeEffet}
+                cible={cadre}
+                graine={carte.id}
+                {...(effetAffiche.zone ? { zone: effetAffiche.zone } : {})}
+                {...(effetAffiche.reglages ? { reglages: effetAffiche.reglages } : {})}
+              />
+            )}
+            {calques}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

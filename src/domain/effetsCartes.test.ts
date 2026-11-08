@@ -14,8 +14,6 @@ import {
   origineEffet,
   paramsDepuisJson,
   paramsVersJson,
-  positionDepuisInclinaison,
-  rapprocher,
   regleDepuisLigne,
   resoudreEffet,
   resoudreQualite,
@@ -80,31 +78,14 @@ describe('resoudreQualite', () => {
     expect(resoudreQualite({ memoireGo: 2 }, seuils, false)).toBe('eco');
     expect(resoudreQualite({ coeurs: 8, economieDonnees: true }, seuils, false)).toBe('eco');
   });
-  it('passe en éco quand les effets sont réduits', () => {
+  it('passe en éco quand les effets sont réduits, même si on a demandé la qualité élevée', () => {
     expect(resoudreQualite({ coeurs: 8, memoireGo: 8 }, seuils, true)).toBe('eco');
+    expect(resoudreQualite({ coeurs: 8 }, seuils, true, 'haute')).toBe('eco');
   });
-});
-
-describe('positionDepuisInclinaison', () => {
-  it('place le reflet au centre pour un téléphone tenu au repos', () => {
-    expect(positionDepuisInclinaison(0, 45, 25, 45)).toEqual({ x: 0.5, y: 0.5 });
-  });
-  it('borne le reflet aux bords de la carte', () => {
-    expect(positionDepuisInclinaison(90, -90, 25, 45)).toEqual({ x: 1, y: 0 });
-    expect(positionDepuisInclinaison(-90, 180, 25, 45)).toEqual({ x: 0, y: 1 });
-  });
-});
-
-describe('rapprocher', () => {
-  it('avance d’une part du chemin vers la cible', () => {
-    const { position, arrivee } = rapprocher({ x: 0, y: 0 }, { x: 1, y: 1 }, 0.5, 0.001);
-    expect(position).toEqual({ x: 0.5, y: 0.5 });
-    expect(arrivee).toBe(false);
-  });
-  it('s’arrête quand l’écart est négligeable', () => {
-    const { position, arrivee } = rapprocher({ x: 0.9995, y: 1 }, { x: 1, y: 1 }, 0.5, 0.001);
-    expect(position).toEqual({ x: 1, y: 1 });
-    expect(arrivee).toBe(true);
+  it('respecte le choix du joueur : élevée même sur un appareil modeste, économie même sur un récent', () => {
+    expect(resoudreQualite({ coeurs: 2 }, seuils, false, 'haute')).toBe('haute');
+    expect(resoudreQualite({ coeurs: 12, memoireGo: 8 }, seuils, false, 'eco')).toBe('eco');
+    expect(resoudreQualite({ coeurs: 2 }, seuils, false, 'auto')).toBe('eco');
   });
 });
 

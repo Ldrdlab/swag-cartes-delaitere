@@ -61,6 +61,10 @@ export interface PropsComposantEffet {
   qualite: QualiteEffet;
   /** Vrai : ne rien animer, dessiner une seule image (la « pose »). */
   fige: boolean;
+  /** Carte agrandie ou retournée : prioritaire pour animer son dessin WebGL. */
+  prioritaire: boolean;
+  /** Nombre maximal de dessins WebGL animés en même temps dans une grille. */
+  maxAnimes: number;
 }
 
 /** Fiche d'un effet, chargée à la demande. */

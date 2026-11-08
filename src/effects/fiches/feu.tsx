@@ -28,7 +28,14 @@ const OCTAVES_ECO = 3;
 /** Les flammes sont un peu plus fortes que le réglage d'intensité (plafonné à 1). */
 const RENFORT_FLAMMES = 1.2;
 
-function Flammes({ intensite, reglages, qualite, fige }: PropsComposantEffet) {
+function Flammes({
+  intensite,
+  reglages,
+  qualite,
+  fige,
+  prioritaire,
+  maxAnimes,
+}: PropsComposantEffet) {
   return (
     <CanevasNuanceur
       fragments={FEU_FRAGMENTS}
@@ -40,6 +47,8 @@ function Flammes({ intensite, reglages, qualite, fige }: PropsComposantEffet) {
       fige={fige}
       tempsPose={TEMPS_POSE}
       fusion="screen"
+      prioritaire={prioritaire}
+      maxAnimes={maxAnimes}
     />
   );
 }

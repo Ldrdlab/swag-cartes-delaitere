@@ -53,7 +53,6 @@ export function EffetsTable({ brouillons, enregistrees, choisie, onChoisir }: Pr
                 <Carte
                   carte={carteDemo(regle.rarete, regle.variante, 'aucun')}
                   decorative
-                  modeEffet="statique"
                   effet={{
                     cle: regle.cle,
                     intensite: regle.params.intensite ?? 100,

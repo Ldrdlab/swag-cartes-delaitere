@@ -1,0 +1,108 @@
+/* Styles de la section « Essai » de l'espace admin (banc d'essai de fluidité des effets). */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.titre {
+  margin: 0;
+  font-weight: 800;
+}
+
+.aide {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Compteur : collé en haut pendant le défilement de la grille, pour lire les chiffres en faisant défiler. */
+.compteur {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: #1c1c24;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.fps {
+  font-size: 1.6rem;
+}
+
+.reglages {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-2);
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .grille {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/*
+ * Méthode « CSS pure » de l'orbite (comparaison) : @property déclare les deux variables comme des nombres,
+ * le navigateur peut alors les animer lui-même. Un quart de période de décalage entre x et y trace un cercle.
+ */
+@property --effet-x {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.5;
+}
+
+@property --effet-y {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.5;
+}
+
+@keyframes orbite-x {
+  from {
+    --effet-x: 0.3;
+  }
+
+  to {
+    --effet-x: 0.7;
+  }
+}
+
+@keyframes orbite-y {
+  from {
+    --effet-y: 0.3;
+  }
+
+  to {
+    --effet-y: 0.7;
+  }
+}
+
+.grille [data-horloge-css='oui'] {
+  animation:
+    orbite-x 4s ease-in-out infinite alternate,
+    orbite-y 4s ease-in-out infinite alternate;
+  animation-delay: var(--phase, 0s), calc(var(--phase, 0s) - 1s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grille [data-horloge-css='oui'] {
+    animation: none;
+  }
+}

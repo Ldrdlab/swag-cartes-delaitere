@@ -1,14 +1,18 @@
 /**
- * Option « Effets réduits » : retenue sur l'appareil, lue par tous les effets.
+ * Options d'affichage des effets : « Effets réduits » et « Qualité des effets », retenues sur l'appareil.
  *
  * Rôle : un interrupteur par appareil (stockage local). Quand il est actif, les effets passent en
  * qualité « éco », sans animation ni suivi de l'inclinaison. Le réglage système « réduire les
  * animations » (prefers-reduced-motion) a le même effet, sans rien enregistrer.
- * Expose : lireEffetsReduits(), ecrireEffetsReduits(), useOptionEffetsReduits(), useEffetsReduits().
- * Dépend de : react, config/effets, hooks/useMouvementReduit.
+ * La qualité (Auto / Élevée / Économie) est lue par tous les effets ; « Effets réduits » force la qualité
+ * « économie ».
+ * Expose : lireEffetsReduits(), ecrireEffetsReduits(), useOptionEffetsReduits(), useEffetsReduits(),
+ * lirePreferenceQualite(), ecrirePreferenceQualite(), usePreferenceQualite().
+ * Dépend de : react, config/effets, domain/effetsCartes, hooks/useMouvementReduit.
  */
 import { useSyncExternalStore } from 'react';
-import { CLE_STOCKAGE_EFFETS_REDUITS } from '../config/effets';
+import { CLE_STOCKAGE_EFFETS_REDUITS, CLE_STOCKAGE_QUALITE_EFFETS } from '../config/effets';
+import { PREFERENCES_QUALITE, type PreferenceQualite } from '../domain/effetsCartes';
 import { useMouvementReduit } from '../hooks/useMouvementReduit';
 
 const ecouteurs = new Set<() => void>();
@@ -33,6 +37,27 @@ export function ecrireEffetsReduits(valeur: boolean): void {
   ecouteurs.forEach((ecouteur) => ecouteur());
 }
 
+/** Qualité choisie sur l'appareil (« auto » si rien n'est enregistré ou si le stockage est inaccessible). */
+export function lirePreferenceQualite(): PreferenceQualite {
+  try {
+    const valeur = window.localStorage.getItem(CLE_STOCKAGE_QUALITE_EFFETS);
+    return PREFERENCES_QUALITE.find((p) => p === valeur) ?? 'auto';
+  } catch {
+    return 'auto';
+  }
+}
+
+/** Enregistre la qualité sur l'appareil et prévient les effets affichés. */
+export function ecrirePreferenceQualite(valeur: PreferenceQualite): void {
+  try {
+    if (valeur === 'auto') window.localStorage.removeItem(CLE_STOCKAGE_QUALITE_EFFETS);
+    else window.localStorage.setItem(CLE_STOCKAGE_QUALITE_EFFETS, valeur);
+  } catch {
+    // Stockage refusé (navigation privée) : le choix vaut pour la session seulement.
+  }
+  ecouteurs.forEach((ecouteur) => ecouteur());
+}
+
 function sAbonner(rappel: () => void): () => void {
   ecouteurs.add(rappel);
   window.addEventListener('storage', rappel);
@@ -52,4 +77,9 @@ export function useEffetsReduits(): boolean {
   const option = useOptionEffetsReduits();
   const systeme = useMouvementReduit();
   return option || systeme;
+}
+
+/** Qualité choisie par le joueur (Auto, Élevée ou Économie). */
+export function usePreferenceQualite(): PreferenceQualite {
+  return useSyncExternalStore(sAbonner, lirePreferenceQualite, () => 'auto');
 }

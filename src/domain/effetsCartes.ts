@@ -4,8 +4,8 @@
  * Rôle : tout ce qui se calcule sans toucher à l'écran. Les valeurs (pourcentages, seuils) viennent de
  * config/effets.ts et sont passées en paramètre : ce fichier n'a aucun réglage en dur.
  * Expose : ModeEffet, ZoneEffet, QualiteEffet, PointeurEffet, GeometrieZones, SeuilsAppareil,
- * RegleEffetDefaut, effetParDefaut(), facteurIntensite(), zoneVersClipPath(), resoudreQualite(),
- * positionDepuisInclinaison(), rapprocher(), puis : ReglagesEffetCarte, ParamsEffetCarte, ParamsEffetJson,
+ * RegleEffetDefaut, effetParDefaut(), facteurIntensite(), zoneVersClipPath(), PreferenceQualite,
+ * PREFERENCES_QUALITE, resoudreQualite(), puis : ReglagesEffetCarte, ParamsEffetCarte, ParamsEffetJson,
  * ZONES_EFFET, paramsDepuisJson(), paramsVersJson(), OrigineEffet, origineEffet(), RegleEffet, EffetResolu,
  * CarteEffet, resoudreEffet(), LigneRegleEffet, regleDepuisLigne().
  * Dépend de : domain/types (types). Aucun import React ni DOM.
@@ -98,54 +98,31 @@ export function zoneVersClipPath(zone: ZoneEffet, g: GeometrieZones): string | u
   );
 }
 
-/** Qualité effective : « éco » si l'utilisateur réduit les effets ou si l'appareil est modeste. */
+/** Préférence de qualité choisie par le joueur : automatique, élevée ou économie. */
+export type PreferenceQualite = 'auto' | 'haute' | 'eco';
+
+/** Les trois préférences, dans l'ordre d'affichage. */
+export const PREFERENCES_QUALITE: readonly PreferenceQualite[] = ['auto', 'haute', 'eco'];
+
+/**
+ * Qualité effective des effets.
+ *  - « Effets réduits » : toujours économie ;
+ *  - préférence « haute » ou « économie » : elle est respectée ;
+ *  - « auto » : économie sur un appareil modeste (peu de cœurs ou de mémoire) ou en économie de données.
+ */
 export function resoudreQualite(
   indices: IndicesAppareil,
   seuils: SeuilsAppareil,
   effetsReduits: boolean,
+  preference: PreferenceQualite = 'auto',
 ): QualiteEffet {
-  if (effetsReduits || indices.economieDonnees === true) return 'eco';
+  if (effetsReduits) return 'eco';
+  if (preference === 'haute') return 'haute';
+  if (preference === 'eco') return 'eco';
+  if (indices.economieDonnees === true) return 'eco';
   const peuDeCoeurs = indices.coeurs !== undefined && indices.coeurs <= seuils.coeurs;
   const peuDeMemoire = indices.memoireGo !== undefined && indices.memoireGo <= seuils.memoireGo;
   return peuDeCoeurs || peuDeMemoire ? 'eco' : 'haute';
-}
-
-/** Ramène une valeur dans [0, 1]. */
-const borner01 = (valeur: number): number => Math.min(1, Math.max(0, valeur));
-
-/**
- * Position du reflet d'après l'inclinaison d'un téléphone (degrés).
- * @param gamma - Inclinaison gauche-droite. @param beta - Inclinaison avant-arrière.
- */
-export function positionDepuisInclinaison(
-  gamma: number,
-  beta: number,
-  angleMaxDegres: number,
-  betaReposDegres: number,
-): PointeurEffet {
-  const portee = 2 * angleMaxDegres;
-  return {
-    x: borner01(0.5 + gamma / portee),
-    y: borner01(0.5 + (beta - betaReposDegres) / portee),
-  };
-}
-
-/** Avance `courante` d'une part `lissage` vers `cible` ; `arrivee` est vrai quand l'écart est négligeable. */
-export function rapprocher(
-  courante: PointeurEffet,
-  cible: PointeurEffet,
-  lissage: number,
-  seuilArret: number,
-): { position: PointeurEffet; arrivee: boolean } {
-  const dx = cible.x - courante.x;
-  const dy = cible.y - courante.y;
-  if (Math.abs(dx) < seuilArret && Math.abs(dy) < seuilArret) {
-    return { position: { ...cible }, arrivee: true };
-  }
-  return {
-    position: { x: courante.x + dx * lissage, y: courante.y + dy * lissage },
-    arrivee: false,
-  };
 }
 
 // ---------------------------------------------------------------------------------------------

@@ -464,11 +464,33 @@ export const TEXTES = {
       boosters: 'Boosters',
       joueurs: 'Joueurs',
       effets: 'Effets',
+      essai: 'Essai',
       version: 'Version',
     },
     chargement: 'Chargement…',
     erreurChargement: 'Impossible de charger cette section.',
     reessayer: 'Réessayer',
+
+    // Banc d'essai de fluidité des effets animés (V0.2) : grille de cartes fictives et compteur d'images par seconde.
+    essai: {
+      titre: 'Essai de fluidité',
+      intro:
+        'Grille de cartes fictives avec leurs effets animés, et un compteur d’images par seconde. Fais défiler la grille et change les réglages pour voir l’effet sur la fluidité. Rien n’est enregistré.',
+      imagesParSeconde: 'images par seconde',
+      detail: ' · plus lente 5 % du temps : {p95} ms · pire : {max} ms',
+      animees: ' · cartes animées : {cartes} · feux animés : {shaders} sur {demandes}',
+      nombre: 'Nombre de cartes',
+      qualite: 'Qualité',
+      qualiteJoueur: 'Réglage du joueur',
+      qualiteHaute: 'Élevée',
+      qualiteEco: 'Économie',
+      horloge: 'Animation au repos',
+      horloges: { js: 'Une horloge (JavaScript)', css: 'CSS pur (@property)', aucune: 'Aucune' },
+      webgl: 'Feux animés en même temps',
+      webglQualite: 'Selon la qualité',
+      mode: 'Mode',
+      labelGrille: 'Cartes d’essai',
+    },
 
     // Page de démonstration des effets visuels (V0.1.5) : sur une carte fictive, sans photo.
     effets: {

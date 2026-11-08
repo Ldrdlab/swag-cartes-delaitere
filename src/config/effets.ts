@@ -4,8 +4,9 @@
  * Rôle : toutes les valeurs des effets au même endroit : zones d'application (en pourcentages de la
  * carte), intensité, seuils d'un téléphone « modeste », réglage du gyroscope et correspondance rareté →
  * effet par défaut. Rien de tout cela n'est écrit en dur dans le code des effets.
- * Expose : REVELATION_EFFETS, CLE_STOCKAGE_EFFETS_REDUITS, INTENSITE_EFFET, GEOMETRIE_ZONES, POSE_REFLET, SEUILS_APPAREIL_MODESTE,
- * INCLINAISON, EFFETS_PAR_DEFAUT.
+ * Expose : REVELATION_EFFETS, ORBITE, INCLINAISON_3D, GESTE, INTERVALLE_MS, WEBGL_ANIMES_MAX,
+ * CLE_STOCKAGE_QUALITE_EFFETS, SEUIL_APPUI_PX, CLE_STOCKAGE_EFFETS_REDUITS, INTENSITE_EFFET, GEOMETRIE_ZONES, POSE_REFLET, SEUILS_APPAREIL_MODESTE,
+ * EFFETS_PAR_DEFAUT.
  * Dépend de : domain/effetsCartes (types).
  *
  * ┌─ COMMENT MODIFIER (pour débutant) ────────────────────────────────────────────────┐
@@ -13,7 +14,13 @@
  * │ src/effects/index.ts). Ajuster la zone « illustration » : modifie GEOMETRIE_ZONES. │
  * └─────────────────────────────────────────────────────────────────────────────────┘
  */
-import type { GeometrieZones, RegleEffetDefaut, SeuilsAppareil } from '../domain/effetsCartes';
+import type { ParamsGeste, ParamsOrbite } from '../domain/animationEffets';
+import type {
+  GeometrieZones,
+  QualiteEffet,
+  RegleEffetDefaut,
+  SeuilsAppareil,
+} from '../domain/effetsCartes';
 import type { Rarity } from '../domain/types';
 
 /** Clé du stockage local où l'option « Effets réduits » est retenue sur l'appareil. */
@@ -54,17 +61,42 @@ export const POSE_REFLET = { x: 0.5, y: 0.5 } as const;
 /** En dessous de ces seuils, l'appareil est jugé modeste : les effets passent en qualité « éco ». */
 export const SEUILS_APPAREIL_MODESTE: SeuilsAppareil = { coeurs: 4, memoireGo: 4 };
 
-/** Réglage de l'inclinaison (souris, gyroscope, glisser du doigt). */
-export const INCLINAISON = {
-  /** Angle (degrés) qui amène le reflet d'un bord à l'autre de la carte. */
-  angleMaxDegres: 25,
-  /** Inclinaison « au repos » d'un téléphone tenu à la main (degrés, axe avant-arrière). */
-  betaReposDegres: 45,
-  /** Part du chemin parcourue à chaque image vers la cible (adoucit le mouvement). */
-  lissage: 0.18,
-  /** Écart sous lequel on considère que le reflet est arrivé (arrêt de la boucle). */
-  seuilArret: 0.002,
-} as const;
+/**
+ * Animation au repos : un « pointeur virtuel » décrit une orbite lente autour du centre de la carte, ce qui
+ * fait bouger les reflets (et incliner doucement la carte) sans qu'on la touche. Chaque carte part d'un
+ * point différent (phase tirée de son identifiant).
+ */
+export const ORBITE: ParamsOrbite = {
+  /** Un tour en 8 secondes. */
+  periodeSecondes: 8,
+  /** Rayon de l'orbite : 0,20 de la carte, soit environ 3,6° d'inclinaison au repos (0,2 × 2 × 9°). */
+  rayon: 0.2,
+};
+
+/** Inclinaison 3D de la carte, comme dans l'outil de création : 9° au bord, perspective de 2,4 largeurs de carte. */
+export const INCLINAISON_3D = { maxDegres: 9, perspectiveCqw: 240 } as const;
+
+/** Réglage du geste (souris ou doigt) : lissage de la position, prise en main, retour à l'orbite. */
+export const GESTE: ParamsGeste = { lissageMs: 80, priseMs: 100, retourMs: 500 };
+
+/**
+ * Cadence des mises à jour de l'animation au repos. Dans une grille (mouvement lent, petites cartes) : 30
+ * images par seconde suffisent et coûtent moitié moins ; vue agrandie et révélation : à chaque image (0).
+ */
+export const INTERVALLE_MS = { grille: 33, agrandie: 0 } as const;
+
+/**
+ * Nombre maximal de dessins WebGL (feu) qui animent EN MÊME TEMPS dans une grille, selon la qualité : les
+ * plus proches du centre de l'écran ; les autres gardent leur dernière image. Une carte agrandie ou retournée
+ * est toujours prioritaire (et alors seule à animer).
+ */
+export const WEBGL_ANIMES_MAX: Readonly<Record<QualiteEffet, number>> = { haute: 2, eco: 1 };
+
+/** Clé du stockage local où la qualité des effets (Auto / Élevée / Économie) est retenue sur l'appareil. */
+export const CLE_STOCKAGE_QUALITE_EFFETS = 'swag.qualiteEffets';
+
+/** Déplacement (px) en dessous duquel un geste est un simple appui, pas un glissé. */
+export const SEUIL_APPUI_PX = 8;
 
 /** Effet appliqué selon la rareté (et la variante pour Mythique et Secrète). `aucun` = rien. */
 export const EFFETS_PAR_DEFAUT: readonly RegleEffetDefaut[] = [

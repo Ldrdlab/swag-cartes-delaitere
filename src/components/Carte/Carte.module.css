@@ -1,4 +1,12 @@
 /* Styles du composant Carte (voir index.tsx). Le ratio est posé en ligne depuis config/cartes.ts. */
+/*
+ * Enveloppe : sert de conteneur de mesure (cqw = largeur de la carte) pour la perspective de l'inclinaison.
+ */
+.scene {
+  width: 100%;
+  container-type: inline-size;
+}
+
 .cadre {
   position: relative;
   width: 100%;
@@ -38,4 +46,24 @@
   inset: 0;
   pointer-events: none;
   container-type: inline-size;
+}
+
+/*
+ * Inclinaison 3D de la carte d'après la position du reflet (variables --effet-x / --effet-y, écrites par
+ * l'horloge sans nouveau rendu React) : 9° au bord, perspective de 2,4 largeurs de carte, comme dans l'outil
+ * de création. L'attribut est posé seulement quand la carte est animée ET à l'écran : la couche graphique
+ * n'est préparée (will-change) que pour ces cartes-là. Coupé en « Effets réduits » (mode figé : pas
+ * d'attribut) et par le réglage système « réduire les animations ».
+ */
+.cadre[data-incline='oui'] {
+  transform: perspective(240cqw) rotateX(calc((0.5 - var(--effet-y, 0.5)) * 18deg))
+    rotateY(calc((var(--effet-x, 0.5) - 0.5) * 18deg));
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cadre[data-incline='oui'] {
+    transform: none;
+    will-change: auto;
+  }
 }

@@ -3,17 +3,27 @@
  *
  * Rôle : charger l'effet demandé (code téléchargé à la demande), empiler ses calques CSS (et son dessin
  * WebGL éventuel) dans la zone choisie, et le faire vivre selon le mode :
- *   - `statique` : image fixe, aucune animation (grilles de collection et d'admin) ;
- *   - `anime` : animations au repos, suspendues hors écran ;
- *   - `interactif` : en plus, le reflet suit la souris, l'inclinaison du téléphone ou le doigt.
- * L'option « Effets réduits » (ou le réglage système) force le mode statique et la qualité « éco ».
- * Les couches ne bougent que par `transform` et `opacity`.
+ *   - `statique` : image fixe, aucune animation ;
+ *   - `anime` (grilles) : animations CSS en continu, et reflets qui bougent au repos (orbite lente, cadence
+ *     de 30 images par seconde) ; le tout est suspendu hors écran et onglet masqué ;
+ *   - `interactif` (vue agrandie, carte retournée) : comme `anime` à pleine cadence, et le reflet suit en
+ *     plus la souris ou le doigt (priorité absolue pour le dessin WebGL).
+ * L'option « Effets réduits » (ou le réglage système) force le mode statique et la qualité « éco ». La
+ * qualité (Auto / Élevée / Économie) est celle du joueur (effects/preferences).
+ * Les couches ne bougent que par `transform` et `opacity` ; la position du reflet vient de l'horloge
+ * unique (effects/socle/horloge), sans nouveau rendu React.
  * Expose : EffetCarte, indicesAppareil().
  * Dépend de : react, config/effets, domain/effetsCartes, effects (registre), effects/preferences,
- * effects/types, effects/socle/*.
+ * effects/surcharge, effects/types, effects/socle/*.
  */
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
-import { GEOMETRIE_ZONES, POSE_REFLET, SEUILS_APPAREIL_MODESTE } from '../config/effets';
+import {
+  GEOMETRIE_ZONES,
+  INTERVALLE_MS,
+  POSE_REFLET,
+  SEUILS_APPAREIL_MODESTE,
+  WEBGL_ANIMES_MAX,
+} from '../config/effets';
 import {
   facteurIntensite,
   resoudreQualite,
@@ -23,9 +33,11 @@ import {
   type ZoneEffet,
 } from '../domain/effetsCartes';
 import { chargerEffet, ficheChargee } from './index';
-import { useEffetsReduits } from './preferences';
+import { useEffetsReduits, usePreferenceQualite } from './preferences';
+import { useSurchargeEffets } from './surcharge';
 import styles from './socle/EffetCarte.module.css';
 import { useActivite } from './socle/useActivite';
+import { useOrbite } from './socle/useOrbite';
 import { usePointeurEffet } from './socle/usePointeurEffet';
 import type { CalqueEffet, FicheEffet, ReglagesEffet } from './types';
 
@@ -90,19 +102,19 @@ interface Props {
   effetsReduits?: boolean;
   /** Élément qui reçoit souris et doigt en mode interactif (la carte) ; sans lui, pas de suivi. */
   cible?: RefObject<HTMLElement | null>;
-  /** Vrai dans une grille de petites cartes : qualité « éco » (moins de couches à dessiner). */
-  leger?: boolean;
+  /** Texte qui fixe le point de départ de l'orbite (identifiant de la carte) : chaque carte bouge différemment. */
+  graine?: string;
 }
 
 export function EffetCarte({
   cle,
   intensite = 100,
   zone,
-  mode = 'statique',
+  mode = 'anime',
   reglages,
   effetsReduits,
   cible,
-  leger = false,
+  graine,
 }: Props) {
   // Élément (et non simple référence) : la couche n'existe qu'une fois l'effet chargé.
   const [racine, setRacine] = useState<HTMLDivElement | null>(null);
@@ -110,14 +122,28 @@ export function EffetCarte({
   const actif = useActivite(racine);
   const optionReduits = useEffetsReduits();
   const reduits = effetsReduits ?? optionReduits;
+  const preference = usePreferenceQualite();
+  const surcharge = useSurchargeEffets();
   const modeEffectif: ModeEffet = reduits ? 'statique' : mode;
   const anime = modeEffectif !== 'statique' && actif;
+  const interactif = modeEffectif === 'interactif';
   const vide = useRef<HTMLElement | null>(null);
-  usePointeurEffet(cible ?? vide, racine, POSE_REFLET, modeEffectif === 'interactif' && actif);
+  // Orbite au repos (horloge unique) puis geste : la carte agrandie est mise à jour à chaque image.
+  const poignee = useOrbite(
+    cible,
+    racine,
+    anime,
+    graine ?? cle,
+    interactif ? INTERVALLE_MS.agrandie : INTERVALLE_MS.grille,
+    surcharge.horloge,
+  );
+  usePointeurEffet(cible ?? vide, poignee, interactif && actif);
 
   const facteur = facteurIntensite(intensite);
   if (!fiche || facteur === 0) return null;
-  const qualite = resoudreQualite(indicesAppareil(), SEUILS_APPAREIL_MODESTE, reduits || leger);
+  const qualite =
+    surcharge.qualite ??
+    resoudreQualite(indicesAppareil(), SEUILS_APPAREIL_MODESTE, reduits, preference);
   const calques = fiche.calques({ intensite: facteur, pointeur: POSE_REFLET, qualite, reglages });
   const clip = zoneVersClipPath(zone ?? fiche.zone, GEOMETRIE_ZONES);
   const Dessin = fiche.Composant;
@@ -135,7 +161,14 @@ export function EffetCarte({
         <div key={rang} style={styleCalque(calque)} />
       ))}
       {Dessin ? (
-        <Dessin intensite={facteur} reglages={reglages ?? {}} qualite={qualite} fige={!anime} />
+        <Dessin
+          intensite={facteur}
+          reglages={reglages ?? {}}
+          qualite={qualite}
+          fige={!anime}
+          prioritaire={interactif}
+          maxAnimes={surcharge.webglMax ?? WEBGL_ANIMES_MAX[qualite]}
+        />
       ) : null}
     </div>
   );

@@ -1,12 +1,12 @@
 /**
  * Écran « Administration » (réservé aux administrateurs).
  *
- * Rôle : cadre de l'espace admin avec ses cinq sections (Cartes, Boosters, Joueurs, Effets, Version) sous forme
+ * Rôle : cadre de l'espace admin avec ses six sections (Cartes, Boosters, Joueurs, Effets, Essai, Version) sous forme
  * d'onglets. L'écran ne s'affiche que si le profil lu dans la base a le rôle « admin » ; mais la vraie
  * protection est dans la base : même en contournant l'écran, un joueur est refusé.
  * Expose : le composant `AdminScreen`.
  * Dépend de : react, content/textes, hooks/useAuth, SectionCartes, SectionBoosters,
- * SectionJoueurs, SectionEffets, SectionVersion, MesCartes.module.css, Admin.module.css.
+ * SectionJoueurs, SectionEffets, SectionEssaiEffets, SectionVersion, MesCartes.module.css, Admin.module.css.
  */
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { TEXTES } from '../../content/textes';
@@ -16,11 +16,12 @@ import styles from './MesCartes.module.css';
 import { SectionBoosters } from './SectionBoosters';
 import { SectionCartes } from './SectionCartes';
 import { SectionEffets } from './SectionEffets';
+import { SectionEssaiEffets } from './SectionEssaiEffets';
 import { SectionJoueurs } from './SectionJoueurs';
 import { SectionVersion } from './SectionVersion';
 
-type Onglet = 'cartes' | 'boosters' | 'joueurs' | 'effets' | 'version';
-const ONGLETS: readonly Onglet[] = ['cartes', 'boosters', 'joueurs', 'effets', 'version'];
+type Onglet = 'cartes' | 'boosters' | 'joueurs' | 'effets' | 'essai' | 'version';
+const ONGLETS: readonly Onglet[] = ['cartes', 'boosters', 'joueurs', 'effets', 'essai', 'version'];
 
 /** Espace d'administration. */
 export function AdminScreen() {
@@ -83,6 +84,7 @@ export function AdminScreen() {
               {onglet === 'boosters' && <SectionBoosters />}
               {onglet === 'joueurs' && <SectionJoueurs />}
               {onglet === 'effets' && <SectionEffets />}
+              {onglet === 'essai' && <SectionEssaiEffets />}
               {onglet === 'version' && <SectionVersion />}
             </div>
           </>
