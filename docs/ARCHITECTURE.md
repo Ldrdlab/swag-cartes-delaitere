@@ -131,7 +131,9 @@ Hors de `src/` : `supabase/` (migrations SQL, test de sécurité, guide) et `pub
 Dossiers ajoutés en phase 3 : `src/effects/` (registre des effets de cartes : pour l'instant « aucun »),
 `src/screens/Login/` (connexion) et `src/screens/Admin/` (cartes, boosters, joueurs, version).
 Phase 4 : `src/components/AppShell/` (barre d'onglets : en bas sur téléphone, à gauche dès 768 px),
-`src/components/PageOnglet/` (cadre des pages Collection, Jouer, Installer), `services/BoosterService.ts`
+`src/components/PageOnglet/` (cadre des pages Collection, Jouer, Installer),
+`src/components/BandeauMiseAJour/` et `src/screens/MiseAJourObligatoire/` (mises à jour, phase 5 ; état dans
+`src/app/miseAJour.ts`, service worker dans `src/app/pwa.ts`, `scripts/publier.mjs` pour publier une version), `services/BoosterService.ts`
 (statut du jour et ouverture : tirage côté serveur) et `services/SupabaseStorageService.ts` (pseudo et avatar
 enregistrés dans `profiles`).
 

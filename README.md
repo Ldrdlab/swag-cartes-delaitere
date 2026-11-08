@@ -82,6 +82,45 @@ refusé. Le rôle admin ne peut être donné que depuis l'éditeur SQL de Supaba
 **Les images des cartes** (photos d'amis) sont dans un stockage **privé** : jamais dans le dépôt GitHub,
 visibles seulement par les utilisateurs connectés.
 
+## Versions et mises à jour
+
+La version de l'appli est dans `package.json` (format `majeur.mineur.correctif`, ex. `0.1.0`). Elle est affichée
+sur l'accueil et dans Admin > Version. Les nouveautés de chaque version sont dans `CHANGELOG.md`, en français simple.
+
+**Ce que voient les joueurs :**
+
+- Quand une nouvelle version est publiée, l'appli la détecte toute seule (à l'ouverture, au retour au premier plan
+  et toutes les 30 minutes) et affiche un bandeau **« Nouvelle version disponible »** avec les nouveautés et deux
+  boutons : **Mettre à jour** (installe et recharge) ou **Plus tard** (le bandeau revient au prochain lancement).
+- Si la version du joueur est plus ancienne que la **version minimum requise** (réglée dans Admin > Version),
+  un écran bloquant **« Mise à jour obligatoire »** remplace toute l'appli, avec un seul bouton.
+  C'est un confort d'utilisation, pas une sécurité : les données restent protégées par la base.
+
+**Publier une nouvelle version :**
+
+1. Note les changements pour les joueurs dans `CHANGELOG.md`, sous `## Non publié` : un point par ligne
+   (`- Ce qui change.`). Fais un commit de tout le reste (`git status` doit être propre).
+2. Lance **une** commande :
+
+   ```bash
+   npm run publier -- mineur
+   ```
+
+   Remplace `mineur` par `correctif` (petite correction : 0.1.0 → 0.1.1), `mineur` (nouveautés : 0.1.0 → 0.2.0),
+   `majeur` (grosse étape : 0.1.0 → 1.0.0) ou un numéro précis (`0.3.0`). Pour publier la toute première version déjà
+   inscrite dans `package.json` sans changer le numéro : `npm run publier -- actuelle`.
+
+3. La commande vérifie tout (lint, tests, construction), met à jour `package.json` et `CHANGELOG.md`, fait le commit
+   « Version x.y.z », pose l'étiquette Git `vx.y.z` et envoie le tout sur GitHub. **Le déploiement est ensuite
+   automatique** (1 à 2 minutes : onglet « Actions » du dépôt).
+
+Pour voir ce qui se passerait sans rien modifier : ajoute `--essai` (ex. `npm run publier -- mineur --essai`).
+
+**Obliger tout le monde à mettre à jour :** une fois la nouvelle version en ligne, règle la « version minimum requise »
+dans Admin > Version sur ce nouveau numéro. Ne la monte **jamais** au-dessus de la version en ligne : tout le monde,
+toi compris, serait bloqué (l'écran admin te prévient). En cas de blocage, remets-la depuis l'éditeur SQL de Supabase :
+`update public.app_config set min_version = '0.1.0';`
+
 ## Tester sur téléphone (réseau local)
 
 1. Le téléphone et l'ordinateur doivent être sur le **même réseau Wi-Fi**.

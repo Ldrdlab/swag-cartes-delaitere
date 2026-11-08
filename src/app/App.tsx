@@ -1,18 +1,22 @@
 /**
  * Composant racine : porte de connexion, choix du pseudo, puis navigation.
  *
- * Rôle : tant que le joueur n'est pas connecté, afficher l'écran de connexion. Connecté mais sans pseudo
+ * Rôle : si la version de l'appli est plus ancienne que la « version minimum requise », afficher l'écran
+ * bloquant « Mise à jour obligatoire ». Sinon, tant que le joueur n'est pas connecté, afficher l'écran de connexion. Connecté mais sans pseudo
  * (première visite), afficher l'écran Profil. Ensuite, afficher l'écran correspondant à l'état de la
  * machine à états : les écrans à onglets sont entourés de la barre de navigation (AppShell), le parcours
  * d'ouverture d'un booster est en plein écran. L'ouverture est faite par le SERVEUR (open_booster()).
  * Expose : le composant `App`.
- * Dépend de : app/useFlow, app/flowMachine, boosters/catalogue, components/AppShell, hooks/useAuth,
+ * Dépend de : app/useFlow, app/flowMachine, boosters/catalogue, components/AppShell,
+ * components/BandeauMiseAJour, hooks/useVersionMinimale, hooks/useAuth,
  * hooks/useBoosterService, hooks/useViewportHeight, services/erreurs, screens/*.
  */
 import { getBoosterAt } from '../boosters/catalogue';
 import { AppShell } from '../components/AppShell';
+import { BandeauMiseAJour } from '../components/BandeauMiseAJour';
 import { useAuth } from '../hooks/useAuth';
 import { useBoosterService } from '../hooks/useBoosterService';
+import { useVersionMinimale } from '../hooks/useVersionMinimale';
 import { useViewportHeight } from '../hooks/useViewportHeight';
 import { ErreurService } from '../services/erreurs';
 import { AdminScreen } from '../screens/Admin';
@@ -24,6 +28,7 @@ import { CollectionScreen } from '../screens/Collection';
 import { InstallerScreen } from '../screens/Installer';
 import { JouerScreen } from '../screens/Jouer';
 import { LoginScreen } from '../screens/Login';
+import { MiseAJourObligatoireScreen } from '../screens/MiseAJourObligatoire';
 import { ProfileScreen } from '../screens/Profile';
 import { WelcomeScreen } from '../screens/Welcome';
 import { estOnglet } from './flowMachine';
@@ -32,6 +37,22 @@ import { useFlow } from './useFlow';
 /** Composant racine de l'application. */
 export function App() {
   useViewportHeight();
+  const versionMinimale = useVersionMinimale();
+
+  // Version trop ancienne : plus rien d'autre n'est accessible (même pas la connexion).
+  if (versionMinimale.obligatoire) {
+    return <MiseAJourObligatoireScreen versionMin={versionMinimale.versionMin} />;
+  }
+  return (
+    <>
+      <BandeauMiseAJour />
+      <Connecte />
+    </>
+  );
+}
+
+/** Connexion, choix du pseudo, puis parcours du joueur. */
+function Connecte() {
   const { etat, seDeconnecter, rafraichir } = useAuth();
 
   if (etat.statut !== 'connecte') return <LoginScreen etat={etat} />;

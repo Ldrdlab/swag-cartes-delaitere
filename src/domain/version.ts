@@ -3,7 +3,8 @@
  *
  * Rôle : lire un numéro de version « majeur.mineur.correctif » (ex. `0.1.0`), les comparer, et dire si
  * une version est inférieure à la « version minimum requise ».
- * Expose : Version, lireVersion(), versionValide(), comparerVersions(), estInferieure().
+ * Expose : Version, TypeIncrement, lireVersion(), versionValide(), comparerVersions(), estInferieure(),
+ * incrementerVersion().
  * Dépend de : rien. Aucun import React ni DOM.
  */
 
@@ -55,4 +56,22 @@ export function comparerVersions(a: string, b: string): number {
 export function estInferieure(version: string, reference: string): boolean {
   if (!versionValide(version) || !versionValide(reference)) return false;
   return comparerVersions(version, reference) < 0;
+}
+
+/** Ce qu'on augmente pour passer à la version suivante. */
+export type TypeIncrement = 'majeur' | 'mineur' | 'correctif';
+
+/**
+ * Calcule la version suivante.
+ *
+ * @param version - Version actuelle (ex. `0.1.0`).
+ * @param type - `correctif` : 0.1.0 → 0.1.1 ; `mineur` : 0.1.0 → 0.2.0 ; `majeur` : 0.1.0 → 1.0.0.
+ * @throws Si la version actuelle n'est pas un numéro valide.
+ */
+export function incrementerVersion(version: string, type: TypeIncrement): string {
+  const lue = lireVersion(version);
+  if (!lue) throw new Error(`Version invalide : « ${version} ».`);
+  if (type === 'majeur') return `${lue.majeur + 1}.0.0`;
+  if (type === 'mineur') return `${lue.majeur}.${lue.mineur + 1}.0`;
+  return `${lue.majeur}.${lue.mineur}.${lue.correctif + 1}`;
 }

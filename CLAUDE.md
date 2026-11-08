@@ -36,7 +36,8 @@ toujours expliquer simplement et dire précisément ce qu'il doit faire lui-mêm
 - Phase 2 : Supabase (comptes, rôles, données) — faite le 2026-11-07 (projet `gbaiedvbxtwmuphjmdxn`, schéma SQL dans `supabase/`, guide : `supabase/README.md`). Inscriptions publiques désactivées ; compte admin du porteur créé.
 - Phase 3 : espace admin — faite et testée en réel le 2026-11-07 (connexion, onglets Cartes / Boosters / Joueurs / Version, registre d'effets ; ajout, modification, désactivation et suppression d'une carte vérifiés avec des cartes de test, ensuite supprimées).
 - Phase 4 : espace joueur — faite et testée en réel le 2026-11-08 (onglets, accueil avec boosters du jour et compte à rebours, ouverture par le serveur, révélation simple + « Nouvelle ! », collection, Jouer, Installer, pseudo à la 1re connexion ; limite quotidienne vérifiée avec 3 boosters ouverts).
-- Phase 5 : versions et mises à jour. Phase 6 : vérifications et `GUIDE.md`.
+- Phase 5 : versions et mises à jour — code écrit et testé en navigateur le 2026-11-08 (bandeau de mise à jour, écran obligatoire, `npm run publier`, `CHANGELOG.md`) ; la première étiquette `v0.1.0` sera posée à la fin (`npm run publier -- actuelle`).
+- Phase 6 : vérifications et `GUIDE.md`.
 
 ## Décisions prises
 
@@ -60,6 +61,7 @@ toujours expliquer simplement et dire précisément ce qu'il doit faire lui-mêm
 - Migration 5 (`…000500_email_et_joueurs.sql`) : `profiles.email` (copié du compte, non modifiable par l'appli) et `admin_list_players()` (admin seulement). Le test de sécurité compte maintenant 50 vérifications.
 - Phase 3 : l'ancien système local (plugin Vite `tools/`, `ADMIN_CODE`, `public/cartes` écrit en dev) est supprimé.
 - Phase 4 : le tirage dans le navigateur est supprimé (`drawCards`, `config/game.ts`, `data/cards.ts`, mode `?forcer=`, `cardIds` des boosters) : TOUT tirage passe par `open_booster()` (`BoosterService`). Le pseudo et l'avatar sont dans `profiles` (`SupabaseStorageService` implémente `StorageService`). Navigation : onglets HOME / COLLECTION / JOUER / INSTALLER / ADMIN + parcours d'ouverture plein écran (`app/flowMachine.ts`). Révélation SIMPLE : `EFFETS_REVELATION_ACTIFS = false` dans `config/raretes.ts` (les effets complets sont gardés dans `RARETES_COMPLETES`). Collection du joueur : les images des cartes non obtenues ne sont jamais signées (emplacement vide). Désormais `<Carte />` est aussi le recto des cartes révélées.
+- Mises à jour (phase 5) : mode « prompt ». `app/pwa.ts` enregistre le service worker et cherche une nouvelle version à l'ouverture, au retour au premier plan et toutes les 30 min ; `app/miseAJour.ts` garde l'état (hors React) ; `components/BandeauMiseAJour` propose « Mettre à jour » / « Plus tard » avec les nouveautés lues dans `version.json` (produit à chaque construction par `vite.config.ts` à partir de `CHANGELOG.md`, jamais précaché). Écran bloquant `screens/MiseAJourObligatoire` quand `VERSION_APPLI` < `get_min_version()` (lue avant la connexion, `useVersionMinimale`) : son bouton supprime service worker et cache puis recharge. Une erreur réseau ne bloque jamais personne. `CHANGELOG.md` : tenir à jour sous « ## Non publié » à chaque changement visible des joueurs.
 - Le front lit `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` (`.env` local, secrets GitHub) via `src/services/supabaseClient.ts`.
 
 ## Stack
@@ -71,6 +73,7 @@ Tests : Vitest (environnement `node`). Qualité : ESLint 9 + Prettier.
 
 - `npm run dev` (ajouter `-- --host` pour tester sur téléphone ; `-- --port 3456` si le port 5173 est refusé sous Windows)
 - `npm run build` · `npm run lint` · `npm test`
+- `npm run publier -- <correctif|mineur|majeur|x.y.z|actuelle> [--essai]` : publie une version (CHANGELOG, package.json, commit « Version x.y.z », étiquette `vx.y.z`, push ; déploiement automatique). Exige un dépôt propre sur `main` et des points sous « Non publié » dans `CHANGELOG.md`.
 - `npm run preview -- --port 4173` : aperçu du site construit, avec le chemin de base (http://localhost:4173/swag-cartes-delaitere/)
 - Avant chaque commit : build, lint et tests sans erreur ni warning. Commits en français, une étape = un commit.
 

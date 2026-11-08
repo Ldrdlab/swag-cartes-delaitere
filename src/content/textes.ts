@@ -347,6 +347,25 @@ export const TEXTES = {
   },
 
   // ---------------------------------------------------------------------------------
+  // MISES À JOUR DE L'APPLI
+  // Dans les textes, {version}, {actuelle}, {requise} sont remplacés automatiquement : garde-les tels quels.
+  // ---------------------------------------------------------------------------------
+  miseAJour: {
+    // Le bandeau qui apparaît quand une nouvelle version est prête.
+    titre: 'Nouvelle version disponible',
+    version: 'Version {version}',
+    labelNotes: 'Nouveautés de cette version',
+    boutonMettreAJour: 'Mettre à jour',
+    boutonPlusTard: 'Plus tard',
+    enCours: 'Mise à jour…',
+    // L'écran qui bloque l'appli quand la version est trop ancienne.
+    titreObligatoire: 'Mise à jour obligatoire',
+    texteObligatoire:
+      'Cette version de SWAG n’est plus acceptée. Mets l’appli à jour pour continuer à jouer.',
+    versions: 'Ta version : {actuelle} · Version minimum : {requise}',
+  },
+
+  // ---------------------------------------------------------------------------------
   // CONNEXION
   // ---------------------------------------------------------------------------------
   connexion: {

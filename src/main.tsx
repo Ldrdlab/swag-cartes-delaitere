@@ -19,12 +19,14 @@ import { AuthProvider } from './hooks/useAuth';
 import { BoosterProvider } from './hooks/useBoosterService';
 import { CollectionProvider } from './hooks/useCollectionService';
 import { StorageProvider } from './hooks/useStorage';
+import { VersionProvider } from './hooks/useVersionService';
 import { LocalStorageService } from './services/LocalStorageService';
 import { SupabaseAdministrationService } from './services/SupabaseAdministrationService';
 import { SupabaseAuthService } from './services/SupabaseAuthService';
 import { SupabaseBoosterService } from './services/SupabaseBoosterService';
 import { SupabaseCollectionService } from './services/SupabaseCollectionService';
 import { SupabaseStorageService } from './services/SupabaseStorageService';
+import { SupabaseVersionService } from './services/SupabaseVersionService';
 import { supabase } from './services/supabaseClient';
 // Polices installées dans l'appli (aucun lien externe) : titre = Lilita One, texte = Nunito 600/800/900.
 import '@fontsource/lilita-one/latin-400.css';
@@ -47,16 +49,21 @@ const storageService = supabase ? new SupabaseStorageService(supabase) : new Loc
 const collectionService = supabase ? new SupabaseCollectionService(supabase) : null;
 const administrationService = supabase ? new SupabaseAdministrationService(supabase) : null;
 const boosterService = supabase ? new SupabaseBoosterService(supabase) : null;
+const versionService = supabase ? new SupabaseVersionService(supabase) : null;
 
 /** Branche les services de données (seulement si Supabase est configuré). */
 function Services({ children }: { children: ReactNode }) {
-  if (!collectionService || !administrationService || !boosterService) return <>{children}</>;
+  if (!collectionService || !administrationService || !boosterService || !versionService) {
+    return <>{children}</>;
+  }
   return (
-    <CollectionProvider service={collectionService}>
-      <AdministrationProvider service={administrationService}>
-        <BoosterProvider service={boosterService}>{children}</BoosterProvider>
-      </AdministrationProvider>
-    </CollectionProvider>
+    <VersionProvider service={versionService}>
+      <CollectionProvider service={collectionService}>
+        <AdministrationProvider service={administrationService}>
+          <BoosterProvider service={boosterService}>{children}</BoosterProvider>
+        </AdministrationProvider>
+      </CollectionProvider>
+    </VersionProvider>
   );
 }
 

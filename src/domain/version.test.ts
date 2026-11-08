@@ -5,7 +5,13 @@
  * Dépend de : vitest, domain/version.
  */
 import { describe, expect, it } from 'vitest';
-import { comparerVersions, estInferieure, lireVersion, versionValide } from './version';
+import {
+  comparerVersions,
+  estInferieure,
+  incrementerVersion,
+  lireVersion,
+  versionValide,
+} from './version';
 
 describe('lireVersion', () => {
   it('décompose un numéro de version', () => {
@@ -54,5 +60,18 @@ describe('estInferieure', () => {
   it('ne bloque jamais quelqu’un à cause d’un texte illisible', () => {
     expect(estInferieure('0.1.0', 'n’importe quoi')).toBe(false);
     expect(estInferieure('?', '0.1.0')).toBe(false);
+  });
+});
+
+describe('incrementerVersion', () => {
+  it('augmente le correctif, le mineur ou le majeur', () => {
+    expect(incrementerVersion('0.1.0', 'correctif')).toBe('0.1.1');
+    expect(incrementerVersion('0.1.9', 'mineur')).toBe('0.2.0');
+    expect(incrementerVersion('0.9.9', 'majeur')).toBe('1.0.0');
+    expect(incrementerVersion('1.2.3', 'mineur')).toBe('1.3.0');
+  });
+
+  it('refuse une version illisible', () => {
+    expect(() => incrementerVersion('abc', 'mineur')).toThrow();
   });
 });
