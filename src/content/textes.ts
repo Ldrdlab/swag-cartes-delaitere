@@ -93,6 +93,11 @@ export const TEXTES = {
     erreurSauvegarde: "Impossible d'enregistrer le profil. Réessaie.",
     // Le message rouge quand un autre joueur a déjà ce pseudo.
     erreurPseudoPris: 'Ce pseudo est déjà pris. Choisis-en un autre.',
+    // L'option d'affichage des effets de cartes (retenue sur cet appareil).
+    effetsReduits: 'Effets réduits',
+    effetsReduitsAide:
+      'Cartes plus simples et sans animation : utile si ton téléphone chauffe ou rame. Retenu sur cet appareil.',
+    effetsReduitsSysteme: 'Ton appareil demande déjà de réduire les animations.',
   },
 
   // ---------------------------------------------------------------------------------

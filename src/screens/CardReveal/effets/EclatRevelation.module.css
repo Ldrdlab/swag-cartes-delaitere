@@ -1,0 +1,28 @@
+/* Éclat sobre de révélation : seule l'opacité change. Variables posées par le composant. */
+.eclat {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, var(--eclat-couleur), transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+  animation: eclat var(--eclat-duree) ease-out 150ms 1 both;
+}
+
+@keyframes eclat {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: var(--eclat-force);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eclat {
+    animation: none;
+  }
+}

@@ -10,6 +10,7 @@
  */
 import type { InfosCarte } from '../domain/cartes';
 import type { EntreeCollection } from '../domain/collection';
+import type { RegleEffet } from '../domain/effetsCartes';
 import type { Card } from '../domain/types';
 
 /** Une carte à ajouter : ses infos et ses images déjà optimisées. */
@@ -37,4 +38,6 @@ export interface CollectionService {
   modifierCarte(id: string, infos: InfosCarte): Promise<Card>;
   /** Supprime une carte et ses images (admin seulement ; refusé si un joueur la possède). */
   supprimerCarte(id: string): Promise<void>;
+  /** Lit l'effet par défaut de chaque rareté (et variante), pour tout joueur connecté. */
+  lireEffetsParDefaut(): Promise<RegleEffet[]>;
 }

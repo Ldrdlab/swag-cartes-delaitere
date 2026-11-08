@@ -99,7 +99,12 @@ export function Carte3D({
             />
           </div>
           <div className={styles.faceRecto}>
-            <CarteRecto carte={carte} avecReflet={etape === 'FACE'} />
+            <CarteRecto
+              carte={carte}
+              avecReflet={etape === 'FACE'}
+              modeEffet={retournee ? 'interactif' : 'statique'}
+              retournee={retournee}
+            />
           </div>
         </div>
       </div>

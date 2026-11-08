@@ -1,58 +1,36 @@
 /**
- * Effet affiché sur la grande carte de l'espace admin (vue détaillée), en direct.
+ * Effet affiché sur la grande carte de l'espace admin pendant la modification d'une carte.
  *
- * Rôle : lire les effets par défaut des raretés (administrateur seulement) et calculer l'effet à
- * montrer : celui de la carte, ou celui du brouillon pendant qu'on modifie ses infos (le formulaire
- * « Effet visuel » agit donc en direct sur l'aperçu). Pour un joueur (`actif` faux), rien n'est lu et
- * l'appel renvoie `undefined` : la carte garde son affichage normal.
+ * Rôle : calculer l'effet du BROUILLON (infos en cours de saisie) avec les effets par défaut des raretés
+ * (hooks/useReglesEffets), pour que le formulaire « Effet visuel » agisse en direct sur la carte. Hors
+ * modification, renvoie `undefined` : la carte décide alors seule de son effet.
  * Expose : useApercuEffet().
- * Dépend de : react, config/effets, domain/cartes (type), domain/effetsCartes, domain/types (type),
- * hooks/useAdministrationService.
+ * Dépend de : config/effets, domain/cartes (type), domain/effetsCartes, hooks/useReglesEffets.
  */
-import { useEffect, useState } from 'react';
 import { INTENSITE_EFFET } from '../config/effets';
 import type { InfosCarte } from '../domain/cartes';
 import { resoudreEffet, type EffetResolu, type RegleEffet } from '../domain/effetsCartes';
-import type { Card } from '../domain/types';
-import { useAdministrationService } from './useAdministrationService';
+import { useReglesEffets } from './useReglesEffets';
 
 /**
- * @param carte - Carte affichée.
  * @param brouillon - Infos en cours de modification, ou `undefined` hors modification.
- * @param actif - Vrai pour un administrateur.
- * @returns Les règles lues (vides tant qu'elles arrivent) et l'effet à afficher.
+ * @returns Les règles des raretés et l'effet du brouillon (`undefined` sans brouillon).
  */
-export function useApercuEffet(
-  carte: Card,
-  brouillon: InfosCarte | undefined,
-  actif: boolean,
-): { regles: readonly RegleEffet[]; effet: EffetResolu | undefined } {
-  const service = useAdministrationService();
-  const [regles, setRegles] = useState<readonly RegleEffet[]>([]);
-
-  useEffect(() => {
-    if (!actif) return undefined;
-    let annule = false;
-    // En cas d'échec, on garde une liste vide : l'effet automatique n'est alors simplement pas montré.
-    service
-      .lireEffetsRaretes()
-      .then((lues) => {
-        if (!annule) setRegles(lues);
-      })
-      .catch(() => undefined);
-    return () => {
-      annule = true;
-    };
-  }, [service, actif]);
-
-  if (!actif) return { regles, effet: undefined };
-  const source = brouillon
-    ? {
-        rarity: brouillon.rarete,
-        variant: brouillon.variante,
-        effect: brouillon.effet,
-        effectParams: brouillon.parametres,
-      }
-    : carte;
-  return { regles, effet: resoudreEffet(source, regles, INTENSITE_EFFET.defaut) };
+export function useApercuEffet(brouillon: InfosCarte | undefined): {
+  regles: readonly RegleEffet[];
+  effet: EffetResolu | undefined;
+} {
+  const { regles } = useReglesEffets();
+  if (!brouillon) return { regles, effet: undefined };
+  const effet = resoudreEffet(
+    {
+      rarity: brouillon.rarete,
+      variant: brouillon.variante,
+      effect: brouillon.effet,
+      effectParams: brouillon.parametres,
+    },
+    regles,
+    INTENSITE_EFFET.defaut,
+  );
+  return { regles, effet };
 }

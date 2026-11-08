@@ -90,6 +90,8 @@ interface Props {
   effetsReduits?: boolean;
   /** Élément qui reçoit souris et doigt en mode interactif (la carte) ; sans lui, pas de suivi. */
   cible?: RefObject<HTMLElement | null>;
+  /** Vrai dans une grille de petites cartes : qualité « éco » (moins de couches à dessiner). */
+  leger?: boolean;
 }
 
 export function EffetCarte({
@@ -100,6 +102,7 @@ export function EffetCarte({
   reglages,
   effetsReduits,
   cible,
+  leger = false,
 }: Props) {
   // Élément (et non simple référence) : la couche n'existe qu'une fois l'effet chargé.
   const [racine, setRacine] = useState<HTMLDivElement | null>(null);
@@ -114,7 +117,7 @@ export function EffetCarte({
 
   const facteur = facteurIntensite(intensite);
   if (!fiche || facteur === 0) return null;
-  const qualite = resoudreQualite(indicesAppareil(), SEUILS_APPAREIL_MODESTE, reduits);
+  const qualite = resoudreQualite(indicesAppareil(), SEUILS_APPAREIL_MODESTE, reduits || leger);
   const calques = fiche.calques({ intensite: facteur, pointeur: POSE_REFLET, qualite, reglages });
   const clip = zoneVersClipPath(zone ?? fiche.zone, GEOMETRIE_ZONES);
   const Dessin = fiche.Composant;

@@ -2,12 +2,13 @@
  * Décor de l'écran Profil.
  *
  * Rôle : fond pastel, petit logo SWAG décoratif, et carte blanche centrale dont le haut est
- * chevauché par l'avatar (fourni par l'écran). Ne contient aucune logique.
+ * chevauché par l'avatar (fourni par l'écran), puis l'option « Effets réduits ». Aucune autre logique.
  * Expose : le composant `ProfileLayout`.
- * Dépend de : react, content/textes, Profile.module.css.
+ * Dépend de : react, content/textes, OptionEffetsReduits, Profile.module.css.
  */
 import type { ReactNode } from 'react';
 import { TEXTES } from '../../content/textes';
+import { OptionEffetsReduits } from './OptionEffetsReduits';
 import styles from './Profile.module.css';
 
 interface ProfileLayoutProps {
@@ -32,6 +33,7 @@ export function ProfileLayout({ avatar, children }: ProfileLayoutProps) {
           <div className={styles.carte}>
             <div className={styles.avatar}>{avatar}</div>
             {children}
+            <OptionEffetsReduits />
           </div>
         </div>
       </main>

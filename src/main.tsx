@@ -18,6 +18,7 @@ import { AdministrationProvider } from './hooks/useAdministrationService';
 import { AuthProvider } from './hooks/useAuth';
 import { BoosterProvider } from './hooks/useBoosterService';
 import { CollectionProvider } from './hooks/useCollectionService';
+import { ReglesEffetsProvider } from './hooks/useReglesEffets';
 import { StorageProvider } from './hooks/useStorage';
 import { VersionProvider } from './hooks/useVersionService';
 import { LocalStorageService } from './services/LocalStorageService';
@@ -59,9 +60,11 @@ function Services({ children }: { children: ReactNode }) {
   return (
     <VersionProvider service={versionService}>
       <CollectionProvider service={collectionService}>
-        <AdministrationProvider service={administrationService}>
-          <BoosterProvider service={boosterService}>{children}</BoosterProvider>
-        </AdministrationProvider>
+        <ReglesEffetsProvider service={collectionService}>
+          <AdministrationProvider service={administrationService}>
+            <BoosterProvider service={boosterService}>{children}</BoosterProvider>
+          </AdministrationProvider>
+        </ReglesEffetsProvider>
       </CollectionProvider>
     </VersionProvider>
   );

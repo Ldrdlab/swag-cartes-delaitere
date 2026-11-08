@@ -40,12 +40,8 @@ export function CarteDetail({ carte, admin, quantite, onFermer }: CarteDetailPro
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titreId = useId();
   const edition = useEditionCarte(carte, admin, onFermer);
-  // Administrateur : la grande carte montre son effet (ou celui du brouillon en cours de modification).
-  const apercu = useApercuEffet(
-    carte,
-    edition.mode === 'edition' ? edition.infos : undefined,
-    admin !== null,
-  );
+  // Pendant la modification, la grande carte montre l'effet du brouillon (aperçu en direct).
+  const apercu = useApercuEffet(edition.mode === 'edition' ? edition.infos : undefined);
   const ratioAnormal =
     carte.width !== undefined &&
     carte.height !== undefined &&

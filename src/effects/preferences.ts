@@ -4,7 +4,7 @@
  * Rôle : un interrupteur par appareil (stockage local). Quand il est actif, les effets passent en
  * qualité « éco », sans animation ni suivi de l'inclinaison. Le réglage système « réduire les
  * animations » (prefers-reduced-motion) a le même effet, sans rien enregistrer.
- * Expose : lireEffetsReduits(), ecrireEffetsReduits(), useEffetsReduits().
+ * Expose : lireEffetsReduits(), ecrireEffetsReduits(), useOptionEffetsReduits(), useEffetsReduits().
  * Dépend de : react, config/effets, hooks/useMouvementReduit.
  */
 import { useSyncExternalStore } from 'react';
@@ -42,9 +42,14 @@ function sAbonner(rappel: () => void): () => void {
   };
 }
 
+/** Valeur de la case « Effets réduits » (l'option de l'appli seule, sans le réglage du système). */
+export function useOptionEffetsReduits(): boolean {
+  return useSyncExternalStore(sAbonner, lireEffetsReduits, () => false);
+}
+
 /** Vrai si les effets doivent être réduits : option de l'appli ou réglage « réduire les animations » du système. */
 export function useEffetsReduits(): boolean {
-  const option = useSyncExternalStore(sAbonner, lireEffetsReduits, () => false);
+  const option = useOptionEffetsReduits();
   const systeme = useMouvementReduit();
   return option || systeme;
 }

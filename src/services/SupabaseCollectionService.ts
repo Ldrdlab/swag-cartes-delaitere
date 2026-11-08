@@ -19,6 +19,7 @@ import {
   ligneVersCarte,
   type LigneCarte,
 } from '../domain/cartesBase';
+import { regleDepuisLigne, type LigneRegleEffet, type RegleEffet } from '../domain/effetsCartes';
 import { generateId } from '../domain/id';
 import type { Card } from '../domain/types';
 import type { CollectionService, NouvelleCarteDonnees } from './CollectionService';
@@ -142,6 +143,12 @@ export class SupabaseCollectionService implements CollectionService {
       await this.retirerFichiers(envoyes);
       throw erreur instanceof ErreurService ? erreur : traduireErreur(erreur as Error);
     }
+  }
+
+  async lireEffetsParDefaut(): Promise<RegleEffet[]> {
+    const { data, error } = await this.client.rpc('get_rarity_effects');
+    if (error) throw traduireErreur(error);
+    return Array.isArray(data) ? (data as LigneRegleEffet[]).map(regleDepuisLigne) : [];
   }
 
   async modifierCarte(id: string, infos: InfosCarte): Promise<Card> {

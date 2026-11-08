@@ -7,11 +7,13 @@
  *   - le cadre porte `data-rarete` et `data-variante` : le CSS peut s'en servir directement ;
  *   - la prop `calques` reçoit des éléments posés PAR-DESSUS l'image ;
  *   - l'effet visuel est une COUCHE ajoutée à l'affichage par <EffetCarte /> : l'image reste une photo
- *     fixe, sans effet incrusté. La prop `effet` donne l'effet à afficher (voir domain/effetsCartes :
- *     resoudreEffet) ; sans elle, seul un effet FORCÉ sur la carte est affiché (l'effet automatique de la
- *     rareté a besoin des règles de la base). `modeEffet` dit comment l'effet vit (statique par défaut).
+ *     fixe, sans effet incrusté. Sans la prop `effet`, la carte décide seule (domain/effetsCartes :
+ *     resoudreEffet) : effet imposé, aucun, ou effet de sa rareté (règles lues une fois par
+ *     hooks/useReglesEffets). `modeEffet` dit comment l'effet vit : statique par défaut (grilles : image
+ *     fixe, qualité allégée pour les miniatures), animé, ou interactif (vue agrandie, révélation).
  * Expose : le composant `Carte`.
- * Dépend de : react, config/cartes, config/effets, domain/types (type), domain/effetsCartes, effects, Carte.module.css.
+ * Dépend de : react, config/cartes, config/effets, domain/types (type), domain/effetsCartes, effects,
+ * hooks/useReglesEffets, Carte.module.css.
  */
 import { useRef, useState, type ReactNode } from 'react';
 import { RATIO_CARTE } from '../../config/cartes';
@@ -19,6 +21,7 @@ import { INTENSITE_EFFET } from '../../config/effets';
 import { resoudreEffet, type EffetResolu, type ModeEffet } from '../../domain/effetsCartes';
 import type { Card } from '../../domain/types';
 import { EffetCarte } from '../../effects/EffetCarte';
+import { useReglesEffets } from '../../hooks/useReglesEffets';
 import { CLE_EFFET_AUCUN } from '../../effects/cles';
 import styles from './Carte.module.css';
 
@@ -49,9 +52,10 @@ export function Carte({
   const adresse = taille === 'miniature' ? (carte.thumbUrl ?? carte.imageUrl) : carte.imageUrl;
   // On retient l'adresse qui a échoué (et non un simple oui/non) : une autre carte repart de zéro.
   const [adresseEnEchec, setAdresseEnEchec] = useState<string | undefined>(undefined);
+  const { regles } = useReglesEffets();
   // Effet à afficher : « aucun » ou intensité nulle n'ajoutent rien ; les autres sont chargés à la demande.
   const effetAffiche =
-    effet === undefined ? resoudreEffet(carte, [], INTENSITE_EFFET.defaut) : effet;
+    effet === undefined ? resoudreEffet(carte, regles, INTENSITE_EFFET.defaut) : effet;
   const avecEffet =
     effetAffiche !== null && effetAffiche.cle !== CLE_EFFET_AUCUN && effetAffiche.intensite > 0;
 
@@ -90,6 +94,7 @@ export function Carte({
               intensite={effetAffiche.intensite}
               mode={modeEffet}
               cible={cadre}
+              leger={taille === 'miniature'}
               {...(effetAffiche.zone ? { zone: effetAffiche.zone } : {})}
               {...(effetAffiche.reglages ? { reglages: effetAffiche.reglages } : {})}
             />

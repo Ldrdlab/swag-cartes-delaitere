@@ -265,3 +265,32 @@
   font-weight: 800;
   text-align: center;
 }
+
+/* Option « Effets réduits », sous la carte blanche du profil. */
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid rgba(42, 27, 77, 0.12);
+}
+
+.optionCase {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target-min);
+  font-weight: 700;
+}
+
+.optionCase input {
+  width: 22px;
+  height: 22px;
+}
+
+.optionAide {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.75;
+}

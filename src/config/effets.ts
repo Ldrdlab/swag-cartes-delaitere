@@ -4,7 +4,7 @@
  * Rôle : toutes les valeurs des effets au même endroit : zones d'application (en pourcentages de la
  * carte), intensité, seuils d'un téléphone « modeste », réglage du gyroscope et correspondance rareté →
  * effet par défaut. Rien de tout cela n'est écrit en dur dans le code des effets.
- * Expose : CLE_STOCKAGE_EFFETS_REDUITS, INTENSITE_EFFET, GEOMETRIE_ZONES, POSE_REFLET, SEUILS_APPAREIL_MODESTE,
+ * Expose : REVELATION_EFFETS, CLE_STOCKAGE_EFFETS_REDUITS, INTENSITE_EFFET, GEOMETRIE_ZONES, POSE_REFLET, SEUILS_APPAREIL_MODESTE,
  * INCLINAISON, EFFETS_PAR_DEFAUT.
  * Dépend de : domain/effetsCartes (types).
  *
@@ -14,9 +14,23 @@
  * └─────────────────────────────────────────────────────────────────────────────────┘
  */
 import type { GeometrieZones, RegleEffetDefaut, SeuilsAppareil } from '../domain/effetsCartes';
+import type { Rarity } from '../domain/types';
 
 /** Clé du stockage local où l'option « Effets réduits » est retenue sur l'appareil. */
 export const CLE_STOCKAGE_EFFETS_REDUITS = 'swag.effetsReduits';
+
+/**
+ * Éclat sobre à la révélation : un éclair de lumière très bref, posé sur la carte quand elle se retourne,
+ * pour les raretés à partir de `rareteMinimale` (et seulement hors « Effets réduits »). Mettre
+ * `rareteMinimale` à `null` le supprime.
+ */
+export const REVELATION_EFFETS: {
+  rareteMinimale: Rarity | null;
+  /** Durée de l'éclat (ms) et force maximale (opacité, de 0 à 1). */
+  dureeMs: number;
+  force: number;
+  couleur: string;
+} = { rareteMinimale: 'legendaire', dureeMs: 900, force: 0.55, couleur: '#fff4cf' };
 
 /** Intensité d'un effet, en pourcentage (0 = invisible, 100 = pleine force). */
 export const INTENSITE_EFFET = { min: 0, max: 100, defaut: 100 } as const;

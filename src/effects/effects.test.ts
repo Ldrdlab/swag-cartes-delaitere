@@ -7,7 +7,7 @@
  * Dépend de : vitest, effects/index, effects/cles, config/effets, domain/types.
  */
 import { describe, expect, it } from 'vitest';
-import { EFFETS_PAR_DEFAUT } from '../config/effets';
+import { EFFETS_PAR_DEFAUT, REVELATION_EFFETS } from '../config/effets';
 import { RARITIES, VARIANTS } from '../domain/types';
 import { CLE_EFFET_AUCUN } from './cles';
 import { chargerEffet, listerEffets, REGISTRE_EFFETS, trouverEffet } from './index';
@@ -95,5 +95,14 @@ describe('table rareté → effet par défaut', () => {
     for (const variante of VARIANTS) {
       expect(EFFETS_PAR_DEFAUT.some((r) => r.variante === variante)).toBe(true);
     }
+  });
+});
+
+describe('éclat de révélation', () => {
+  it('vise une rareté qui existe (ou est désactivé)', () => {
+    const seuil = REVELATION_EFFETS.rareteMinimale;
+    if (seuil !== null) expect(RARITIES).toContain(seuil);
+    expect(REVELATION_EFFETS.force).toBeGreaterThan(0);
+    expect(REVELATION_EFFETS.force).toBeLessThanOrEqual(1);
   });
 });
