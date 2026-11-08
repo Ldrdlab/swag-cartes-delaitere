@@ -63,6 +63,9 @@ export default defineConfig(({ command, isPreview }) => ({
       },
     }),
   ],
+  // Aperçu sur téléphone avant publication (voir GUIDE.md) : un tunnel HTTPS temporaire (cloudflared) donne
+  // une adresse en .trycloudflare.com, que `vite preview` doit accepter ; HTTPS est nécessaire au gyroscope.
+  preview: { allowedHosts: ['.trycloudflare.com'] },
   test: {
     // Les tests ciblent la logique pure (domain/, app/, services/, config/) : pas besoin du DOM.
     environment: 'node',

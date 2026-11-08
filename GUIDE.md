@@ -184,7 +184,7 @@ Tout se fait dans l'appli, onglet **Admin** (visible seulement par les administr
 - Idéal : des cartes **finies de 744 × 1040 pixels** (coins arrondis transparents). Une image qui n'a pas ces proportions
   est acceptée avec un avertissement, mais elle ne sera jamais déformée.
 - Pour chaque carte : le **nom**, la **rareté**, la **variante** (Feu ou Bronze pour Mythique, Argent ou Or pour Secrète),
-  l'**effet** (pour l'instant seulement « Aucun ») et « Carte active ».
+  l'**effet visuel** (« Automatique » par défaut : c'est celui de la rareté) et « Carte active ».
 - **Désactiver** une carte : elle ne sort plus des boosters mais reste chez ceux qui l'ont.
 - **Supprimer** : impossible si un joueur possède la carte (désactive-la alors).
 - **Ne mets jamais les photos dans le dossier du projet ni sur GitHub** (le dépôt est public) : elles vont uniquement
@@ -194,6 +194,62 @@ Tout se fait dans l'appli, onglet **Admin** (visible seulement par les administr
 (le total doit faire exactement 100 %). Le bouton « Valeurs par défaut » remet les réglages de départ.
 
 **Joueurs** (Admin > Joueurs) : la liste, en lecture seule.
+
+---
+
+## 5 bis. Gérer les effets des cartes
+
+Les cartes brillent selon leur rareté (reflets, arc-en-ciel, flammes, métal…). **L'image d'une carte reste une photo
+fixe : l'effet est ajouté par l'appli à l'affichage.** Tout se règle dans Admin.
+
+**Règle d'or pour tes images : exporte-les de l'outil de création SANS effet** (finition « Aucun »), même pour les
+raretés élevées. Sinon la carte aurait un effet dessiné dans l'image **et** celui de l'appli.
+
+**L'effet de chaque rareté** (Admin > Effets)
+
+- Une ligne par rareté (Feu et Bronze pour Mythique, Argent et Or pour Secrète) avec une petite carte d'aperçu.
+- Choisis une ligne, puis règle l'**effet**, la **zone** (toute la carte, intérieur du cadre, illustration, cadre) et
+  l'**intensité**. L'aperçu est en direct : passe la souris dessus, ou incline ton téléphone, ou glisse le doigt.
+- Clique **Enregistrer cette rareté** : toutes les cartes de cette rareté en mode « Automatique » changent aussitôt.
+- Effets de départ : Peu commune = Lustre, Rare = Holo, Super rare = Prisme, Légendaire = Arc-en-ciel, Mythique Feu =
+  Feu, Mythique Bronze = Bronze, Secrète Argent = Argent, Secrète Or = Or, Commune = aucun.
+
+**L'effet d'une carte précise** (Admin > Cartes > clique la carte > Modifier > « Effet visuel »)
+
+- **Automatique** : l'effet de sa rareté (choix par défaut). **Autre effet** : un effet rien que pour cette carte.
+  **Aucun effet** : pas d'effet, même si sa rareté en a un.
+- Tu peux régler l'intensité et la zone ; **« Revenir à l'automatique »** efface tout et remet l'effet de la rareté.
+- La liste des cartes a un filtre **Effet** (automatique, forcé, aucun) et un badge « Effet : … » ou « Sans effet ».
+
+**Pour les joueurs** : dans la collection, les cartes restent calmes (image fixe). En vue agrandie et à la révélation,
+l'effet bouge et suit la souris, l'inclinaison du téléphone ou le doigt. La case **« Effets réduits »** (écran Profil)
+rend les cartes plus simples et sans animation : conseille-la à un ami dont le téléphone chauffe ou rame.
+
+**Si un effet te semble trop lourd** : baisse son intensité, ou choisis un effet plus léger (Lustre, Holo, Prisme sont
+les plus légers ; Feu est le plus gourmand).
+
+**Ajouter un effet plus tard** : voir l'en-tête de `src/effects/index.ts` (une fiche de ~20 lignes + une ligne dans le
+registre) et complète `CREDITS.md`.
+
+### Tester sur ton téléphone AVANT de publier
+
+Le gyroscope (effets qui suivent l'inclinaison) ne marche qu'en **HTTPS** : un simple lien sur ton réseau Wi-Fi ne
+suffit pas. Méthode recommandée (gratuite, sans compte) :
+
+1. **Une seule fois** : installe l'outil `cloudflared` (tunnel HTTPS temporaire). Dans un terminal Windows :
+   `winget install Cloudflare.cloudflared` (puis ferme et rouvre le terminal).
+2. Dans le dossier du projet, lance : `npm run telephone` (construit l'appli et la sert sur ton PC, port 4173).
+3. Dans un **deuxième** terminal : `cloudflared tunnel --url http://localhost:4173`. Il affiche une adresse
+   `https://….trycloudflare.com`.
+4. Sur ton téléphone, ouvre cette adresse **suivie de** `/swag-cartes-delaitere/` et connecte-toi avec ton compte.
+5. Quand tu as fini, ferme les deux terminaux (Ctrl + C) : l'adresse n'existe plus.
+
+L'appli de test utilise **tes vraies données** Supabase : ne supprime rien. Autre option sans installation (mais sans
+le gyroscope) : `npm run dev -- --host` et ouvre l'adresse réseau affichée, sur le même Wi-Fi.
+
+**Quoi vérifier** : collection fluide en faisant défiler ; vue agrandie qui suit l'inclinaison (iPhone : accepte la
+permission au premier toucher ; si tu la refuses, glisser le doigt marche) ; ouverture d'un booster avec un effet à la
+révélation ; case « Effets réduits » qui fige tout.
 
 ---
 

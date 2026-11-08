@@ -128,7 +128,7 @@ src/
 ```
 
 Hors de `src/` : `supabase/` (migrations SQL, test de sécurité, guide) et `public/icons/` (icônes de la PWA).
-Dossiers ajoutés en phase 3 : `src/effects/` (registre des effets de cartes : pour l'instant « aucun »),
+Dossiers ajoutés en phase 3 : `src/effects/` (effets visuels des cartes : registre chargé à la demande, `fiches/` = un fichier par effet, `socle/` = briques communes et suivi du reflet, `webgl/` = dessin du feu, `EffetCarte.tsx` = la couche posée sur l'image ; voir « Effets visuels des cartes » plus bas),
 `src/screens/Login/` (connexion) et `src/screens/Admin/` (cartes, boosters, joueurs, version).
 Phase 4 : `src/components/AppShell/` (barre d'onglets : en bas sur téléphone, à gauche dès 768 px),
 `src/components/PageOnglet/` (cadre des pages Collection, Jouer, Installer),
@@ -252,14 +252,25 @@ l'image n'est jamais déformée (`object-fit: contain` dans un cadre 5:7). Optim
 (`services/imageOptimizer.ts`) : largeur max 744 px (jamais agrandie), WebP qualité 0,92 avec transparence
 (PNG si le navigateur ne sait pas écrire du WebP, ex. Safari), miniature de 372 px pour la galerie.
 
-**Le composant `Carte`** (`components/Carte`) est le seul endroit qui affiche un visuel de carte. Il pose
-automatiquement l'**effet** de la carte (champ `effect`, clé du registre `src/effects/`) par-dessus l'image ;
-pour l'instant seul « aucun » existe. Le cadre porte aussi `data-rarete` et `data-variante` (ciblables en CSS)
-et la prop `calques` accepte d'autres éléments. L'écran de révélation n'utilise pas encore ce composant.
+**Le composant `Carte`** (`components/Carte`) est le seul endroit qui affiche un visuel de carte (collection,
+vue agrandie, révélation, admin). Il décide seul de l'**effet visuel** de la carte et le pose par-dessus l'image
+(voir « Effets visuels des cartes »). Le cadre porte aussi `data-rarete` et `data-variante` (ciblables en CSS)
+et la prop `calques` accepte d'autres éléments.
 
-**Effets (à ajouter plus tard).** `src/effects/index.ts` associe une clé à un composant. L'espace admin lit ce
-registre pour sa liste déroulante « Effet » ; en base, « aucun » s'écrit avec un texte vide
-(`effects/cles.ts` fait la traduction).
+**Effets visuels des cartes (V0.1.5).** L'image d'une carte reste fixe ; l'effet est une couche CSS (et un dessin
+WebGL pour le feu) ajoutée à l'affichage.
+
+- `src/effects/index.ts` : le registre (clé → nom + chargement à la demande). `fiches/` : un fichier par effet
+  (fonction pure : contexte → calques). `EffetCarte.tsx` empile les calques dans la zone choisie et gère les modes
+  (statique, animé, interactif), la pause hors écran et « Effets réduits » (`preferences.ts`).
+- `domain/effetsCartes.ts` : logique pure (zones, intensité, qualité, inclinaison, réglages JSON, `resoudreEffet`).
+  `config/effets.ts` : zones en pourcentages, seuils d'appareil modeste, gyroscope, effet par défaut par rareté,
+  éclat de révélation.
+- Base (migration 6) : `cards.effect_override` (vide = automatique, `aucun`, ou une clé), `cards.effect_params`
+  (JSON), table `rarity_effects` (effet par défaut de chaque rareté, admin seulement), fonction
+  `get_rarity_effects()` pour les joueurs (lue une fois par `hooks/useReglesEffets`).
+- Admin : onglet « Effets » (`SectionEffets`, `EditeurEffets`, `EffetsTable`) ; fiche de carte `ChampEffet`.
+- Poids : effets chargés à la demande ≈ 8 Ko gzip ; textures : 0 Ko (SVG générés dans `socle/textures.ts`).
 
 **Sécurité.** Rien n'est protégé par l'appli : tout l'est par la base (Row Level Security, voir
 `supabase/migrations/…000200_securite.sql` et le test `supabase/tests/securite.sql`). Le rôle « admin »
@@ -420,6 +431,8 @@ Pour un rendu impossible avec les deux skins existantes (calques animés, effets
 | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Changer le **nombre de cartes** par booster                                   | `config/game.ts` → `CARDS_PER_BOOSTER`                                                                                  |
 | Changer les **probabilités de rareté**                                        | `config/game.ts` → `RARITY_WEIGHTS`                                                                                     |
+| Changer l'**effet visuel** d'une rareté                                       | Admin > Effets (ou `config/effets.ts` → `EFFETS_PAR_DEFAUT` pour les valeurs de départ)                                 |
+| Ajouter un **effet visuel**                                                   | `src/effects/fiches/` + `src/effects/index.ts` + `CREDITS.md`                                                           |
 | Modifier une **rareté** (nom, couleurs, étoiles, effets)                      | `config/raretes.ts`                                                                                                     |
 | Régler les **durées et effets** de la révélation                              | `config/revelation.ts`                                                                                                  |
 | Changer le **dos des cartes**                                                 | Remplacer `src/assets/images/cartes/dos-carte.webp` par une image du même format                                        |

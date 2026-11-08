@@ -9,6 +9,13 @@ ces points sous le numéro de la nouvelle version.
 
 ## Non publié
 
+- Les cartes brillent maintenant selon leur rareté : un reflet doux pour les Peu communes, un effet holographique pour les Rares, des couleurs qui changent avec l'angle pour les Super rares, un arc-en-ciel pour les Légendaires, des flammes pour les Mythiques Feu, du métal pour les Mythiques Bronze et les Secrètes Argent et Or.
+- Quand tu ouvres une carte en grand, ou quand elle se retourne à l'ouverture d'un booster, l'effet suit ta souris, l'inclinaison de ton téléphone ou ton doigt.
+- Un petit éclat de lumière accompagne la révélation des cartes Légendaires et au-dessus.
+- Dans la collection, les cartes restent calmes (sans animation) pour que l'appli reste fluide.
+- Nouvelle case « Effets réduits » dans le profil : cartes plus simples et sans animation, utile si ton téléphone chauffe ou rame.
+- Espace administrateur : onglet « Effets » pour choisir l'effet de chaque rareté, effet au choix pour une carte précise, et filtre « Effet » dans la liste des cartes.
+
 ## [0.1.0] - 2026-11-08
 
 ### Nouveautés

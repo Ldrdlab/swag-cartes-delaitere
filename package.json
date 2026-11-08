@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "telephone": "npm run build && vite preview --host --port 4173 --strictPort",
     "publier": "node scripts/publier.mjs",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
