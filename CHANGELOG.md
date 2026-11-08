@@ -9,6 +9,8 @@ ces points sous le numéro de la nouvelle version.
 
 ## Non publié
 
+## [0.1.5] - 2026-11-08
+
 - Les cartes brillent maintenant selon leur rareté : un reflet doux pour les Peu communes, un effet holographique pour les Rares, des couleurs qui changent avec l'angle pour les Super rares, un arc-en-ciel pour les Légendaires, des flammes pour les Mythiques Feu, du métal pour les Mythiques Bronze et les Secrètes Argent et Or.
 - Quand tu ouvres une carte en grand, ou quand elle se retourne à l'ouverture d'un booster, l'effet suit ta souris, l'inclinaison de ton téléphone ou ton doigt.
 - Un petit éclat de lumière accompagne la révélation des cartes Légendaires et au-dessus.
