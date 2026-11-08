@@ -60,7 +60,8 @@ export function EditeurEffets({ regles, enregistrer }: Props) {
             carte={carteDemo(brouillon.rarete, brouillon.variante, 'aucun')}
             taille="grande"
             decorative
-            modeEffet={reduits ? 'statique' : mode}
+            modeEffet={mode}
+            effetsReduits={reduits}
             effet={{
               cle: brouillon.cle,
               intensite,

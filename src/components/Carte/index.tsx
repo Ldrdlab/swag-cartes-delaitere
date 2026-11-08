@@ -37,6 +37,8 @@ interface CarteProps {
   calques?: ReactNode;
   /** Façon dont l'effet vit : image fixe (défaut), animé, ou animé et qui suit souris / inclinaison. */
   modeEffet?: ModeEffet;
+  /** Force « Effets réduits » (aperçu de l'admin) ; sinon, l'option de l'appareil s'applique. */
+  effetsReduits?: boolean;
   /** Effet à afficher (déjà résolu) ; `null` = aucun. Absent : seul l'effet forcé de la carte. */
   effet?: EffetResolu | null;
 }
@@ -48,6 +50,7 @@ export function Carte({
   decorative = false,
   calques,
   modeEffet = 'anime',
+  effetsReduits,
   effet,
 }: CarteProps) {
   const cadre = useRef<HTMLDivElement>(null);
@@ -96,6 +99,7 @@ export function Carte({
                 cle={effetAffiche.cle}
                 intensite={effetAffiche.intensite}
                 mode={modeEffet}
+                {...(effetsReduits === undefined ? {} : { effetsReduits })}
                 cible={cadre}
                 graine={carte.id}
                 {...(effetAffiche.zone ? { zone: effetAffiche.zone } : {})}

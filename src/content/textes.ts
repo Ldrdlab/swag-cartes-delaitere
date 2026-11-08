@@ -94,9 +94,17 @@ export const TEXTES = {
     // Le message rouge quand un autre joueur a déjà ce pseudo.
     erreurPseudoPris: 'Ce pseudo est déjà pris. Choisis-en un autre.',
     // L'option d'affichage des effets de cartes (retenue sur cet appareil).
+    qualiteEffets: 'Qualité des effets',
+    qualiteAuto: 'Auto',
+    qualiteAutoAide: 'L’appli choisit selon ton appareil (actuellement : {niveau}).',
+    qualiteHaute: 'Élevée',
+    qualiteHauteAide: 'Tous les détails et tous les feux animés. Plus gourmand pour la batterie.',
+    qualiteEco: 'Économie',
+    qualiteEcoAide: 'Moins de détails et un seul feu animé à la fois. Ménage ton téléphone.',
+    qualiteForceeParReduits: 'Avec « Effets réduits », la qualité Économie est utilisée.',
     effetsReduits: 'Effets réduits',
     effetsReduitsAide:
-      'Cartes plus simples et sans animation : utile si ton téléphone chauffe ou rame. Retenu sur cet appareil.',
+      'Cartes plus simples et sans mouvement (les reflets suivent encore ton doigt) : utile si ton téléphone chauffe ou rame. Les deux réglages sont retenus sur cet appareil.',
     effetsReduitsSysteme: 'Ton appareil demande déjà de réduire les animations.',
   },
 

@@ -11,6 +11,7 @@ import { EFFETS_PAR_DEFAUT, REVELATION_EFFETS } from '../config/effets';
 import { RARITIES, VARIANTS } from '../domain/types';
 import { CLE_EFFET_AUCUN } from './cles';
 import { chargerEffet, listerEffets, REGISTRE_EFFETS, trouverEffet } from './index';
+import { lirePreferenceQualite } from './preferences';
 import type { ContexteEffet } from './types';
 
 const CLES_ATTENDUES = [
@@ -104,5 +105,11 @@ describe('éclat de révélation', () => {
     if (seuil !== null) expect(RARITIES).toContain(seuil);
     expect(REVELATION_EFFETS.force).toBeGreaterThan(0);
     expect(REVELATION_EFFETS.force).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('préférence de qualité', () => {
+  it('vaut « auto » quand rien n’est enregistré (ou si le stockage est inaccessible)', () => {
+    expect(lirePreferenceQualite()).toBe('auto');
   });
 });
