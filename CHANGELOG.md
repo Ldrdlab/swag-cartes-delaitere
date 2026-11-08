@@ -9,6 +9,8 @@ ces points sous le numéro de la nouvelle version.
 
 ## Non publié
 
+## [0.2.0] - 2026-11-08
+
 - Les effets des cartes bougent maintenant en continu, même sans les toucher : les reflets glissent doucement et la carte s'incline légèrement, dans la collection comme à l'ouverture des boosters.
 - Tu peux incliner une carte au doigt ou à la souris : ouvre-la en grand (ou retourne-la à l'ouverture d'un booster) et glisse le doigt dessus, les reflets et l'inclinaison te suivent ; quand tu lèves le doigt, elle revient doucement. La page ne défile pas pendant que tu manipules la carte, mais défile toujours normalement partout ailleurs.
 - Dans la collection, la page défile comme avant au doigt. Sur ordinateur, la carte suit ta souris quand tu la survoles.
