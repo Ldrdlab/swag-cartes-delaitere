@@ -28,6 +28,7 @@ import { CollectionScreen } from '../screens/Collection';
 import { InstallerScreen } from '../screens/Installer';
 import { JouerScreen } from '../screens/Jouer';
 import { LoginScreen } from '../screens/Login';
+import { MotDePasseScreen } from '../screens/MotDePasse';
 import { MiseAJourObligatoireScreen } from '../screens/MiseAJourObligatoire';
 import { ProfileScreen } from '../screens/Profile';
 import { WelcomeScreen } from '../screens/Welcome';
@@ -55,6 +56,8 @@ export function App() {
 function Connecte() {
   const { etat, seDeconnecter, rafraichir } = useAuth();
 
+  // Arrivé par un lien d'invitation (ou de « mot de passe oublié ») : il choisit d'abord son mot de passe.
+  if (etat.statut === 'mot_de_passe') return <MotDePasseScreen />;
   if (etat.statut !== 'connecte') return <LoginScreen etat={etat} />;
   // Première connexion : le joueur choisit son avatar et son pseudo avant d'entrer.
   if (etat.profil.pseudo === null) return <ProfileScreen onDone={() => void rafraichir()} />;

@@ -24,6 +24,8 @@ interface ValeurAuth {
   etat: SituationAuth;
   seConnecter: (email: string, motDePasse: string) => Promise<void>;
   seDeconnecter: () => Promise<void>;
+  definirMotDePasse: (motDePasse: string) => Promise<void>;
+  envoyerLienReinitialisation: (email: string) => Promise<void>;
   recharger: () => void;
   rafraichir: () => Promise<void>;
 }
@@ -57,14 +59,44 @@ export function AuthProvider({ service, children }: AuthProviderProps) {
   const seDeconnecter = useCallback(async () => {
     await service?.seDeconnecter();
   }, [service]);
+  const definirMotDePasse = useCallback(
+    async (motDePasse: string) => {
+      if (!service) throw new Error('Supabase non configuré');
+      await service.definirMotDePasse(motDePasse);
+    },
+    [service],
+  );
+  const envoyerLienReinitialisation = useCallback(
+    async (email: string) => {
+      if (!service) throw new Error('Supabase non configuré');
+      await service.envoyerLienReinitialisation(email);
+    },
+    [service],
+  );
   const recharger = useCallback(() => service?.recharger(), [service]);
   const rafraichir = useCallback(async () => {
     await service?.rafraichir();
   }, [service]);
 
   const valeur = useMemo(
-    () => ({ etat, seConnecter, seDeconnecter, recharger, rafraichir }),
-    [etat, seConnecter, seDeconnecter, recharger, rafraichir],
+    () => ({
+      etat,
+      seConnecter,
+      seDeconnecter,
+      definirMotDePasse,
+      envoyerLienReinitialisation,
+      recharger,
+      rafraichir,
+    }),
+    [
+      etat,
+      seConnecter,
+      seDeconnecter,
+      definirMotDePasse,
+      envoyerLienReinitialisation,
+      recharger,
+      rafraichir,
+    ],
   );
   return <ContexteAuth.Provider value={valeur}>{children}</ContexteAuth.Provider>;
 }

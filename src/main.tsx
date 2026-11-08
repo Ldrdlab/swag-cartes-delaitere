@@ -27,7 +27,7 @@ import { SupabaseBoosterService } from './services/SupabaseBoosterService';
 import { SupabaseCollectionService } from './services/SupabaseCollectionService';
 import { SupabaseStorageService } from './services/SupabaseStorageService';
 import { SupabaseVersionService } from './services/SupabaseVersionService';
-import { supabase } from './services/supabaseClient';
+import { lienAuth, redirectionAuth, supabase } from './services/supabaseClient';
 // Polices installées dans l'appli (aucun lien externe) : titre = Lilita One, texte = Nunito 600/800/900.
 import '@fontsource/lilita-one/latin-400.css';
 import '@fontsource/nunito/latin-600.css';
@@ -44,7 +44,7 @@ if (!rootElement) {
 enregistrerPwa();
 
 // Services créés une seule fois (Supabase configuré) ou absents (appli affichant un message de configuration).
-const authService = supabase ? new SupabaseAuthService(supabase) : null;
+const authService = supabase ? new SupabaseAuthService(supabase, lienAuth, redirectionAuth) : null;
 const storageService = supabase ? new SupabaseStorageService(supabase) : new LocalStorageService();
 const collectionService = supabase ? new SupabaseCollectionService(supabase) : null;
 const administrationService = supabase ? new SupabaseAdministrationService(supabase) : null;

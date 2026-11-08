@@ -20,3 +20,4 @@ ces points sous le numéro de la nouvelle version.
 - Onglet « Jouer » (bientôt disponible) et page « Installer l'appli » pour Android, iPhone et ordinateur.
 - Espace administrateur : ajout de cartes, réglage des boosters, liste des joueurs, version minimum requise.
 - L'appli s'installe sur le téléphone ou l'ordinateur et propose les mises à jour.
+- Un ami invité par e-mail choisit son mot de passe en arrivant ; « Mot de passe oublié ? » envoie un lien pour en choisir un nouveau.

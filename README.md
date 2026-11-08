@@ -26,6 +26,10 @@ Avant tout, on se **connecte** (e-mail + mot de passe : les comptes sont créés
 réglable par l'admin). Le compteur se remet à zéro à minuit, heure de Paris. Le tirage des cartes est fait
 par le serveur : impossible de tricher depuis le navigateur.
 
+Pour tout savoir faire (lancer l'appli, publier une version, ajouter un ami, passer quelqu'un admin, que faire si Supabase
+est en pause…), lis **[GUIDE.md](GUIDE.md)**. Le bilan de la V0.1 et les idées pour la V0.2 sont dans
+**[BILAN-V0.1.md](BILAN-V0.1.md)**.
+
 ## Prérequis
 
 - Node.js 22.12 ou plus récent (développé avec Node 24) et npm. Cette version est exigée par Vitest ;

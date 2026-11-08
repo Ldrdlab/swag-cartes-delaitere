@@ -347,6 +347,28 @@ export const TEXTES = {
   },
 
   // ---------------------------------------------------------------------------------
+  // CHOIX DU MOT DE PASSE (après un lien d'invitation ou de « mot de passe oublié »)
+  // {min} est remplacé automatiquement par la longueur minimale : garde-le tel quel.
+  // ---------------------------------------------------------------------------------
+  motDePasse: {
+    titre: 'Choisis ton mot de passe',
+    consigne:
+      'Bienvenue ! Choisis un mot de passe : il te servira à te connecter la prochaine fois.',
+    labelNouveau: 'Nouveau mot de passe',
+    labelConfirmation: 'Confirme le mot de passe',
+    bouton: 'Enregistrer mon mot de passe',
+    enCours: 'Enregistrement…',
+    erreurTropCourt: 'Ton mot de passe doit faire au moins {min} caractères.',
+    erreurDifferent: 'Les deux mots de passe ne sont pas identiques.',
+    erreurFaible:
+      'Ce mot de passe est trop facile à deviner. Ajoute des lettres, des chiffres ou des symboles.',
+    erreurMeme: 'Choisis un mot de passe différent de l’ancien.',
+    erreurTropDeTentatives: 'Trop d’essais. Attends quelques minutes, puis réessaie.',
+    erreurReseau: 'Impossible de joindre le serveur. Vérifie ta connexion.',
+    erreurInconnue: 'Impossible d’enregistrer le mot de passe. Réessaie.',
+  },
+
+  // ---------------------------------------------------------------------------------
   // MISES À JOUR DE L'APPLI
   // Dans les textes, {version}, {actuelle}, {requise} sont remplacés automatiquement : garde-les tels quels.
   // ---------------------------------------------------------------------------------
@@ -385,6 +407,25 @@ export const TEXTES = {
     erreurProfil: 'Impossible de lire ton profil. Réessaie, ou déconnecte-toi.',
     reessayer: 'Réessayer',
     deconnexion: 'Se déconnecter',
+    // Quand le joueur clique sur un lien d'e-mail périmé ou déjà utilisé.
+    lienExpire:
+      'Ce lien n’est plus valable (périmé ou déjà utilisé). Demande-en un nouveau avec « Mot de passe oublié ? », ou contacte l’administrateur.',
+    // « Mot de passe oublié ? »
+    oubli: {
+      lien: 'Mot de passe oublié ?',
+      consigne:
+        'Entre ton adresse e-mail : si un compte existe, tu recevras un lien pour choisir un nouveau mot de passe.',
+      bouton: 'Envoyer le lien',
+      enCours: 'Envoi…',
+      envoye:
+        'C’est envoyé ! Regarde tes e-mails (et les courriers indésirables). Le lien reste valable une heure.',
+      retour: 'Retour à la connexion',
+      erreurChamp: 'Renseigne ton adresse e-mail.',
+      erreurTropDeTentatives:
+        'Trop de demandes. Attends un peu (une heure au plus), puis réessaie.',
+      erreurReseau: 'Impossible de joindre le serveur. Vérifie ta connexion.',
+      erreurInconnue: 'Envoi impossible. Réessaie.',
+    },
     nonConfigure:
       'La connexion n’est pas configurée : le fichier .env (URL et clé Supabase) est manquant. Voir supabase/README.md.',
   },
