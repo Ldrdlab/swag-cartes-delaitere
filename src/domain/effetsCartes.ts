@@ -5,7 +5,9 @@
  * config/effets.ts et sont passées en paramètre : ce fichier n'a aucun réglage en dur.
  * Expose : ModeEffet, ZoneEffet, QualiteEffet, PointeurEffet, GeometrieZones, SeuilsAppareil,
  * RegleEffetDefaut, effetParDefaut(), facteurIntensite(), zoneVersClipPath(), resoudreQualite(),
- * positionDepuisInclinaison(), rapprocher().
+ * positionDepuisInclinaison(), rapprocher(), puis : ReglagesEffetCarte, ParamsEffetCarte, ParamsEffetJson,
+ * ZONES_EFFET, paramsDepuisJson(), paramsVersJson(), OrigineEffet, origineEffet(), RegleEffet, EffetResolu,
+ * CarteEffet, resoudreEffet(), LigneRegleEffet, regleDepuisLigne().
  * Dépend de : domain/types (types). Aucun import React ni DOM.
  */
 import type { Rarity, Variant } from './types';
@@ -143,5 +145,161 @@ export function rapprocher(
   return {
     position: { x: courante.x + dx * lissage, y: courante.y + dy * lissage },
     arrivee: false,
+  };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Réglages d'effet d'une carte ou d'une rareté, et résolution de l'effet à afficher
+// ---------------------------------------------------------------------------------------------
+
+/** Réglages numériques d'un effet (mêmes noms que effects/types). */
+export interface ReglagesEffetCarte {
+  vitesse?: number | undefined;
+  densite?: number | undefined;
+}
+
+/** Réglages d'effet d'une carte (ou d'une rareté) : tout est facultatif. */
+export interface ParamsEffetCarte {
+  /** Intensité de 0 à 100. */
+  intensite?: number | undefined;
+  /** Zone couverte ; absente = celle de l'effet. */
+  zone?: ZoneEffet | undefined;
+  reglages?: ReglagesEffetCarte | undefined;
+}
+
+/** Réglages tels qu'ils sont enregistrés en base (colonnes `effect_params` et `params`). */
+export interface ParamsEffetJson {
+  intensity?: number;
+  zone?: string;
+  settings?: { vitesse?: number; densite?: number };
+}
+
+/** Zones connues, pour reconnaître une valeur lue en base. */
+export const ZONES_EFFET: readonly ZoneEffet[] = ['carte', 'interieur', 'illustration', 'cadre'];
+
+const estNombre = (valeur: unknown): valeur is number =>
+  typeof valeur === 'number' && Number.isFinite(valeur);
+
+/** Lit les réglages de la base (une valeur inattendue est ignorée : l'appli ne plante jamais). */
+export function paramsDepuisJson(json: unknown): ParamsEffetCarte {
+  if (typeof json !== 'object' || json === null) return {};
+  const brut = json as Record<string, unknown>;
+  const params: ParamsEffetCarte = {};
+  if (estNombre(brut['intensity'])) params.intensite = brut['intensity'];
+  const zone = brut['zone'];
+  if (typeof zone === 'string' && (ZONES_EFFET as readonly string[]).includes(zone)) {
+    params.zone = zone as ZoneEffet;
+  }
+  const reglages = brut['settings'];
+  if (typeof reglages === 'object' && reglages !== null) {
+    const { vitesse, densite } = reglages as Record<string, unknown>;
+    const lus: ReglagesEffetCarte = {};
+    if (estNombre(vitesse)) lus.vitesse = vitesse;
+    if (estNombre(densite)) lus.densite = densite;
+    if (Object.keys(lus).length > 0) params.reglages = lus;
+  }
+  return params;
+}
+
+/** Prépare les réglages à enregistrer en base (les champs absents ne sont pas écrits). */
+export function paramsVersJson(params: ParamsEffetCarte | undefined): ParamsEffetJson {
+  const json: ParamsEffetJson = {};
+  if (!params) return json;
+  if (params.intensite !== undefined) json.intensity = params.intensite;
+  if (params.zone !== undefined) json.zone = params.zone;
+  const { vitesse, densite } = params.reglages ?? {};
+  const settings: { vitesse?: number; densite?: number } = {};
+  if (vitesse !== undefined) settings.vitesse = vitesse;
+  if (densite !== undefined) settings.densite = densite;
+  if (Object.keys(settings).length > 0) json.settings = settings;
+  return json;
+}
+
+/** Comment l'effet d'une carte est décidé : par sa rareté, imposé, ou volontairement absent. */
+export type OrigineEffet = 'automatique' | 'force' | 'aucun';
+
+/** Origine de l'effet d'après la valeur enregistrée (vide = automatique ; `aucun` = aucun ; sinon forcé). */
+export function origineEffet(effet: string | undefined, cleAucun = 'aucun'): OrigineEffet {
+  if (!effet) return 'automatique';
+  return effet === cleAucun ? 'aucun' : 'force';
+}
+
+/** Effet par défaut d'une rareté (et variante), avec ses réglages. */
+export interface RegleEffet {
+  rarete: Rarity;
+  variante?: Variant | undefined;
+  cle: string;
+  params: ParamsEffetCarte;
+}
+
+/** Effet à afficher pour une carte. */
+export interface EffetResolu {
+  cle: string;
+  /** Intensité de 0 à 100. */
+  intensite: number;
+  zone?: ZoneEffet | undefined;
+  reglages?: ReglagesEffetCarte | undefined;
+  origine: OrigineEffet;
+}
+
+/** Ce qu'il faut savoir d'une carte pour décider de son effet. */
+export interface CarteEffet {
+  rarity: Rarity;
+  variant?: Variant | undefined;
+  effect?: string | undefined;
+  effectParams?: ParamsEffetCarte | undefined;
+}
+
+/**
+ * Effet à afficher pour une carte.
+ *  - `aucun` : rien, quelle que soit la rareté ;
+ *  - forcé : l'effet de la carte, avec SES réglages ;
+ *  - automatique : l'effet de la rareté (et variante), ses réglages complétés par ceux de la carte
+ *    (l'intensité réglée sur la carte l'emporte) ; sans règle connue, pas d'effet.
+ */
+export function resoudreEffet(
+  carte: CarteEffet,
+  regles: readonly RegleEffet[],
+  intensiteDefaut: number,
+  cleAucun = 'aucun',
+): EffetResolu {
+  const origine = origineEffet(carte.effect, cleAucun);
+  if (origine === 'aucun') return { cle: cleAucun, intensite: 0, origine };
+  const propres = carte.effectParams ?? {};
+  if (origine === 'force') {
+    return {
+      cle: carte.effect ?? cleAucun,
+      intensite: propres.intensite ?? intensiteDefaut,
+      zone: propres.zone,
+      reglages: propres.reglages,
+      origine,
+    };
+  }
+  const regle = regles.find((r) => r.rarete === carte.rarity && r.variante === carte.variant);
+  if (!regle || regle.cle === cleAucun) return { cle: cleAucun, intensite: 0, origine };
+  return {
+    cle: regle.cle,
+    intensite: propres.intensite ?? regle.params.intensite ?? intensiteDefaut,
+    zone: propres.zone ?? regle.params.zone,
+    reglages: { ...regle.params.reglages, ...propres.reglages },
+    origine,
+  };
+}
+
+/** Une règle telle que la renvoie la base (table `rarity_effects` ou fonction `get_rarity_effects()`). */
+export interface LigneRegleEffet {
+  rarity: Rarity;
+  variant: Variant | null;
+  effect: string;
+  params: unknown;
+}
+
+/** Transforme une ligne de la base en règle d'effet. */
+export function regleDepuisLigne(ligne: LigneRegleEffet): RegleEffet {
+  return {
+    rarete: ligne.rarity,
+    variante: ligne.variant ?? undefined,
+    cle: ligne.effect,
+    params: paramsDepuisJson(ligne.params),
   };
 }

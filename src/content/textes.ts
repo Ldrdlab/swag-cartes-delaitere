@@ -186,7 +186,15 @@ export const TEXTES = {
     placeholderRecherche: 'Nom de la carte',
     labelFiltreRarete: 'Rareté',
     toutesRaretes: 'Toutes les raretés',
+    labelFiltreEffet: 'Effet',
+    tousEffets: 'Tous les effets',
+    effetsAutomatique: 'Effet automatique',
+    effetsForce: 'Effet forcé',
+    effetsAucun: 'Sans effet',
     labelGalerie: 'Cartes de la collection',
+    // Petits badges sur une carte dont l'effet n'est pas celui de sa rareté.
+    badgeEffetForce: 'Effet : {nom}',
+    badgeSansEffet: 'Sans effet',
     // Le petit badge sur une carte dont les proportions ne sont pas celles d'une carte.
     badgeRatio: 'Ratio ≠ 5:7',
 
@@ -233,6 +241,14 @@ export const TEXTES = {
     labelRarete: 'Rareté',
     labelVariante: 'Variante',
     labelEffet: 'Effet',
+    effetTitre: 'Effet visuel',
+    effetAutomatique: 'Automatique ({nom})',
+    effetAutomatiqueSimple: 'Automatique (effet de la rareté)',
+    effetAutre: 'Autre effet',
+    effetAucun: 'Aucun effet',
+    effetRevenir: 'Revenir à l’automatique',
+    effetAide:
+      'L’image de la carte reste fixe : l’effet est ajouté à l’affichage. « Automatique » suit la rareté (page Effets).',
     labelActive: 'Carte active',
     aideActive: 'Une carte désactivée ne sort plus des boosters, mais reste dans les collections.',
     badgeInactive: 'Désactivée',
@@ -479,6 +495,14 @@ export const TEXTES = {
         'Choisir une ligne l’affiche dans l’aperçu. Les petites cartes sont en image fixe, comme dans une collection.',
       sansVariante: '{rarete}',
       avecVariante: '{rarete} · {variante}',
+      enregistrer: 'Enregistrer cette rareté',
+      annuler: 'Annuler les changements',
+      enregistre: 'Effet enregistré pour {nom}.',
+      aucunChangement: 'Aucun changement à enregistrer.',
+      erreurEnregistrement: 'Impossible d’enregistrer. Réessaie.',
+      nonEnregistre: 'Modifié, pas encore enregistré',
+      aideEdition:
+        'Les réglages ci-dessus s’appliquent à la rareté choisie dans la liste. Ils valent pour toutes ses cartes en mode « Automatique ».',
     },
 
     boosters: {

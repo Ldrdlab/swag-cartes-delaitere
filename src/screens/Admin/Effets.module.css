@@ -96,3 +96,33 @@
   color: var(--color-text-muted);
   font-size: 0.9rem;
 }
+
+/* Nom de la rareté en cours de réglage, au-dessus des champs. */
+.regleChoisie {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.boutons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.succes {
+  margin: 0;
+  color: #1c6b3a;
+  font-weight: 700;
+}
+
+/* Étiquette « Modifié, pas encore enregistré » sur une ligne de la table. */
+.modifie {
+  align-self: center;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: #fff3d6;
+  color: #7a4b00;
+  font-size: 12px;
+  font-weight: 700;
+}

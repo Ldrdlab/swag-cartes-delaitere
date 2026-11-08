@@ -5,7 +5,7 @@
  * erreurs et les appels d'écriture. Les composants ne font qu'afficher cet état.
  * Expose : ModeCarte, useEditionCarte().
  * Dépend de : react, config/cartes, domain/cartes, domain/types (type), hooks/useCollection (type),
- * effects/cles, services/erreurs.
+ * services/erreurs.
  */
 import { useState } from 'react';
 import { NOM_CARTE_MAX, VARIANTES_PAR_RARETE } from '../config/cartes';
@@ -17,7 +17,6 @@ import {
   type InfosCarte,
 } from '../domain/cartes';
 import type { Card } from '../domain/types';
-import { CLE_EFFET_AUCUN, cleDepuisBase } from '../effects/cles';
 import { ErreurService, type CodeErreur } from '../services/erreurs';
 import type { ActionsAdmin } from './useCollection';
 
@@ -30,7 +29,9 @@ function infosDe(carte: Card): InfosCarte {
     nom: carte.name,
     rarete: carte.rarity,
     variante: carte.variant,
-    effet: cleDepuisBase(carte.effect ?? CLE_EFFET_AUCUN),
+    // Vide = automatique (effet de la rareté) ; sinon `aucun` ou la clé de l'effet imposé.
+    effet: carte.effect ?? '',
+    parametres: carte.effectParams ?? {},
     active: carte.active ?? true,
   };
 }

@@ -2,7 +2,8 @@
  * Tests de la logique pure des effets de cartes.
  *
  * Rôle : vérifier l'effet par défaut selon la rareté, le calcul des zones, l'intensité, la qualité selon
- * l'appareil, l'inclinaison du téléphone et l'adoucissement du reflet.
+ * l'appareil, l'inclinaison du téléphone, l'adoucissement du reflet, les réglages enregistrés en base et
+ * la résolution de l'effet d'une carte (automatique, forcé, aucun).
  * Dépend de : vitest, domain/effetsCartes, config/effets.
  */
 import { describe, expect, it } from 'vitest';
@@ -10,10 +11,16 @@ import { EFFETS_PAR_DEFAUT, GEOMETRIE_ZONES, SEUILS_APPAREIL_MODESTE } from '../
 import {
   effetParDefaut,
   facteurIntensite,
+  origineEffet,
+  paramsDepuisJson,
+  paramsVersJson,
   positionDepuisInclinaison,
   rapprocher,
+  regleDepuisLigne,
+  resoudreEffet,
   resoudreQualite,
   zoneVersClipPath,
+  type RegleEffet,
 } from './effetsCartes';
 
 describe('effetParDefaut', () => {
@@ -98,5 +105,122 @@ describe('rapprocher', () => {
     const { position, arrivee } = rapprocher({ x: 0.9995, y: 1 }, { x: 1, y: 1 }, 0.5, 0.001);
     expect(position).toEqual({ x: 1, y: 1 });
     expect(arrivee).toBe(true);
+  });
+});
+
+describe('paramsDepuisJson / paramsVersJson', () => {
+  it('lit les réglages de la base', () => {
+    expect(
+      paramsDepuisJson({ intensity: 70, zone: 'cadre', settings: { vitesse: 1.5, densite: 2 } }),
+    ).toEqual({ intensite: 70, zone: 'cadre', reglages: { vitesse: 1.5, densite: 2 } });
+  });
+
+  it('ignore ce qui est inattendu au lieu de planter', () => {
+    expect(paramsDepuisJson(null)).toEqual({});
+    expect(paramsDepuisJson('texte')).toEqual({});
+    expect(paramsDepuisJson({ intensity: 'fort', zone: 'partout', settings: 3 })).toEqual({});
+    expect(paramsDepuisJson({ settings: { vitesse: 'vite' } })).toEqual({});
+  });
+
+  it('prépare le JSON de la base sans écrire les champs absents', () => {
+    expect(paramsVersJson(undefined)).toEqual({});
+    expect(paramsVersJson({})).toEqual({});
+    expect(paramsVersJson({ intensite: 0, reglages: { vitesse: 2 } })).toEqual({
+      intensity: 0,
+      settings: { vitesse: 2 },
+    });
+  });
+
+  it('relit ce qu’il a écrit', () => {
+    const params = { intensite: 55, zone: 'illustration' as const, reglages: { densite: 0.8 } };
+    expect(paramsDepuisJson(paramsVersJson(params))).toEqual(params);
+  });
+});
+
+describe('regleDepuisLigne', () => {
+  it('traduit une ligne de rarity_effects', () => {
+    expect(
+      regleDepuisLigne({
+        rarity: 'mythique',
+        variant: 'feu',
+        effect: 'feu',
+        params: { intensity: 100 },
+      }),
+    ).toEqual({ rarete: 'mythique', variante: 'feu', cle: 'feu', params: { intensite: 100 } });
+    expect(
+      regleDepuisLigne({ rarity: 'rare', variant: null, effect: 'holo', params: {} }).variante,
+    ).toBeUndefined();
+  });
+});
+
+describe('origineEffet', () => {
+  it('vide = automatique, aucun = aucun, le reste = forcé', () => {
+    expect(origineEffet('')).toBe('automatique');
+    expect(origineEffet(undefined)).toBe('automatique');
+    expect(origineEffet('aucun')).toBe('aucun');
+    expect(origineEffet('feu')).toBe('force');
+  });
+});
+
+describe('resoudreEffet', () => {
+  const regles: RegleEffet[] = [
+    { rarete: 'rare', cle: 'holo', params: { intensite: 80, reglages: { vitesse: 2 } } },
+    { rarete: 'commune', cle: 'aucun', params: {} },
+    { rarete: 'mythique', variante: 'feu', cle: 'feu', params: {} },
+  ];
+
+  it('automatique : prend l’effet et les réglages de la rareté', () => {
+    expect(resoudreEffet({ rarity: 'rare', effect: '' }, regles, 100)).toEqual({
+      cle: 'holo',
+      intensite: 80,
+      zone: undefined,
+      reglages: { vitesse: 2 },
+      origine: 'automatique',
+    });
+  });
+
+  it('automatique : l’intensité réglée sur la carte l’emporte, sans perdre les autres réglages', () => {
+    const effet = resoudreEffet(
+      { rarity: 'rare', effect: '', effectParams: { intensite: 30, zone: 'carte' } },
+      regles,
+      100,
+    );
+    expect(effet.intensite).toBe(30);
+    expect(effet.zone).toBe('carte');
+    expect(effet.reglages).toEqual({ vitesse: 2 });
+  });
+
+  it('automatique : l’intensité par défaut s’applique quand rien n’est réglé', () => {
+    expect(
+      resoudreEffet({ rarity: 'mythique', variant: 'feu', effect: '' }, regles, 100).intensite,
+    ).toBe(100);
+  });
+
+  it('automatique : pas d’effet pour une rareté sans effet, une variante inconnue ou sans règle', () => {
+    expect(resoudreEffet({ rarity: 'commune', effect: '' }, regles, 100).cle).toBe('aucun');
+    expect(
+      resoudreEffet({ rarity: 'mythique', variant: 'bronze', effect: '' }, regles, 100).cle,
+    ).toBe('aucun');
+    expect(resoudreEffet({ rarity: 'rare', effect: '' }, [], 100).cle).toBe('aucun');
+  });
+
+  it('aucun : jamais d’effet, même si la rareté en a un', () => {
+    const effet = resoudreEffet({ rarity: 'rare', effect: 'aucun' }, regles, 100);
+    expect(effet).toEqual({ cle: 'aucun', intensite: 0, origine: 'aucun' });
+  });
+
+  it('forcé : l’effet de la carte avec SES réglages (ceux de la rareté ne s’appliquent pas)', () => {
+    const effet = resoudreEffet(
+      { rarity: 'rare', effect: 'feu', effectParams: { intensite: 50 } },
+      regles,
+      100,
+    );
+    expect(effet).toEqual({
+      cle: 'feu',
+      intensite: 50,
+      zone: undefined,
+      reglages: undefined,
+      origine: 'force',
+    });
   });
 });

@@ -6,7 +6,7 @@
  * enregistrer le tout, une carte après l'autre.
  * Expose : Brouillon, ErreurFichier, useAjoutCartes().
  * Dépend de : react, config/cartes, domain/cartes, domain/id, hooks/useCollection (type),
- * effects/cles, services/imageOptimizer, services/erreurs.
+ * services/imageOptimizer, services/erreurs.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -31,7 +31,6 @@ import {
   type VerdictRatio,
 } from '../domain/cartes';
 import { generateId } from '../domain/id';
-import { CLE_EFFET_AUCUN } from '../effects/cles';
 import { ErreurService, type CodeErreur } from '../services/erreurs';
 import { optimiserImage, type ImageOptimisee } from '../services/imageOptimizer';
 import type { ActionsAdmin } from './useCollection';
@@ -63,7 +62,8 @@ function infosParDefaut(nomFichier: string): InfosCarte {
   return {
     nom: nomDepuisFichier(nomFichier, NOM_CARTE_MAX),
     rarete: 'commune',
-    effet: CLE_EFFET_AUCUN,
+    // Vide = automatique : l'effet de la rareté s'applique (le visuel de la carte reste sans effet).
+    effet: '',
     active: true,
   };
 }

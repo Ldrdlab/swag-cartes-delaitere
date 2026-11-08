@@ -3,8 +3,9 @@
  *
  * Rôle : définir Player, Card, CarteTiree, l'énumération des raretés et celle des variantes.
  * Expose : RARITIES, Rarity, VARIANTS, Variant, Player, Card, CarteTiree.
- * Dépend de : rien (logique pure, aucun import React ni DOM).
+ * Dépend de : domain/effetsCartes (type). Aucun import React ni DOM.
  */
+import type { ParamsEffetCarte } from './effetsCartes.ts';
 
 /** Raretés possibles, de la plus fréquente à la plus rare. */
 export const RARITIES = [
@@ -50,8 +51,13 @@ export interface Card {
   /** Dimensions de l'image enregistrée, en pixels (pour vérifier ses proportions). */
   width?: number;
   height?: number;
-  /** Clé de l'effet visuel de la carte (registre src/effects/). Vide ou absente = aucun effet. */
+  /**
+   * Effet visuel imposé à la carte (registre src/effects/) : vide ou absent = AUTOMATIQUE (l'effet de la
+   * rareté s'applique) ; `aucun` = pas d'effet ; sinon la clé de l'effet choisi pour cette carte.
+   */
   effect?: string;
+  /** Réglages de l'effet propres à cette carte (intensité, zone…). */
+  effectParams?: ParamsEffetCarte;
   /** Vrai si la carte peut sortir des boosters. Une carte désactivée reste dans les collections. */
   active?: boolean;
   /** Champs libres pour la personnalisation future (ex. export d'un outil externe de création de cartes). */

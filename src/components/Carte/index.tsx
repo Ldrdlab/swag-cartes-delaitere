@@ -6,18 +6,20 @@
  * qui sait afficher une carte :
  *   - le cadre porte `data-rarete` et `data-variante` : le CSS peut s'en servir directement ;
  *   - la prop `calques` reçoit des éléments posés PAR-DESSUS l'image ;
- *   - l'effet visuel de la carte (registre src/effects/, champ `carte.effect`) est une COUCHE ajoutée à
- *     l'affichage par <EffetCarte /> : l'image reste une photo fixe, sans effet incrusté. `modeEffet` dit
- *     comment l'effet vit (statique par défaut : image fixe, sans animation).
+ *   - l'effet visuel est une COUCHE ajoutée à l'affichage par <EffetCarte /> : l'image reste une photo
+ *     fixe, sans effet incrusté. La prop `effet` donne l'effet à afficher (voir domain/effetsCartes :
+ *     resoudreEffet) ; sans elle, seul un effet FORCÉ sur la carte est affiché (l'effet automatique de la
+ *     rareté a besoin des règles de la base). `modeEffet` dit comment l'effet vit (statique par défaut).
  * Expose : le composant `Carte`.
- * Dépend de : react, config/cartes, domain/types (type), domain/effetsCartes (types), effects, Carte.module.css.
+ * Dépend de : react, config/cartes, config/effets, domain/types (type), domain/effetsCartes, effects, Carte.module.css.
  */
 import { useRef, useState, type ReactNode } from 'react';
 import { RATIO_CARTE } from '../../config/cartes';
-import type { ModeEffet, ZoneEffet } from '../../domain/effetsCartes';
+import { INTENSITE_EFFET } from '../../config/effets';
+import { resoudreEffet, type EffetResolu, type ModeEffet } from '../../domain/effetsCartes';
 import type { Card } from '../../domain/types';
 import { EffetCarte } from '../../effects/EffetCarte';
-import { CLE_EFFET_AUCUN, cleDepuisBase } from '../../effects/cles';
+import { CLE_EFFET_AUCUN } from '../../effects/cles';
 import styles from './Carte.module.css';
 
 interface CarteProps {
@@ -30,10 +32,8 @@ interface CarteProps {
   calques?: ReactNode;
   /** Façon dont l'effet vit : image fixe (défaut), animé, ou animé et qui suit souris / inclinaison. */
   modeEffet?: ModeEffet;
-  /** Intensité de l'effet, de 0 à 100 (100 par défaut). */
-  intensiteEffet?: number;
-  /** Zone couverte par l'effet ; par défaut celle de l'effet. */
-  zoneEffet?: ZoneEffet;
+  /** Effet à afficher (déjà résolu) ; `null` = aucun. Absent : seul l'effet forcé de la carte. */
+  effet?: EffetResolu | null;
 }
 
 /** Une carte, au ratio fixe. Elle prend toute la largeur de son conteneur. */
@@ -43,15 +43,17 @@ export function Carte({
   decorative = false,
   calques,
   modeEffet = 'statique',
-  intensiteEffet,
-  zoneEffet,
+  effet,
 }: CarteProps) {
   const cadre = useRef<HTMLDivElement>(null);
   const adresse = taille === 'miniature' ? (carte.thumbUrl ?? carte.imageUrl) : carte.imageUrl;
   // On retient l'adresse qui a échoué (et non un simple oui/non) : une autre carte repart de zéro.
   const [adresseEnEchec, setAdresseEnEchec] = useState<string | undefined>(undefined);
-  // Effet de la carte : « aucun » n'ajoute rien ; les autres sont chargés à la demande (src/effects/).
-  const cleEffet = cleDepuisBase(carte.effect);
+  // Effet à afficher : « aucun » ou intensité nulle n'ajoutent rien ; les autres sont chargés à la demande.
+  const effetAffiche =
+    effet === undefined ? resoudreEffet(carte, [], INTENSITE_EFFET.defaut) : effet;
+  const avecEffet =
+    effetAffiche !== null && effetAffiche.cle !== CLE_EFFET_AUCUN && effetAffiche.intensite > 0;
 
   return (
     <div
@@ -80,15 +82,16 @@ export function Carte({
           {carte.name}
         </span>
       )}
-      {(calques || cleEffet !== CLE_EFFET_AUCUN) && (
+      {(calques || avecEffet) && (
         <div className={styles.calques}>
-          {cleEffet !== CLE_EFFET_AUCUN && (
+          {avecEffet && (
             <EffetCarte
-              cle={cleEffet}
+              cle={effetAffiche.cle}
+              intensite={effetAffiche.intensite}
               mode={modeEffet}
               cible={cadre}
-              {...(intensiteEffet === undefined ? {} : { intensite: intensiteEffet })}
-              {...(zoneEffet ? { zone: zoneEffet } : {})}
+              {...(effetAffiche.zone ? { zone: effetAffiche.zone } : {})}
+              {...(effetAffiche.reglages ? { reglages: effetAffiche.reglages } : {})}
             />
           )}
           {calques}

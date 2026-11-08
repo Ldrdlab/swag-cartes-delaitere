@@ -4,13 +4,15 @@
  * Rôle : traduire une ligne de la table `cards` en `Card`, lister les chemins d'images à signer, et
  * préparer les champs à enregistrer à partir des infos saisies dans l'espace admin.
  * Expose : COLONNES_CARTE, LigneCarte, ChampsCarte, cheminsImages(), ligneVersCarte(), champsDepuisInfos().
- * Dépend de : domain/types, domain/cartes (type). Aucun import React ni DOM.
+ * Dépend de : domain/types, domain/cartes (type), domain/effetsCartes. Aucun import React ni DOM.
  */
 import type { InfosCarte } from './cartes';
+import { paramsDepuisJson, paramsVersJson, type ParamsEffetJson } from './effetsCartes';
 import type { Card, Rarity, Variant } from './types';
 
 /** Colonnes demandées à la table `cards`. */
-export const COLONNES_CARTE = 'id, name, rarity, variant, effect, image_path, thumb_path, active';
+export const COLONNES_CARTE =
+  'id, name, rarity, variant, effect_override, effect_params, image_path, thumb_path, active';
 
 /** Une ligne de la table `cards`. */
 export interface LigneCarte {
@@ -18,8 +20,10 @@ export interface LigneCarte {
   name: string;
   rarity: Rarity;
   variant: Variant | null;
-  /** Clé de l'effet ; texte vide = aucun effet. */
-  effect: string;
+  /** Effet imposé : vide = automatique (effet de la rareté), `aucun`, ou la clé d'un effet. */
+  effect_override: string;
+  /** Réglages de l'effet de la carte (JSON, voir domain/effetsCartes). */
+  effect_params: unknown;
   image_path: string;
   thumb_path: string | null;
   active: boolean;
@@ -30,7 +34,8 @@ export interface ChampsCarte {
   name: string;
   rarity: Rarity;
   variant: Variant | null;
-  effect?: string;
+  effect_override?: string;
+  effect_params?: ParamsEffetJson;
   active?: boolean;
 }
 
@@ -55,9 +60,11 @@ export function ligneVersCarte(ligne: LigneCarte, adresses: ReadonlyMap<string, 
     id: ligne.id,
     name: ligne.name,
     rarity: ligne.rarity,
-    effect: ligne.effect,
+    effect: ligne.effect_override ?? '',
     active: ligne.active,
   };
+  const params = paramsDepuisJson(ligne.effect_params);
+  if (Object.keys(params).length > 0) carte.effectParams = params;
   if (ligne.variant) carte.variant = ligne.variant;
   const image = adresses.get(ligne.image_path);
   if (image) carte.imageUrl = image;
@@ -68,9 +75,9 @@ export function ligneVersCarte(ligne: LigneCarte, adresses: ReadonlyMap<string, 
 
 /**
  * Prépare les champs à enregistrer. La variante absente devient `null` (elle est effacée si la
- * rareté n'en a pas) ; l'effet et l'activation ne sont modifiés que s'ils sont fournis.
+ * rareté n'en a pas) ; l'effet, ses réglages et l'activation ne sont modifiés que s'ils sont fournis.
  *
- * @param infos - Infos saisies (le champ `effet` doit déjà être la valeur de la base : `''` = aucun).
+ * @param infos - Infos saisies (`effet` : `''` = automatique, `aucun`, ou la clé d'un effet).
  */
 export function champsDepuisInfos(infos: InfosCarte): ChampsCarte {
   const champs: ChampsCarte = {
@@ -78,7 +85,8 @@ export function champsDepuisInfos(infos: InfosCarte): ChampsCarte {
     rarity: infos.rarete,
     variant: infos.variante ?? null,
   };
-  if (infos.effet !== undefined) champs.effect = infos.effet;
+  if (infos.effet !== undefined) champs.effect_override = infos.effet;
+  if (infos.parametres !== undefined) champs.effect_params = paramsVersJson(infos.parametres);
   if (infos.active !== undefined) champs.active = infos.active;
   return champs;
 }

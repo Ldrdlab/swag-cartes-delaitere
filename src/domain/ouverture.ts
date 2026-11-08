@@ -5,8 +5,9 @@
  * objets de l'appli (statut du jour, cartes tirées avec leur badge « Nouvelle ! »).
  * Expose : StatutBoosters, LigneStatut, statutDepuisLigne(), CarteTireeBrute, OuvertureBrute,
  * ResultatOuverture, cheminsOuverture(), ouvertureDepuisJson().
- * Dépend de : domain/types. Aucun import React ni DOM.
+ * Dépend de : domain/types, domain/effetsCartes. Aucun import React ni DOM.
  */
+import { paramsDepuisJson } from './effetsCartes';
 import type { CarteTiree, Rarity, Variant } from './types';
 
 /** Boosters du jour pour le joueur connecté. */
@@ -45,7 +46,11 @@ export interface CarteTireeBrute {
   name: string;
   rarity: Rarity;
   variant: Variant | null;
-  effect: string;
+  /** Ancien champ (avant la V0.1.5), plus utilisé. */
+  effect?: string;
+  /** Effet imposé : vide = automatique. Absent si le serveur n'est pas à jour. */
+  effect_override?: string;
+  effect_params?: unknown;
   image_path: string;
   thumb_path: string | null;
   is_new: boolean;
@@ -91,11 +96,13 @@ export function ouvertureDepuisJson(
       id: c.card_id,
       name: c.name,
       rarity: c.rarity,
-      effect: c.effect,
+      effect: c.effect_override ?? '',
       nouvelle: c.is_new,
       quantite: c.quantity,
     };
     if (c.variant) carte.variant = c.variant;
+    const params = paramsDepuisJson(c.effect_params);
+    if (Object.keys(params).length > 0) carte.effectParams = params;
     const image = adresses.get(c.image_path);
     if (image) carte.imageUrl = image;
     const miniature = c.thumb_path ? adresses.get(c.thumb_path) : undefined;

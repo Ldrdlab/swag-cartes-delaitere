@@ -2,16 +2,18 @@
  * Galerie des cartes : filtres, compteurs et grille.
  *
  * Rôle : afficher toutes les cartes dans une grille alignée (chaque carte dans un cadre 5:7),
- * avec une recherche par nom, un filtre par rareté et les compteurs (total et par rareté).
+ * avec une recherche par nom, un filtre par rareté, un filtre par effet (automatique, forcé, aucun) et
+ * les compteurs (total et par rareté). Une carte dont l'effet n'est pas celui de sa rareté porte un badge.
  * Un clic sur une carte demande son ouverture en grand.
  * Expose : le composant `Galerie`.
  * Dépend de : react, components/Carte, config/cartes, config/raretes, content/*, domain/cartes,
- * domain/types, MesCartes.module.css.
+ * domain/effetsCartes, domain/types, effects, MesCartes.module.css.
  */
 import { useMemo, useState } from 'react';
 import { Carte } from '../../components/Carte';
 import { RATIO_CARTE, TOLERANCE_RATIO } from '../../config/cartes';
 import { RARETES } from '../../config/raretes';
+import { remplir } from '../../content/formatTexte';
 import { TEXTES } from '../../content/textes';
 import {
   compterParRarete,
@@ -20,7 +22,9 @@ import {
   verifierRatio,
   type FiltreCartes,
 } from '../../domain/cartes';
+import { origineEffet, type OrigineEffet } from '../../domain/effetsCartes';
 import { RARITIES, type Card, type Rarity } from '../../domain/types';
+import { trouverEffet } from '../../effects';
 import styles from './MesCartes.module.css';
 
 interface GalerieProps {
@@ -78,6 +82,19 @@ export function Galerie({ cartes, administrateur, onOuvrir }: GalerieProps) {
             </option>
           ))}
         </select>
+        <select
+          className={styles.selecteur}
+          aria-label={textes.labelFiltreEffet}
+          value={filtre.effet ?? 'tous'}
+          onChange={(event) =>
+            setFiltre({ ...filtre, effet: event.target.value as OrigineEffet | 'tous' })
+          }
+        >
+          <option value="tous">{textes.tousEffets}</option>
+          <option value="automatique">{textes.effetsAutomatique}</option>
+          <option value="force">{textes.effetsForce}</option>
+          <option value="aucun">{textes.effetsAucun}</option>
+        </select>
       </div>
 
       {cartes.length === 0 && (
@@ -101,6 +118,14 @@ export function Galerie({ cartes, administrateur, onOuvrir }: GalerieProps) {
                 <Carte carte={carte} taille="miniature" decorative />
                 <span className={styles.nomCarte}>{carte.name}</span>
                 <span className={styles.rareteCarte}>{RARETES[carte.rarity].nom}</span>
+                {origineEffet(carte.effect) === 'force' && (
+                  <span className={styles.badgeEffet}>
+                    {remplir(textes.badgeEffetForce, { nom: trouverEffet(carte.effect ?? '').nom })}
+                  </span>
+                )}
+                {origineEffet(carte.effect) === 'aucun' && (
+                  <span className={styles.badgeEffet}>{textes.badgeSansEffet}</span>
+                )}
                 {carte.active === false && (
                   <span className={styles.badgeRatio}>{textes.badgeInactive}</span>
                 )}

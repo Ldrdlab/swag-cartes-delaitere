@@ -9,7 +9,7 @@
 import { describe, expect, it } from 'vitest';
 import { EFFETS_PAR_DEFAUT } from '../config/effets';
 import { RARITIES, VARIANTS } from '../domain/types';
-import { baseDepuisCle, CLE_EFFET_AUCUN, cleDepuisBase } from './cles';
+import { CLE_EFFET_AUCUN } from './cles';
 import { chargerEffet, listerEffets, REGISTRE_EFFETS, trouverEffet } from './index';
 import type { ContexteEffet } from './types';
 
@@ -95,16 +95,5 @@ describe('table rareté → effet par défaut', () => {
     for (const variante of VARIANTS) {
       expect(EFFETS_PAR_DEFAUT.some((r) => r.variante === variante)).toBe(true);
     }
-  });
-});
-
-describe('clés d’effets', () => {
-  it('traduit le texte vide de la base en « aucun », et inversement', () => {
-    expect(cleDepuisBase('')).toBe('aucun');
-    expect(cleDepuisBase(null)).toBe('aucun');
-    expect(cleDepuisBase(undefined)).toBe('aucun');
-    expect(cleDepuisBase('holo')).toBe('holo');
-    expect(baseDepuisCle('aucun')).toBe('');
-    expect(baseDepuisCle('holo')).toBe('holo');
   });
 });

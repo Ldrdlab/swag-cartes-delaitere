@@ -7,7 +7,7 @@
  * L'état (mode, brouillon, erreurs) vient de hooks/useEditionCarte.
  * Expose : le composant `CarteDetail`.
  * Dépend de : react, components/Button, components/Carte, config/cartes, content/*, domain/cartes,
- * hooks/useEditionCarte, hooks/useCollection (type), screens/CardReveal/BadgeRarete, Detail.module.css.
+ * hooks/useApercuEffet, hooks/useEditionCarte, hooks/useCollection (type), screens/CardReveal/BadgeRarete, Detail.module.css.
  */
 import { useEffect, useId, useRef } from 'react';
 import { Button } from '../../components/Button';
@@ -19,6 +19,7 @@ import { TEXTES } from '../../content/textes';
 import { verifierRatio } from '../../domain/cartes';
 import type { Card } from '../../domain/types';
 import type { ActionsAdmin } from '../../hooks/useCollection';
+import { useApercuEffet } from '../../hooks/useApercuEffet';
 import { useEditionCarte } from '../../hooks/useEditionCarte';
 import { BadgeRarete } from '../CardReveal/BadgeRarete';
 import styles from './Detail.module.css';
@@ -39,6 +40,12 @@ export function CarteDetail({ carte, admin, quantite, onFermer }: CarteDetailPro
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titreId = useId();
   const edition = useEditionCarte(carte, admin, onFermer);
+  // Administrateur : la grande carte montre son effet (ou celui du brouillon en cours de modification).
+  const apercu = useApercuEffet(
+    carte,
+    edition.mode === 'edition' ? edition.infos : undefined,
+    admin !== null,
+  );
   const ratioAnormal =
     carte.width !== undefined &&
     carte.height !== undefined &&
@@ -71,7 +78,12 @@ export function CarteDetail({ carte, admin, quantite, onFermer }: CarteDetailPro
     >
       <div className={styles.contenu}>
         <div className={styles.carte}>
-          <Carte carte={carte} taille="grande" />
+          <Carte
+            carte={carte}
+            taille="grande"
+            modeEffet="interactif"
+            {...(apercu.effet ? { effet: apercu.effet } : {})}
+          />
         </div>
 
         <div className={styles.infos}>
@@ -107,6 +119,7 @@ export function CarteDetail({ carte, admin, quantite, onFermer }: CarteDetailPro
               erreurs={edition.erreurs}
               onChange={edition.changer}
               disabled={edition.enCours}
+              regles={apercu.regles}
             />
           )}
 

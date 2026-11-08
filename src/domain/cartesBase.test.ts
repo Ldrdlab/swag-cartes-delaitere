@@ -12,7 +12,8 @@ const ligne: LigneCarte = {
   name: 'Dragon',
   rarity: 'mythique',
   variant: 'feu',
-  effect: '',
+  effect_override: '',
+  effect_params: {},
   image_path: 'abc.webp',
   thumb_path: 'abc-mini.webp',
   active: true,
@@ -46,6 +47,26 @@ describe('ligneVersCarte', () => {
     expect(carte.thumbUrl).toBeUndefined();
     expect(carte.active).toBe(false);
   });
+
+  it('lit l’effet imposé et ses réglages (vide = automatique, aucun réglage)', () => {
+    const automatique = ligneVersCarte(ligne, new Map());
+    expect(automatique.effect).toBe('');
+    expect(automatique.effectParams).toBeUndefined();
+    const forcee = ligneVersCarte(
+      {
+        ...ligne,
+        effect_override: 'feu',
+        effect_params: { intensity: 60, zone: 'carte', settings: { vitesse: 2 } },
+      },
+      new Map(),
+    );
+    expect(forcee.effect).toBe('feu');
+    expect(forcee.effectParams).toEqual({
+      intensite: 60,
+      zone: 'carte',
+      reglages: { vitesse: 2 },
+    });
+  });
 });
 
 describe('cheminsImages', () => {
@@ -67,6 +88,28 @@ describe('champsDepuisInfos', () => {
     });
   });
 
+  it('transmet l’effet imposé et ses réglages (en JSON de la base)', () => {
+    const champs = champsDepuisInfos({
+      nom: 'Dragon',
+      rarete: 'mythique',
+      variante: 'feu',
+      effet: 'bronze',
+      parametres: { intensite: 40, zone: 'illustration', reglages: { densite: 1.5 } },
+    });
+    expect(champs.effect_override).toBe('bronze');
+    expect(champs.effect_params).toEqual({
+      intensity: 40,
+      zone: 'illustration',
+      settings: { densite: 1.5 },
+    });
+  });
+
+  it('« revenir à l’automatique » efface l’effet et les réglages', () => {
+    const champs = champsDepuisInfos({ nom: 'A', rarete: 'rare', effet: '', parametres: {} });
+    expect(champs.effect_override).toBe('');
+    expect(champs.effect_params).toEqual({});
+  });
+
   it('transmet la variante, l’effet et l’activation quand ils sont fournis', () => {
     expect(
       champsDepuisInfos({
@@ -76,6 +119,12 @@ describe('champsDepuisInfos', () => {
         effet: '',
         active: false,
       }),
-    ).toEqual({ name: 'Dragon', rarity: 'mythique', variant: 'feu', effect: '', active: false });
+    ).toEqual({
+      name: 'Dragon',
+      rarity: 'mythique',
+      variant: 'feu',
+      effect_override: '',
+      active: false,
+    });
   });
 });

@@ -6,7 +6,7 @@
  * enchaînés : si l'un échoue, ce qui a déjà été envoyé est retiré.
  * Expose : SupabaseCollectionService.
  * Dépend de : @supabase/supabase-js (type), config/supabase, domain/cartes, domain/cartesBase,
- * domain/id, domain/types, effects/cles, services/CollectionService, services/erreurs.
+ * domain/id, domain/types, services/CollectionService, services/erreurs.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { STOCKAGE_SUPABASE } from '../config/supabase';
@@ -21,18 +21,12 @@ import {
 } from '../domain/cartesBase';
 import { generateId } from '../domain/id';
 import type { Card } from '../domain/types';
-import { baseDepuisCle } from '../effects/cles';
 import type { CollectionService, NouvelleCarteDonnees } from './CollectionService';
 import { ErreurService, traduireErreur } from './erreurs';
 
 /** Extension de fichier correspondant au type d'une image (WebP, ou PNG en secours). */
 function extensionDe(image: Blob): string {
   return image.type === 'image/png' ? 'png' : image.type === 'image/jpeg' ? 'jpg' : 'webp';
-}
-
-/** Infos prêtes pour la base : la clé d'effet du registre devient la valeur enregistrée. */
-function infosPourBase(infos: InfosCarte): InfosCarte {
-  return infos.effet === undefined ? infos : { ...infos, effet: baseDepuisCle(infos.effet) };
 }
 
 /** Service de collection basé sur Supabase. */
@@ -134,7 +128,7 @@ export class SupabaseCollectionService implements CollectionService {
       const { data, error } = await this.client
         .from('cards')
         .insert({
-          ...champsDepuisInfos(infosPourBase(donnees.infos)),
+          ...champsDepuisInfos(donnees.infos),
           image_path: chemin,
           thumb_path: cheminMiniature,
         })
@@ -153,7 +147,7 @@ export class SupabaseCollectionService implements CollectionService {
   async modifierCarte(id: string, infos: InfosCarte): Promise<Card> {
     const { data, error } = await this.client
       .from('cards')
-      .update(champsDepuisInfos(infosPourBase(infos)))
+      .update(champsDepuisInfos(infos))
       .eq('id', id)
       .select(COLONNES_CARTE)
       .maybeSingle<LigneCarte>();

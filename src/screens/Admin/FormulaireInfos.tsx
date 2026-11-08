@@ -2,11 +2,11 @@
  * Formulaire des infos d'une carte (nom, rareté, variante, effet, activation).
  *
  * Rôle : champs réutilisés pour une nouvelle carte (ajout) et pour une carte existante (modification).
- * La variante n'apparaît que pour les raretés qui en ont une (mythique, secrète). La liste des effets
- * vient du registre src/effects/ (pour l'instant : « Aucun » seulement).
+ * La variante n'apparaît que pour les raretés qui en ont une (mythique, secrète). Le choix de l'effet
+ * visuel (automatique, autre effet, aucun, intensité, zone) est dans ChampEffet.
  * Expose : le composant `FormulaireInfos`.
  * Dépend de : react, config/cartes, config/raretes, content/messagesCartes, content/textes,
- * domain/cartes, domain/types, effects, Formulaire.module.css.
+ * domain/cartes, domain/effetsCartes, domain/types, effects, ChampEffet, Formulaire.module.css.
  */
 import { useId } from 'react';
 import { NOM_CARTE_MAX, NOMS_VARIANTES, VARIANTES_PAR_RARETE } from '../../config/cartes';
@@ -14,9 +14,10 @@ import { RARETES } from '../../config/raretes';
 import { texteErreurInfos } from '../../content/messagesCartes';
 import { TEXTES } from '../../content/textes';
 import { variantesPour, type ErreursInfos, type InfosCarte } from '../../domain/cartes';
+import { resoudreEffet, type RegleEffet } from '../../domain/effetsCartes';
 import { RARITIES, type Rarity, type Variant } from '../../domain/types';
-import { CLE_EFFET_AUCUN } from '../../effects/cles';
-import { listerEffets } from '../../effects';
+import { trouverEffet } from '../../effects';
+import { ChampEffet } from './ChampEffet';
 import styles from './Formulaire.module.css';
 
 interface FormulaireInfosProps {
@@ -25,6 +26,8 @@ interface FormulaireInfosProps {
   erreurs: ErreursInfos;
   onChange: (changement: Partial<InfosCarte>) => void;
   disabled?: boolean;
+  /** Effets par défaut des raretés, s'ils sont connus (pour nommer l'effet « Automatique »). */
+  regles?: readonly RegleEffet[];
 }
 
 /** Champs nom / rareté / variante. */
@@ -33,10 +36,17 @@ export function FormulaireInfos({
   erreurs,
   onChange,
   disabled = false,
+  regles = [],
 }: FormulaireInfosProps) {
   const textes = TEXTES.mesCartes;
   const base = useId();
   const variantes = variantesPour(infos.rarete, VARIANTES_PAR_RARETE);
+  // Nom de l'effet de la rareté (vide tant que les règles ne sont pas lues, ou si la rareté n'a pas d'effet).
+  const cleAuto = resoudreEffet({ rarity: infos.rarete, variant: infos.variante }, regles, 100);
+  const nomAuto =
+    cleAuto.origine === 'automatique' && cleAuto.intensite > 0
+      ? trouverEffet(cleAuto.cle).nom
+      : undefined;
 
   return (
     <div className={styles.formulaire}>
@@ -101,21 +111,7 @@ export function FormulaireInfos({
         </div>
       )}
 
-      <div className={styles.champ}>
-        <label htmlFor={`${base}-effet`}>{textes.labelEffet}</label>
-        <select
-          id={`${base}-effet`}
-          value={infos.effet ?? CLE_EFFET_AUCUN}
-          disabled={disabled}
-          onChange={(event) => onChange({ effet: event.target.value })}
-        >
-          {listerEffets().map((effet) => (
-            <option key={effet.cle} value={effet.cle}>
-              {effet.nom}
-            </option>
-          ))}
-        </select>
-      </div>
+      <ChampEffet infos={infos} onChange={onChange} nomAuto={nomAuto} disabled={disabled} />
 
       <div className={styles.champ}>
         <label className={styles.caseActive}>

@@ -10,6 +10,7 @@
  * normaliserInfos(), validerInfos(), compterParRarete(), filtrerCartes(), trierCartes().
  * Dépend de : domain/types. Aucun import React ni DOM.
  */
+import { origineEffet, type OrigineEffet, type ParamsEffetCarte } from './effetsCartes.ts';
 import { RARITIES, type Card, type Rarity, type Variant } from './types.ts';
 
 /** Résultat de la vérification des proportions d'une image. */
@@ -110,8 +111,10 @@ export interface InfosCarte {
   nom: string;
   rarete: Rarity;
   variante?: Variant | undefined;
-  /** Clé de l'effet (registre src/effects/). Absente = inchangée / aucun effet. */
+  /** Effet imposé : `''` = automatique (effet de la rareté), `aucun`, ou la clé d'un effet. Absent = inchangé. */
   effet?: string | undefined;
+  /** Réglages de l'effet de la carte (intensité, zone…). Absents = inchangés ; `{}` = les efface. */
+  parametres?: ParamsEffetCarte | undefined;
   /** Carte active (peut sortir des boosters). Absente = inchangée / active. */
   active?: boolean | undefined;
 }
@@ -161,6 +164,7 @@ export function normaliserInfos(
     propre.variante = infos.variante;
   }
   if (infos.effet !== undefined) propre.effet = infos.effet;
+  if (infos.parametres !== undefined) propre.parametres = infos.parametres;
   if (infos.active !== undefined) propre.active = infos.active;
   return propre;
 }
@@ -208,6 +212,8 @@ export interface FiltreCartes {
   rarete: Rarity | 'toutes';
   /** Texte cherché dans le nom (sans tenir compte des accents ni des majuscules). */
   recherche: string;
+  /** Origine de l'effet voulue (automatique, forcé, aucun) ; absente ou `'tous'` = toutes. */
+  effet?: OrigineEffet | 'tous';
 }
 
 /** Met un texte en minuscules, sans accents, pour comparer. */
@@ -215,12 +221,15 @@ function simplifier(texte: string): string {
   return texte.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 }
 
-/** Garde les cartes qui respectent le filtre de rareté ET la recherche par nom. */
+/** Garde les cartes qui respectent le filtre de rareté, d'effet ET la recherche par nom. */
 export function filtrerCartes(cartes: readonly Card[], filtre: FiltreCartes): Card[] {
   const recherche = simplifier(filtre.recherche);
   return cartes.filter(
     (carte) =>
       (filtre.rarete === 'toutes' || carte.rarity === filtre.rarete) &&
+      (filtre.effet === undefined ||
+        filtre.effet === 'tous' ||
+        origineEffet(carte.effect) === filtre.effet) &&
       (recherche === '' || simplifier(carte.name).includes(recherche)),
   );
 }
