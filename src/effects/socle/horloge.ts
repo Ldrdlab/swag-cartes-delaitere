@@ -7,6 +7,7 @@
  * retour en fondu — et l'écrit dans les variables CSS `--effet-x` / `--effet-y` de la carte. Le CSS fait
  * le reste (reflets, inclinaison 3D) : React ne redessine rien. L'horloge s'arrête seule quand plus aucune
  * carte n'est inscrite, et se met en pause quand la page est masquée.
+ * Sans orbite (effets réduits), la carte reste à sa pose et seul le geste fait bouger les reflets.
  * Expose : HandleHorloge, inscrire(), statistiquesHorloge().
  * Dépend de : config/effets, domain/animationEffets, domain/effetsCartes (type), effects/socle/variablesPointeur.
  */
@@ -35,6 +36,8 @@ interface Entree {
   element: HTMLElement;
   phase: number;
   intervalleMs: number;
+  /** Vrai : orbite au repos ; faux : la carte reste à sa pose tant qu'il n'y a pas de geste. */
+  orbite: boolean;
   geste: PointeurEffet | null;
   /** Position lissée du geste ; `null` tant qu'aucun geste n'a eu lieu. */
   gesteLisse: PointeurEffet | null;
@@ -44,6 +47,7 @@ interface Entree {
   affichee: PointeurEffet;
 }
 
+const POSE: PointeurEffet = { x: 0.5, y: 0.5 };
 const entrees = new Set<Entree>();
 let image = 0;
 
@@ -55,7 +59,9 @@ function ecrire(element: HTMLElement, position: PointeurEffet): void {
 
 /** Met à jour une carte pour l'image `maintenant` (ms). */
 function mettreAJour(e: Entree, maintenant: number, dtMs: number): void {
-  const repos = positionOrbite(maintenant / 1000, e.phase, ORBITE);
+  // Sans orbite et sans geste en cours ni fondu : rien à écrire (la carte est à sa pose).
+  if (!e.orbite && e.geste === null && e.poids === 0 && e.gesteLisse === null) return;
+  const repos = e.orbite ? positionOrbite(maintenant / 1000, e.phase, ORBITE) : POSE;
   const geste = e.geste !== null;
   if (geste && e.geste) {
     // Début d'un geste : on part de la position affichée, la prise de main se fait en fondu.
@@ -84,12 +90,19 @@ function boucle(maintenant: number): void {
  * @param element - Élément qui porte les variables CSS (le cadre de la carte).
  * @param phase - Point de départ de l'orbite (radians) : différent pour chaque carte.
  * @param intervalleMs - Intervalle minimal entre deux mises à jour (0 = à chaque image).
+ * @param orbite - Faux : pas d'orbite au repos (effets réduits), seul le geste fait bouger les reflets.
  */
-export function inscrire(element: HTMLElement, phase: number, intervalleMs: number): HandleHorloge {
+export function inscrire(
+  element: HTMLElement,
+  phase: number,
+  intervalleMs: number,
+  orbite = true,
+): HandleHorloge {
   const entree: Entree = {
     element,
     phase,
     intervalleMs,
+    orbite,
     geste: null,
     gesteLisse: null,
     poids: 0,

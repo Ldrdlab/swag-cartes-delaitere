@@ -10,6 +10,11 @@
 .cadre {
   position: relative;
   width: 100%;
+  /* Une carte se manipule : ni sélection, ni menu « Enregistrer l'image » à l'appui long (iPhone). */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
   /* Aucun fond ni ombre : les coins arrondis transparents de l'image doivent rester transparents. */
 }
 
@@ -20,6 +25,7 @@
   height: 100%;
   object-fit: contain;
   user-select: none;
+  -webkit-user-drag: none;
 }
 
 .repli {

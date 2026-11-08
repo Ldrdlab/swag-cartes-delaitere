@@ -25,6 +25,8 @@ export type HorlogeEssai = 'js' | 'css' | 'aucune';
  * @param graine - Texte qui fixe la phase de départ (identifiant de la carte).
  * @param intervalleMs - Intervalle minimal entre deux mises à jour (ms).
  * @param horloge - Méthode d'orbite (`js` en temps normal).
+ * @param reduit - Vrai en « Effets réduits » : pas d'orbite ni d'inclinaison, seul le geste fait bouger les
+ *   reflets (la carte reste inscrite pour le suivre).
  */
 export function useOrbite(
   cible: RefObject<HTMLElement | null> | undefined,
@@ -33,18 +35,19 @@ export function useOrbite(
   graine: string,
   intervalleMs: number,
   horloge: HorlogeEssai = 'js',
+  reduit = false,
 ): RefObject<HandleHorloge | null> {
   const poignee = useRef<HandleHorloge | null>(null);
   useEffect(() => {
     const cadre = cible?.current ?? racine;
     if (!cadre || !racine || !actif) return undefined;
     const phase = phaseDepuisTexte(graine);
-    cadre.setAttribute('data-incline', 'oui');
-    if (horloge === 'css') {
+    if (!reduit) cadre.setAttribute('data-incline', 'oui');
+    if (horloge === 'css' && !reduit) {
       cadre.setAttribute('data-horloge-css', 'oui');
       cadre.style.setProperty('--phase', `${-(phase / (2 * Math.PI)) * 8}s`);
     }
-    const h = horloge === 'js' ? inscrire(cadre, phase, intervalleMs) : null;
+    const h = horloge === 'js' || reduit ? inscrire(cadre, phase, intervalleMs, !reduit) : null;
     poignee.current = h;
     return () => {
       h?.retirer();
@@ -53,6 +56,6 @@ export function useOrbite(
       cadre.removeAttribute('data-horloge-css');
       cadre.style.removeProperty('--phase');
     };
-  }, [cible, racine, actif, graine, horloge, intervalleMs]);
+  }, [cible, racine, actif, graine, horloge, intervalleMs, reduit]);
   return poignee;
 }

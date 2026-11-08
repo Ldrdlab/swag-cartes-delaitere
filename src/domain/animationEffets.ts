@@ -6,7 +6,7 @@
  * doigt ou de la souris la remplace en douceur ; à la fin du geste, on revient à l'orbite en fondu.
  * Les valeurs (durée du tour, rayon, lissage…) viennent de config/effets.ts et sont passées en paramètre.
  * Expose : ParamsOrbite, ParamsGeste, positionOrbite(), lisserVers(), avancerPoids(), adoucir(), melanger(),
- * phaseDepuisTexte(), CandidatNuanceur, choisirAnimes().
+ * phaseDepuisTexte(), estGlisse(), CandidatNuanceur, choisirAnimes().
  * Dépend de : domain/effetsCartes (type PointeurEffet). Aucun import React ni DOM.
  */
 import type { PointeurEffet } from './effetsCartes';
@@ -94,6 +94,18 @@ export function phaseDepuisTexte(texte: string): number {
     hachage = Math.imul(hachage ^ texte.charCodeAt(i), 16777619) >>> 0;
   }
   return (hachage / 4294967296) * DEUX_PI;
+}
+
+/**
+ * Un geste est un GLISSÉ (qui incline la carte) dès que le doigt ou la souris s'est déplacé de plus de
+ * `seuilPx` depuis l'appui ; en dessous, c'est un simple APPUI (ouvrir, retourner ou fermer selon l'écran).
+ */
+export function estGlisse(
+  debut: { x: number; y: number },
+  actuel: { x: number; y: number },
+  seuilPx: number,
+): boolean {
+  return Math.hypot(actuel.x - debut.x, actuel.y - debut.y) > seuilPx;
 }
 
 /** Un dessin WebGL qui voudrait s'animer. */

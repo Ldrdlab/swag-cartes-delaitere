@@ -8,7 +8,10 @@
  *     de 30 images par seconde) ; le tout est suspendu hors écran et onglet masqué ;
  *   - `interactif` (vue agrandie, carte retournée) : comme `anime` à pleine cadence, et le reflet suit en
  *     plus la souris ou le doigt (priorité absolue pour le dessin WebGL).
- * L'option « Effets réduits » (ou le réglage système) force le mode statique et la qualité « éco ». La
+ * L'option « Effets réduits » (ou le réglage système) fige l'effet et passe en qualité « éco » : ni orbite ni
+ * inclinaison, mais les reflets suivent encore la souris ou le doigt (comme dans l'outil de création). Sur
+ * ordinateur, une carte `anime` suit aussi le SURVOL de la souris (jamais le doigt : la page défile) ; une carte
+ * `interactif` suit le doigt, avec capture du pointeur et sans que la page défile. La
  * qualité (Auto / Élevée / Économie) est celle du joueur (effects/preferences).
  * Les couches ne bougent que par `transform` et `opacity` ; la position du reflet vient de l'horloge
  * unique (effects/socle/horloge), sans nouveau rendu React.
@@ -38,7 +41,7 @@ import { useSurchargeEffets } from './surcharge';
 import styles from './socle/EffetCarte.module.css';
 import { useActivite } from './socle/useActivite';
 import { useOrbite } from './socle/useOrbite';
-import { usePointeurEffet } from './socle/usePointeurEffet';
+import { usePointeurEffet, type TypeGeste } from './socle/usePointeurEffet';
 import type { CalqueEffet, FicheEffet, ReglagesEffet } from './types';
 
 /** Ce que l'on lit du navigateur pour juger si l'appareil est modeste. */
@@ -127,17 +130,21 @@ export function EffetCarte({
   const modeEffectif: ModeEffet = reduits ? 'statique' : mode;
   const anime = modeEffectif !== 'statique' && actif;
   const interactif = modeEffectif === 'interactif';
+  // Geste demandé (même en « Effets réduits ») : doigt et souris pour `interactif`, survol seulement pour `anime`.
+  const geste: TypeGeste | null =
+    mode === 'interactif' ? 'complet' : mode === 'anime' ? 'survol' : null;
   const vide = useRef<HTMLElement | null>(null);
   // Orbite au repos (horloge unique) puis geste : la carte agrandie est mise à jour à chaque image.
   const poignee = useOrbite(
     cible,
     racine,
-    anime,
+    geste !== null && actif,
     graine ?? cle,
-    interactif ? INTERVALLE_MS.agrandie : INTERVALLE_MS.grille,
+    mode === 'interactif' ? INTERVALLE_MS.agrandie : INTERVALLE_MS.grille,
     surcharge.horloge,
+    reduits,
   );
-  usePointeurEffet(cible ?? vide, poignee, interactif && actif);
+  usePointeurEffet(cible ?? vide, poignee, geste, actif);
 
   const facteur = facteurIntensite(intensite);
   if (!fiche || facteur === 0) return null;

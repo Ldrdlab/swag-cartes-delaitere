@@ -6,11 +6,12 @@
  * Dépend de : vitest, domain/animationEffets, config/effets.
  */
 import { describe, expect, it } from 'vitest';
-import { GESTE, ORBITE, WEBGL_ANIMES_MAX } from '../config/effets';
+import { GESTE, ORBITE, SEUIL_APPUI_PX, WEBGL_ANIMES_MAX } from '../config/effets';
 import {
   adoucir,
   avancerPoids,
   choisirAnimes,
+  estGlisse,
   lisserVers,
   melanger,
   phaseDepuisTexte,
@@ -103,6 +104,19 @@ describe('phaseDepuisTexte', () => {
       Array.from({ length: 30 }, (_, i) => phaseDepuisTexte('id-' + i).toFixed(3)),
     );
     expect(phases.size).toBe(30);
+  });
+});
+
+describe('estGlisse', () => {
+  const debut = { x: 100, y: 100 };
+  it('un petit déplacement est un appui', () => {
+    expect(estGlisse(debut, { x: 100, y: 100 }, SEUIL_APPUI_PX)).toBe(false);
+    expect(estGlisse(debut, { x: 104, y: 105 }, SEUIL_APPUI_PX)).toBe(false);
+  });
+  it('au-delà du seuil, c’est un glissé (dans toutes les directions)', () => {
+    expect(estGlisse(debut, { x: 100 + SEUIL_APPUI_PX + 1, y: 100 }, SEUIL_APPUI_PX)).toBe(true);
+    expect(estGlisse(debut, { x: 100, y: 100 - SEUIL_APPUI_PX - 1 }, SEUIL_APPUI_PX)).toBe(true);
+    expect(estGlisse(debut, { x: 108, y: 108 }, SEUIL_APPUI_PX)).toBe(true);
   });
 });
 
