@@ -26,8 +26,19 @@ export const TEXTES = {
     sousTitre: 'Cartes Délaitère',
     // Le mot violet, sous la pastille.
     nomAppli: 'Booster',
-    // La phrase qui clignote doucement en bas de l'écran.
-    invitation: 'Touchez pour commencer',
+    // Le gros bouton en bas de l'écran.
+    boutonOuvrir: 'Ouvrir un booster',
+    // Combien de boosters il reste aujourd'hui ({restants} sur {parJour}).
+    restants: 'Boosters restants aujourd’hui : {restants} / {parJour}',
+    // Quand il n'en reste plus : le temps avant la remise à zéro ({duree} : « 3 h 12 min »).
+    prochain: 'Prochains boosters dans {duree}',
+    // Les mots utilisés pour écrire la durée.
+    duree: { heures: 'h', minutes: 'min', moinsUneMinute: 'moins d’une minute' },
+    chargementBoosters: 'Chargement de tes boosters…',
+    erreurBoosters: 'Impossible de lire tes boosters du jour.',
+    reessayer: 'Réessayer',
+    // Le texte lu par les lecteurs d'écran pour le bouton qui ouvre le profil (le pseudo, en haut à gauche).
+    labelProfil: 'Modifier mon profil',
     // Le numéro de version, en haut à gauche ({version} est remplacé par le vrai numéro : garde-le tel quel).
     version: 'Version {version}',
     // Le mot qui précède le pseudo, en haut à gauche (sous la version).
@@ -79,7 +90,9 @@ export const TEXTES = {
     // Le bouton pour modifier le profil existant.
     modifierProfil: 'Modifier mon profil',
     // Le message rouge quand l'enregistrement sur l'appareil échoue.
-    erreurSauvegarde: "Impossible d'enregistrer le profil sur cet appareil. Réessaie.",
+    erreurSauvegarde: "Impossible d'enregistrer le profil. Réessaie.",
+    // Le message rouge quand un autre joueur a déjà ce pseudo.
+    erreurPseudoPris: 'Ce pseudo est déjà pris. Choisis-en un autre.',
   },
 
   // ---------------------------------------------------------------------------------
@@ -90,6 +103,8 @@ export const TEXTES = {
   choixBooster: {
     // La phrase dans la pilule blanche en haut de l'écran.
     titre: 'Choisis un booster.',
+    // Le bouton qui ramène à l'accueil.
+    retour: 'Retour',
     // Le texte lu par les lecteurs d'écran pour la flèche de gauche (invisible à l'écran).
     labelPrecedent: 'Booster précédent',
     // Le texte lu par les lecteurs d'écran pour la flèche de droite (invisible à l'écran).
@@ -121,9 +136,12 @@ export const TEXTES = {
     // Le texte lu par les lecteurs d'écran pour ce bouton (invisible à l'écran).
     passerLabel: 'Passer la révélation',
     // Le texte dans la zone image des cartes qui n'ont pas encore de photo.
-    photoAVenir: 'Photo à venir',
-    // Le pied de la carte : numéro de la carte dans la collection.
-    pied: 'SWAG · {numero} / {total}',
+    // Le badge sur une carte que le joueur n'avait pas encore.
+    nouvelle: 'Nouvelle !',
+    // Lu par les lecteurs d'écran quand la carte est retournée.
+    annonceNouvelle: 'Nouvelle carte : {nom}, {rarete}',
+    // Petit texte sous une carte du bilan quand le joueur la possède en plusieurs exemplaires.
+    exemplaires: '×{quantite}',
     // Le texte lu par les lecteurs d'écran pour le dos de la carte (invisible à l'écran).
     labelCarteDos: 'Retourner la carte {numero} sur {total}',
     // Annoncé aux lecteurs d'écran quand une carte vient d'être retournée (invisible à l'écran).
@@ -177,6 +195,8 @@ export const TEXTES = {
     erreurNonAutorise: 'Action refusée : seul un administrateur peut faire cela.',
     erreurCartePossedee:
       'Cette carte est possédée par au moins un joueur : elle ne peut pas être supprimée. Désactive-la plutôt.',
+    erreurLimiteAtteinte: 'Tu as déjà ouvert tous tes boosters du jour.',
+    erreurAucuneCarte: 'Aucune carte n’est disponible pour le moment.',
     erreurReseau: 'Impossible de joindre le serveur. Vérifie ta connexion.',
     erreurInconnue: 'Une erreur est survenue. Réessaie.',
     erreurInfosInvalides: 'Le serveur refuse ces informations.',
@@ -235,6 +255,95 @@ export const TEXTES = {
       'Désactiver « {nom} » ? Elle ne sortira plus des boosters, mais restera dans les collections.',
     confirmerDesactiverOui: 'Oui, désactiver',
     infoRatio: 'Image de {largeur} × {hauteur} px : proportions inhabituelles.',
+    exemplairesUn: 'Tu possèdes cette carte en 1 exemplaire.',
+    exemplairesPlusieurs: 'Tu possèdes cette carte en {quantite} exemplaires.',
+  },
+
+  // ---------------------------------------------------------------------------------
+  // BARRE D'ONGLETS (en bas sur téléphone, à gauche sur ordinateur)
+  // ---------------------------------------------------------------------------------
+  navigation: {
+    label: 'Navigation principale',
+    onglets: {
+      HOME: 'Accueil',
+      COLLECTION: 'Collection',
+      JOUER: 'Jouer',
+      INSTALLER: 'Installer',
+      ADMIN: 'Admin',
+    },
+  },
+
+  // ---------------------------------------------------------------------------------
+  // COLLECTION DU JOUEUR
+  // ---------------------------------------------------------------------------------
+  collection: {
+    titre: 'Collection',
+    // {possedees} et {total} sont remplacés automatiquement.
+    progression: '{possedees} / {total} cartes',
+    labelProgression: 'Progression de la collection',
+    labelFiltre: 'Rareté',
+    toutesRaretes: 'Toutes les raretés',
+    labelCompteurs: 'Cartes obtenues par rareté',
+    compteurRarete: '{possedees} / {total}',
+    labelGrille: 'Cartes de la collection',
+    // Texte lu par les lecteurs d'écran pour un emplacement vide.
+    nonObtenue: 'Carte pas encore obtenue ({rarete})',
+    // Petit texte sur une carte possédée en plusieurs exemplaires.
+    exemplaires: '×{quantite}',
+    chargement: 'Chargement de ta collection…',
+    erreur: 'Impossible de charger ta collection.',
+    reessayer: 'Réessayer',
+    vide: 'Aucune carte dans le jeu pour le moment.',
+    videFiltre: 'Aucune carte de cette rareté.',
+  },
+
+  // ---------------------------------------------------------------------------------
+  // ONGLET « JOUER »
+  // ---------------------------------------------------------------------------------
+  jouer: {
+    titre: 'Jouer',
+    bientot: 'Bientôt disponible',
+    detail: 'Les parties arrivent dans une prochaine version. En attendant, ouvre des boosters !',
+  },
+
+  // ---------------------------------------------------------------------------------
+  // PAGE « INSTALLER L'APPLI »
+  // ---------------------------------------------------------------------------------
+  installer: {
+    titre: 'Installer l’appli',
+    intro:
+      'Installe SWAG sur ton appareil : elle s’ouvre en plein écran, comme une vraie appli, sans passer par une boutique.',
+    dejaInstallee: 'SWAG est déjà installée sur cet appareil.',
+    boutonInstaller: 'Installer maintenant',
+    badgeAppareil: 'Ton appareil',
+    android: {
+      titre: 'Android (Chrome)',
+      etapes: [
+        'Ouvre le site avec Chrome.',
+        'Touche le menu ⋮ en haut à droite.',
+        'Choisis « Installer l’application » (ou « Ajouter à l’écran d’accueil »).',
+        'Confirme : l’icône SWAG apparaît parmi tes applis.',
+      ],
+    },
+    ios: {
+      titre: 'iPhone et iPad (Safari)',
+      etapes: [
+        'Ouvre le site avec Safari (pas avec un autre navigateur).',
+        'Touche le bouton Partager (le carré avec une flèche vers le haut).',
+        'Fais défiler et choisis « Sur l’écran d’accueil ».',
+        'Touche « Ajouter » : l’icône SWAG apparaît sur ton écran d’accueil.',
+      ],
+      remarque:
+        'Sur iPhone, l’appli installée est séparée de Safari : tu devras t’y reconnecter une fois.',
+    },
+    bureau: {
+      titre: 'Ordinateur (Chrome ou Edge)',
+      etapes: [
+        'Ouvre le site avec Chrome ou Edge.',
+        'Clique sur l’icône « Installer » à droite de la barre d’adresse (ou menu ⋮ puis « Installer SWAG »).',
+        'Confirme : SWAG s’ouvre dans sa propre fenêtre.',
+      ],
+    },
   },
 
   // ---------------------------------------------------------------------------------
@@ -267,7 +376,6 @@ export const TEXTES = {
   // ---------------------------------------------------------------------------------
   admin: {
     titre: 'Administration',
-    retour: 'Retour',
     labelOnglets: 'Sections de l’administration',
     refuse: 'Cet espace est réservé aux administrateurs.',
     onglets: { cartes: 'Cartes', boosters: 'Boosters', joueurs: 'Joueurs', version: 'Version' },

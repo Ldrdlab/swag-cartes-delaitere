@@ -24,7 +24,10 @@ src/
 │   ├── flowMachine.test.ts
 │   └── useFlow.ts        Branche transition() sur React (useReducer)
 ├── screens/              Un dossier par écran (index.tsx + CSS Module)
-│   ├── Welcome/          Écran 1 — Accueil
+│   ├── Welcome/          Accueil (onglet) : boosters restants, compte à rebours, bouton d'ouverture
+│   ├── Collection/       Collection du joueur (onglet) : progression, emplacements vides, filtre
+│   ├── Jouer/            « Bientôt disponible » (onglet)
+│   ├── Installer/        Comment installer l'appli (onglet)
 │   ├── Profile/          Écran 2 — Profil (ProfileLayout, ProfileEditor, ProfileForm, ProfileResume)
 │   ├── BoosterSelect/    Écran 3 — Carrousel de boosters
 │   ├── BoosterConfirm/   Écran 4 — Confirmation
@@ -127,32 +130,41 @@ src/
 Hors de `src/` : `supabase/` (migrations SQL, test de sécurité, guide) et `public/icons/` (icônes de la PWA).
 Dossiers ajoutés en phase 3 : `src/effects/` (registre des effets de cartes : pour l'instant « aucun »),
 `src/screens/Login/` (connexion) et `src/screens/Admin/` (cartes, boosters, joueurs, version).
+Phase 4 : `src/components/AppShell/` (barre d'onglets : en bas sur téléphone, à gauche dès 768 px),
+`src/components/PageOnglet/` (cadre des pages Collection, Jouer, Installer), `services/BoosterService.ts`
+(statut du jour et ouverture : tirage côté serveur) et `services/SupabaseStorageService.ts` (pseudo et avatar
+enregistrés dans `profiles`).
 
 ## Flux des écrans
 
 ```
-WELCOME → PROFILE → BOOSTER_SELECT → BOOSTER_CONFIRM → BOOSTER_OPENING → CARD_REVEAL
-                       ↑______BACK_______|                                   |
-BOOSTER_SELECT ←────────────── OPEN_ANOTHER ─────────────────────────────────┤
-WELCOME ←──────────────────────── GO_HOME ──────────────────────────────────┘
-WELCOME → MES_CARTES (OPEN_CARDS) · MES_CARTES → WELCOME (CLOSE_CARDS)
+Onglets (barre visible) : HOME · COLLECTION · JOUER · INSTALLER · ADMIN      (GO_TAB, depuis n'importe lequel)
+
+HOME → BOOSTER_SELECT → BOOSTER_CONFIRM → BOOSTER_OPENING → CARD_REVEAL
+  ↑___ LEAVE_SELECT ___|     ↑___ BACK ___|     |__ OPENING_FAILED ↩ BOOSTER_CONFIRM (avec la raison)
+CARD_REVEAL → BOOSTER_SELECT (OPEN_ANOTHER) · CARD_REVEAL → HOME (GO_HOME)
+HOME → PROFILE (OPEN_PROFILE) → HOME (PROFILE_DONE)
 ```
+
+Avant tout cela, `App.tsx` filtre : pas connecté → écran de connexion ; connecté sans pseudo → écran Profil.
 
 Toutes les transitions passent par **une seule fonction** : `transition(state, event)` dans
 `app/flowMachine.ts`. Un événement non autorisé depuis l'écran courant est ignoré.
 
 | Événement        | De → vers                         | Déclenché par                                      |
 | ---------------- | --------------------------------- | -------------------------------------------------- |
-| `START`          | WELCOME → PROFILE                 | Tap / clic / Entrée / Espace                       |
-| `PROFILE_DONE`   | PROFILE → BOOSTER_SELECT          | Profil validé et sauvegardé (ou repris)            |
+| `GO_TAB`         | onglet → onglet                   | Barre d'onglets                                    |
+| `START`          | HOME → BOOSTER_SELECT             | Bouton « Ouvrir un booster »                       |
+| `LEAVE_SELECT`   | BOOSTER_SELECT → HOME             | Bouton « Retour » du carrousel                     |
+| `OPEN_PROFILE`   | HOME → PROFILE                    | Toucher son pseudo                                 |
+| `PROFILE_DONE`   | PROFILE → HOME                    | Profil validé et enregistré (ou repris)            |
 | `BOOSTER_CHOSEN` | BOOSTER_SELECT → BOOSTER_CONFIRM  | Tap / Entrée sur le booster central                |
 | `BACK`           | BOOSTER_CONFIRM → BOOSTER_SELECT  | Bouton « Retour » (le carrousel garde sa position) |
 | `OPEN_CONFIRMED` | BOOSTER_CONFIRM → BOOSTER_OPENING | Bouton « Ouvrir ce booster »                       |
-| `OPENING_DONE`   | BOOSTER_OPENING → CARD_REVEAL     | Découpe validée (le tirage est fait à ce moment)   |
+| `OPENING_DONE`   | BOOSTER_OPENING → CARD_REVEAL     | Découpe validée (le serveur a tiré les cartes)     |
+| `OPENING_FAILED` | BOOSTER_OPENING → BOOSTER_CONFIRM | Échec (limite du jour, réseau…) : raison affichée  |
 | `OPEN_ANOTHER`   | CARD_REVEAL → BOOSTER_SELECT      | Bouton « Ouvrir un autre booster »                 |
-| `GO_HOME`        | CARD_REVEAL → WELCOME             | Bouton « Accueil »                                 |
-| `OPEN_ADMIN`     | WELCOME → ADMIN                   | Bouton « Administration » (administrateurs)        |
-| `CLOSE_ADMIN`    | ADMIN → WELCOME                   | Bouton « Retour »                                  |
+| `GO_HOME`        | CARD_REVEAL → HOME                | Bouton « Accueil »                                 |
 
 Si un profil existe déjà, l'écran Profil propose « Continuer en tant que… » ou « Modifier mon profil ».
 

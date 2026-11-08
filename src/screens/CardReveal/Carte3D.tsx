@@ -31,9 +31,6 @@ interface Carte3DProps {
   /** Position de la carte dans le booster (à partir de 0) et nombre de cartes du booster. */
   indice: number;
   total: number;
-  /** Numéro de la carte dans la collection et taille de la collection (pied de carte). */
-  numeroCollection: number;
-  totalCollection: number;
   etape: EtapeRevelation;
   /** Durée du retournement (ms). */
   dureeRetournementMs: number;
@@ -49,8 +46,6 @@ export function Carte3D({
   carte,
   indice,
   total,
-  numeroCollection,
-  totalCollection,
   etape,
   dureeRetournementMs,
   mouvementReduit,
@@ -104,12 +99,7 @@ export function Carte3D({
             />
           </div>
           <div className={styles.faceRecto}>
-            <CarteRecto
-              carte={carte}
-              numero={numeroCollection}
-              totalCollection={totalCollection}
-              avecReflet={etape === 'FACE'}
-            />
+            <CarteRecto carte={carte} avecReflet={etape === 'FACE'} />
           </div>
         </div>
       </div>

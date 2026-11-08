@@ -2,14 +2,13 @@
  * Tests du catalogue des boosters.
  *
  * Rôle : vérifier que chaque booster pointe vers une skin existante du registre, que les identifiants
- * sont uniques, que les cartes référencées existent et que les thèmes sont complets.
- * Dépend de : vitest, boosters/catalogue, boosters/skins/registre, boosters/taille, data/cards,
+ * sont uniques et que les thèmes sont complets.
+ * Dépend de : vitest, boosters/catalogue, boosters/skins/registre, boosters/taille,
  * config/boosters.
  */
 import { describe, expect, it } from 'vitest';
 import { HAUTEUR_REFERENCE, LARGEUR_REFERENCE } from '../config/boosters';
-import { CARDS } from '../data/cards';
-import { CATALOGUE, getBoosterAt, versBoosterTirage } from './catalogue';
+import { CATALOGUE, getBoosterAt } from './catalogue';
 import { SKINS } from './skins/registre';
 import { ajusterBooster } from './taille';
 
@@ -32,16 +31,6 @@ describe('catalogue des boosters', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('chaque booster ne référence que des cartes existantes, et au moins une', () => {
-    const existantes = new Set(CARDS.map((card) => card.id));
-    for (const booster of CATALOGUE) {
-      expect(booster.cardIds.length).toBeGreaterThan(0);
-      for (const cardId of booster.cardIds) {
-        expect(existantes.has(cardId), `${booster.theme.id} → ${cardId}`).toBe(true);
-      }
-    }
-  });
-
   it('chaque thème a ses textes, ses couleurs et une illustration', () => {
     for (const { theme } of CATALOGUE) {
       for (const texte of [theme.nom, theme.ligne1, theme.ligne2, theme.saison, theme.code]) {
@@ -62,17 +51,6 @@ describe('getBoosterAt', () => {
     expect(getBoosterAt(0)).toBe(CATALOGUE[0]);
     expect(getBoosterAt(CATALOGUE.length)).toBe(CATALOGUE[0]);
     expect(getBoosterAt(-1)).toBe(CATALOGUE[CATALOGUE.length - 1]);
-  });
-});
-
-describe('versBoosterTirage', () => {
-  it('garde l’identifiant, le nom et les cartes du booster', () => {
-    const booster = getBoosterAt(0);
-    expect(versBoosterTirage(booster)).toEqual({
-      id: booster.theme.id,
-      name: booster.theme.nom,
-      cardIds: booster.cardIds,
-    });
   });
 });
 

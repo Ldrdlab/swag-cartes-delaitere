@@ -66,7 +66,14 @@
   font-weight: 800;
 }
 
+/* Le pseudo est un bouton : il ouvre le profil. */
 .joueur {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -171,27 +178,54 @@
   gap: var(--space-3);
 }
 
-.invitation {
-  padding: var(--space-2) var(--space-3);
-  border: 0;
-  background: transparent;
-  color: var(--couleur-texte-doux);
-  font-family: var(--police-texte);
-  font-size: 23px;
+/* Boosters restants et compte à rebours. */
+.statut {
+  color: var(--couleur-encre);
+  font-size: 15px;
   font-weight: 800;
   text-align: center;
-  animation: pulser var(--duree-pulsation, 2.2s) ease-in-out infinite;
 }
 
-@keyframes pulser {
-  0%,
-  100% {
-    opacity: 1;
-  }
+.statut p {
+  margin: 0;
+}
 
-  50% {
-    opacity: 0.45;
-  }
+.lien {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--couleur-violet);
+  font-weight: 900;
+  text-decoration: underline;
+}
+
+/* Le gros bouton qui ouvre un booster. */
+.ouvrir {
+  min-width: 240px;
+  min-height: 56px;
+  padding: var(--space-2) var(--space-4);
+  border: 3px solid #ffffff;
+  border-radius: var(--radius-pill);
+  background: var(--couleur-titre);
+  box-shadow: 0 6px 14px rgba(42, 27, 77, 0.3);
+  color: #ffffff;
+  font-family: var(--police-titre);
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.ouvrir:disabled {
+  background: var(--color-disabled-bg);
+  box-shadow: none;
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+.ouvrir:focus-visible,
+.lien:focus-visible,
+.joueur:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
 }
 
 .mentions {

@@ -3,13 +3,14 @@
  *
  * Rôle : UNE entrée par rareté. Ajouter une rareté ou changer une couleur ne demande de modifier que
  * ce fichier (et la liste RARITIES de domain/types.ts pour une nouvelle rareté).
- * Expose : CouleursRarete, HaloRarete, DefinitionRarete, RARETES.
+ * Expose : CouleursRarete, HaloRarete, DefinitionRarete, RARETES_COMPLETES, EFFETS_REVELATION_ACTIFS, RARETES.
  * Dépend de : domain/types (type uniquement).
  *
  * ┌─ COMMENT MODIFIER (pour débutant) ────────────────────────────────────────────────┐
  * │ Changer une COULEUR : modifie le code entre guillemets (ex. '#5CA8FF').            │
  * │ Changer le NOM affiché : modifie `nom`.                                            │
  * │ Activer / couper un EFFET : mets `true` ou `false` (reflet, rayons, tease).        │
+ * │ COUPER TOUS LES EFFETS d'un coup : EFFETS_REVELATION_ACTIFS (en bas du fichier).   │
  * │ Plus ou moins de CONFETTIS : change le nombre `confettis` (0 = aucun).             │
  * │ `tease` = true : la carte tremble avant de se retourner (animation légendaire).    │
  * └─────────────────────────────────────────────────────────────────────────────────┘
@@ -63,7 +64,8 @@ export interface DefinitionRarete {
   lueurBilan: boolean;
 }
 
-export const RARETES: Readonly<Record<Rarity, DefinitionRarete>> = {
+/** Table complète des raretés, avec TOUS leurs effets (utilisée quand EFFETS_REVELATION_ACTIFS vaut `true`). */
+export const RARETES_COMPLETES: Readonly<Record<Rarity, DefinitionRarete>> = {
   commune: {
     nom: 'Commune',
     etoiles: 1,
@@ -200,3 +202,40 @@ export const RARETES: Readonly<Record<Rarity, DefinitionRarete>> = {
     lueurBilan: true,
   },
 };
+
+/**
+ * Interrupteur des effets de la révélation (halo, rayons, confettis, reflet, tremblement, lueur au bilan).
+ *
+ * V0.1 : `false` = révélation SIMPLE (la carte se retourne, sans effet spécial). Les effets sont conservés
+ * dans RARETES_COMPLETES : un recodage futur les rétablit en passant cette valeur à `true`.
+ * (Annoté `boolean` pour que TypeScript ne considère pas la branche « actifs » comme inatteignable.)
+ */
+export const EFFETS_REVELATION_ACTIFS: boolean = false;
+
+/** Durée du retournement quand les effets sont coupés (ms) : la même pour toutes les raretés. */
+const DUREE_RETOURNEMENT_SIMPLE_MS = 650;
+
+/** Table sans aucun effet : seuls les noms, les étoiles et les couleurs (badges) sont conservés. */
+function sansEffets(
+  table: Readonly<Record<Rarity, DefinitionRarete>>,
+): Readonly<Record<Rarity, DefinitionRarete>> {
+  const resultat = {} as Record<Rarity, DefinitionRarete>;
+  for (const rarete of Object.keys(table) as Rarity[]) {
+    resultat[rarete] = {
+      ...table[rarete],
+      halo: null,
+      dureeRetournementMs: DUREE_RETOURNEMENT_SIMPLE_MS,
+      confettis: 0,
+      reflet: false,
+      rayons: false,
+      tease: false,
+      lueurBilan: false,
+    };
+  }
+  return resultat;
+}
+
+/** Table des raretés UTILISÉE par l'appli (avec ou sans effets selon EFFETS_REVELATION_ACTIFS). */
+export const RARETES: Readonly<Record<Rarity, DefinitionRarete>> = EFFETS_REVELATION_ACTIFS
+  ? RARETES_COMPLETES
+  : sansEffets(RARETES_COMPLETES);

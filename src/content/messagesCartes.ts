@@ -26,6 +26,8 @@ export function texteErreurCollection(code: CodeErreur): string {
     trop_gros: textes.erreurTropGros,
     introuvable: textes.erreurIntrouvable,
     carte_possedee: textes.erreurCartePossedee,
+    limite_atteinte: textes.erreurLimiteAtteinte,
+    aucune_carte: textes.erreurAucuneCarte,
     reseau: textes.erreurReseau,
     inconnue: textes.erreurInconnue,
   };

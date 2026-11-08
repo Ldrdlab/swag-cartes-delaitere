@@ -19,11 +19,10 @@
  * └──────────────────────────────────────────────────────────────────────────────┘
  * (Plusieurs boosters peuvent partager des cartes. L'ordre de la liste = l'ordre du carrousel.)
  *
- * Expose : BoosterCatalogue, CATALOGUE, getBoosterAt(), versBoosterTirage().
+ * Expose : BoosterCatalogue, CATALOGUE, getBoosterAt().
  * Dépend de : boosters/themes/*, boosters/skins/types, domain/types, domain/carousel.
  */
 import { wrapIndex } from '../domain/carousel';
-import type { Booster } from '../domain/types';
 import type { NomSkin } from './skins/types';
 import { aperoSoleil } from './themes/apero-soleil';
 import { nuitBlanche } from './themes/nuit-blanche';
@@ -36,8 +35,6 @@ export interface BoosterCatalogue {
   theme: ThemeBooster;
   /** Modèle de dessin (doit exister dans skins/registre.ts). */
   skin: NomSkin;
-  /** Identifiants des cartes qui peuvent sortir de ce booster (voir data/cards.ts). */
-  cardIds: readonly string[];
 }
 
 /** Les boosters, dans l'ordre d'affichage du carrousel. */
@@ -45,47 +42,14 @@ export const CATALOGUE: readonly BoosterCatalogue[] = [
   {
     theme: aperoSoleil,
     skin: 'standard',
-    cardIds: [
-      'card-01',
-      'card-02',
-      'card-03',
-      'card-05',
-      'card-06',
-      'card-08',
-      'card-09',
-      'card-11',
-      'card-13',
-    ],
   },
   {
     theme: nuitBlanche,
     skin: 'standard',
-    cardIds: [
-      'card-02',
-      'card-03',
-      'card-04',
-      'card-05',
-      'card-07',
-      'card-08',
-      'card-10',
-      'card-12',
-      'card-13',
-    ],
   },
   {
     theme: vagueTropicale,
     skin: 'standard',
-    cardIds: [
-      'card-01',
-      'card-02',
-      'card-04',
-      'card-06',
-      'card-07',
-      'card-09',
-      'card-10',
-      'card-12',
-      'card-13',
-    ],
   },
 ];
 
@@ -102,15 +66,4 @@ export function getBoosterAt(index: number): BoosterCatalogue {
     throw new Error('Aucun booster défini dans src/boosters/catalogue.ts');
   }
   return booster;
-}
-
-/**
- * Convertit un booster du catalogue en `Booster` pour le tirage des cartes (qui ne s'intéresse ni aux
- * couleurs ni aux skins).
- *
- * @param booster - Une ligne du catalogue.
- * @returns Le booster tel que `drawCards` le comprend.
- */
-export function versBoosterTirage(booster: BoosterCatalogue): Booster {
-  return { id: booster.theme.id, name: booster.theme.nom, cardIds: booster.cardIds };
 }

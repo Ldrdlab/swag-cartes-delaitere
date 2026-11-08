@@ -6,7 +6,7 @@
  * lueur autour des super rares et légendaires) et « Autres cartes » (les suivantes, 72 px, nom seul).
  * Deux boutons : « Ouvrir un autre booster » et « Accueil ». Le tri est fait par domain/bilan.
  * Expose : le composant `Bilan`.
- * Dépend de : react, domain/bilan, data/cards, config/raretes, config/revelation, content/textes,
+ * Dépend de : react, domain/bilan, config/raretes, config/revelation, content/textes,
  * content/formatTexte, CarteRecto, BadgeRarete, Bilan.module.css.
  */
 import { useMemo, type CSSProperties } from 'react';
@@ -14,16 +14,15 @@ import { RARETES } from '../../config/raretes';
 import { BILAN } from '../../config/revelation';
 import { remplir } from '../../content/formatTexte';
 import { TEXTES } from '../../content/textes';
-import { CARDS } from '../../data/cards';
 import { composerBilan } from '../../domain/bilan';
-import type { Card } from '../../domain/types';
+import type { CarteTiree } from '../../domain/types';
 import { BadgeRarete } from './BadgeRarete';
 import styles from './Bilan.module.css';
 import { CarteRecto } from './CarteRecto';
 
 interface BilanProps {
   /** Cartes du booster, dans l'ordre du tirage. */
-  cartes: readonly Card[];
+  cartes: readonly CarteTiree[];
   /** Nom du booster ouvert. */
   nomBooster: string;
   onOuvrirAutre: () => void;
@@ -31,7 +30,7 @@ interface BilanProps {
 }
 
 interface MiniatureProps {
-  carte: Card;
+  carte: CarteTiree;
   largeur: number;
   /** Affiche le badge de rareté sous le nom. */
   avecBadge: boolean;
@@ -40,7 +39,6 @@ interface MiniatureProps {
 /** Une carte en miniature avec son nom (et son badge). */
 function Miniature({ carte, largeur, avecBadge }: MiniatureProps) {
   const rarete = RARETES[carte.rarity];
-  const numero = CARDS.findIndex((candidate) => candidate.id === carte.id) + 1;
   const lueur =
     rarete.lueurBilan && rarete.halo
       ? ({ '--lueur-bilan': rarete.halo.couleur } as CSSProperties)
@@ -48,15 +46,11 @@ function Miniature({ carte, largeur, avecBadge }: MiniatureProps) {
   return (
     <li className={styles.miniature} style={{ width: largeur }}>
       <div className={styles.carte} data-lueur={rarete.lueurBilan} style={lueur}>
-        <CarteRecto
-          carte={carte}
-          numero={numero}
-          totalCollection={CARDS.length}
-          avecReflet={false}
-        />
+        <CarteRecto carte={carte} taille="miniature" avecReflet={false} />
       </div>
       <p className={styles.nomCarte}>{carte.name}</p>
       {avecBadge ? <BadgeRarete rarete={carte.rarity} petit /> : null}
+      {carte.nouvelle && <span className={styles.nouvelle}>{TEXTES.revelation.nouvelle}</span>}
     </li>
   );
 }

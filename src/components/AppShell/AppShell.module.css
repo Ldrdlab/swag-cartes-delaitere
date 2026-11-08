@@ -1,0 +1,99 @@
+/*
+ * Styles de la coquille de l'appli (voir components/AppShell/index.tsx).
+ * Téléphone : barre d'onglets en bas. Ordinateur (>= 768 px) : menu à gauche.
+ */
+.coquille {
+  display: flex;
+  flex-direction: column;
+  /* Hauteur réellement visible sur mobile (publiée par hooks/useViewportHeight), repli : 100dvh. */
+  height: var(--viewport-height, 100dvh);
+  background: var(--color-bg-page);
+}
+
+/*
+ * Les écrans à onglets ont la hauteur « var(--viewport-height) ». Ici on la remplace par 100 % de la zone
+ * de contenu : ils remplissent exactement la place laissée par la barre.
+ */
+.contenu {
+  --viewport-height: 100%;
+
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.barre {
+  flex: 0 0 auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--color-bg-page);
+  /* Encoche / barre d'accueil des iPhone. */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.liste {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.element {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.onglet {
+  width: 100%;
+  min-height: 56px;
+  padding: var(--space-1) var(--space-1);
+  border: 0;
+  border-top: 4px solid transparent;
+  background: transparent;
+  color: #b9bdd3;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.onglet[aria-current='page'] {
+  border-top-color: var(--couleur-titre, #ff5e5b);
+  color: #ffffff;
+}
+
+.onglet:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: -3px;
+}
+
+/* ----- Ordinateur : menu vertical à gauche ----- */
+@media (min-width: 768px) {
+  .coquille {
+    flex-direction: row-reverse;
+  }
+
+  .barre {
+    width: 220px;
+    border-top: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    padding: var(--space-4) var(--space-2);
+  }
+
+  .liste {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .onglet {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-3);
+    border-top: 0;
+    border-left: 4px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    text-align: left;
+  }
+
+  .onglet[aria-current='page'] {
+    border-left-color: var(--couleur-titre, #ff5e5b);
+    background: rgba(255, 255, 255, 0.08);
+  }
+}

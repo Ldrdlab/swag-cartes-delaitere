@@ -7,12 +7,11 @@
  * Les effets propres à chaque rareté (halo, rayons, confettis, étincelles) sont décidés par
  * config/raretes.ts ; les durées par config/revelation.ts.
  * Expose : le composant `Scene`.
- * Dépend de : react, hooks/useRevealSequence (type), domain/effets, data/cards, config/revelation,
+ * Dépend de : react, hooks/useRevealSequence (type), domain/effets, config/revelation,
  * content/textes, Carte3D, PileDeCartes, BadgeRarete, effets/*, Scene.module.css.
  */
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { DUREES, EFFETS_REDUITS, ENTREE_CARTE, RATIO_CARTE } from '../../config/revelation';
-import { CARDS } from '../../data/cards';
 import { TEXTES } from '../../content/textes';
 import { nombreConfettis } from '../../domain/effets';
 import type { RevealSequence } from '../../hooks/useRevealSequence';
@@ -48,7 +47,6 @@ export function Scene({ sequence, dosImage, mouvementReduit }: SceneProps) {
   const textes = TEXTES.revelation;
   const tease = rarete.tease && !mouvementReduit;
   const allume = etape === 'TREMBLE' || etape === 'RETOURNE' || etape === 'FACE';
-  const numero = CARDS.findIndex((candidate) => candidate.id === carte.id) + 1 || indiceCarte + 1;
   const confettis = nombreConfettis(rarete.confettis, EFFETS_REDUITS);
 
   const variables = {
@@ -79,8 +77,6 @@ export function Scene({ sequence, dosImage, mouvementReduit }: SceneProps) {
               carte={carte}
               indice={indiceCarte}
               total={total}
-              numeroCollection={numero}
-              totalCollection={CARDS.length}
               etape={etape}
               dureeRetournementMs={dureeRetournementMs}
               mouvementReduit={mouvementReduit}
@@ -97,7 +93,10 @@ export function Scene({ sequence, dosImage, mouvementReduit }: SceneProps) {
         {etape === 'FACE' ? (
           <>
             <h2 className={styles.nom}>{carte.name}</h2>
-            <BadgeRarete rarete={carte.rarity} />
+            <div className={styles.badges}>
+              <BadgeRarete rarete={carte.rarity} />
+              {carte.nouvelle && <span className={styles.nouvelle}>{textes.nouvelle}</span>}
+            </div>
           </>
         ) : null}
       </div>

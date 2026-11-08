@@ -10,9 +10,9 @@
 import { RARITIES, type Card, type Rarity } from './types';
 
 /** Résultat : les meilleures cartes, puis toutes les autres. */
-export interface BilanCartes {
-  meilleures: Card[];
-  autres: Card[];
+export interface BilanCartes<T extends Card = Card> {
+  meilleures: T[];
+  autres: T[];
 }
 
 /**
@@ -32,7 +32,7 @@ export function rangRarete(rarete: Rarity): number {
  * @param cartes - Cartes dans l'ordre du tirage.
  * @returns Une nouvelle liste triée.
  */
-export function trierParRarete(cartes: readonly Card[]): Card[] {
+export function trierParRarete<T extends Card>(cartes: readonly T[]): T[] {
   return [...cartes].sort((a, b) => rangRarete(b.rarity) - rangRarete(a.rarity));
 }
 
@@ -43,7 +43,10 @@ export function trierParRarete(cartes: readonly Card[]): Card[] {
  * @param nombreMeilleures - Combien de cartes mettre en avant.
  * @returns Les meilleures cartes et les autres, chacune triée par rareté décroissante.
  */
-export function composerBilan(cartes: readonly Card[], nombreMeilleures: number): BilanCartes {
+export function composerBilan<T extends Card>(
+  cartes: readonly T[],
+  nombreMeilleures: number,
+): BilanCartes<T> {
   const triees = trierParRarete(cartes);
   return { meilleures: triees.slice(0, nombreMeilleures), autres: triees.slice(nombreMeilleures) };
 }

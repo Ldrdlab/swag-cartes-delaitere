@@ -43,6 +43,13 @@ const cas: [string, Parameters<typeof traduireErreur>[0], CodeErreur][] = [
     'image_invalide',
   ],
   ['aucune ligne', { code: 'PGRST116', message: 'The result contains 0 rows' }, 'introuvable'],
+  [
+    'limite de boosters atteinte',
+    { code: 'P0001', message: 'daily_limit_reached' },
+    'limite_atteinte',
+  ],
+  ['aucune carte à tirer', { code: 'P0001', message: 'no_cards_available' }, 'aucune_carte'],
+  ['non connecté (fonction SQL)', { code: '28000', message: 'not_authenticated' }, 'non_connecte'],
   ['pas de réseau', { message: 'TypeError: Failed to fetch' }, 'reseau'],
   ['exception du navigateur', { name: 'TypeError', message: 'Load failed' }, 'reseau'],
   ['erreur inattendue', { message: 'quelque chose' }, 'inconnue'],

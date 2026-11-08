@@ -16,6 +16,8 @@ export type CodeErreur =
   | 'trop_gros' // fichier trop lourd
   | 'introuvable' // la carte n'existe plus
   | 'carte_possedee' // suppression impossible : un joueur possède cette carte
+  | 'limite_atteinte' // tous les boosters du jour sont déjà ouverts
+  | 'aucune_carte' // aucune carte active : rien à tirer
   | 'reseau' // pas de connexion au serveur
   | 'inconnue';
 
@@ -48,6 +50,10 @@ export function traduireErreur(erreur: ErreurBrute | null | undefined): ErreurSe
   const code = erreur?.code ?? '';
   const statut = Number(erreur?.statusCode ?? erreur?.status ?? 0);
 
+  // Erreurs levées par nos fonctions SQL (open_booster…) : le message contient le mot-clé.
+  if (/daily_limit_reached/.test(message)) return new ErreurService('limite_atteinte', message);
+  if (/no_cards_available/.test(message)) return new ErreurService('aucune_carte', message);
+  if (/not_authenticated/.test(message)) return new ErreurService('non_connecte', message);
   if (code === 'PGRST301' || /jwt expired/i.test(message))
     return new ErreurService('non_connecte', message);
   if (

@@ -19,10 +19,12 @@ interface BoosterSelectScreenProps {
   initialIndex: number;
   /** Appelé avec la position du booster choisi. */
   onChoose: (boosterIndex: number) => void;
+  /** Appelé par « Retour » : revient à l'accueil. */
+  onBack: () => void;
 }
 
 /** Écran de choix du booster. */
-export function BoosterSelectScreen({ initialIndex, onChoose }: BoosterSelectScreenProps) {
+export function BoosterSelectScreen({ initialIndex, onChoose, onBack }: BoosterSelectScreenProps) {
   const carousel = useCarousel(CATALOGUE.length, initialIndex);
   const courant = getBoosterAt(carousel.index);
 
@@ -31,6 +33,9 @@ export function BoosterSelectScreen({ initialIndex, onChoose }: BoosterSelectScr
       <main className={styles.ecran}>
         {/* Moitié haute irisée, coupée en diagonale (décor). */}
         <div className={styles.fondHaut} aria-hidden="true" />
+        <button type="button" className={styles.retour} onClick={onBack}>
+          {TEXTES.choixBooster.retour}
+        </button>
         <h1 className={styles.bandeau}>{TEXTES.choixBooster.titre}</h1>
         <div className={styles.scene}>
           <Carousel boosters={CATALOGUE} carousel={carousel} onSelect={onChoose} />

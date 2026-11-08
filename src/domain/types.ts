@@ -1,8 +1,8 @@
 /**
  * Types du modèle métier.
  *
- * Rôle : définir Player, Booster, Card, l'énumération des raretés et celle des variantes.
- * Expose : RARITIES, Rarity, VARIANTS, Variant, Player, Card, Booster.
+ * Rôle : définir Player, Card, CarteTiree, l'énumération des raretés et celle des variantes.
+ * Expose : RARITIES, Rarity, VARIANTS, Variant, Player, Card, CarteTiree.
  * Dépend de : rien (logique pure, aucun import React ni DOM).
  */
 
@@ -58,13 +58,10 @@ export interface Card {
   extra?: Record<string, unknown>;
 }
 
-/**
- * Booster, vu par le tirage : un nom et la liste des cartes qui peuvent en sortir.
- * (Son apparence — thème, skin — est décrite dans src/boosters/, pas ici.)
- */
-export interface Booster {
-  id: string;
-  name: string;
-  /** Identifiants des cartes qui peuvent sortir de ce booster. */
-  cardIds: readonly string[];
+/** Carte tirée dans un booster : la carte, son badge « Nouvelle ! » et la quantité possédée après le tirage. */
+export interface CarteTiree extends Card {
+  /** Vrai si le joueur ne possédait pas encore cette carte avant ce booster. */
+  nouvelle: boolean;
+  /** Nombre d'exemplaires possédés une fois ce booster ajouté à la collection. */
+  quantite: number;
 }

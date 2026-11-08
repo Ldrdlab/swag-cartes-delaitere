@@ -92,6 +92,10 @@ export class SupabaseAuthService implements AuthService {
     await this.client.auth.signOut();
   }
 
+  async rafraichir(): Promise<void> {
+    if (this.utilisateurId) await this.chargerProfil(this.utilisateurId);
+  }
+
   recharger(): void {
     if (this.utilisateurId) {
       this.publier({ statut: 'chargement' });

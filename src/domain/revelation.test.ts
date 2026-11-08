@@ -5,16 +5,13 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  appliquerForcage,
   demarrerRevelation,
   estDerniereCarte,
-  lireForcage,
   reduireRevelation,
   type EtapeRevelation,
   type EtatRevelation,
   type EvenementRevelation,
 } from './revelation';
-import type { Card } from './types';
 
 /** Applique une suite d'événements à partir d'un état de départ. */
 function jouer(depart: EtatRevelation, ...evenements: EvenementRevelation[]): EtatRevelation {
@@ -131,38 +128,5 @@ describe('événements hors séquence', () => {
     expect(reduireRevelation(departTroisCartes, { type: 'RETOURNEMENT_TERMINE' })).toBe(
       departTroisCartes,
     );
-  });
-});
-
-describe('mode développeur ?forcer=', () => {
-  const commune: Card = { id: 'a', name: 'A', rarity: 'commune' };
-  const legendaire: Card = { id: 'l', name: 'L', rarity: 'legendaire' };
-  const catalogue = [commune, legendaire];
-
-  it('lit la rareté demandée dans l’adresse', () => {
-    expect(lireForcage('?forcer=legendaire')).toBe('legendaire');
-    expect(lireForcage('?autre=1&forcer=super-rare')).toBe('super_rare');
-    expect(lireForcage('?forcer=Légendaire')).toBe('legendaire');
-  });
-
-  it('renvoie null sans paramètre ou avec une rareté inconnue', () => {
-    expect(lireForcage('')).toBeNull();
-    expect(lireForcage('?forcer=diamant')).toBeNull();
-  });
-
-  it('remplace la première carte par une carte de la rareté demandée', () => {
-    const resultat = appliquerForcage([commune, commune], 'legendaire', catalogue);
-    expect(resultat[0]?.rarity).toBe('legendaire');
-    expect(resultat).toHaveLength(2);
-  });
-
-  it('ne change rien si la première carte a déjà cette rareté', () => {
-    const tirage = [legendaire];
-    expect(appliquerForcage(tirage, 'legendaire', catalogue)).toBe(tirage);
-  });
-
-  it('ne change rien si le catalogue n’a aucune carte de cette rareté', () => {
-    const tirage = [commune];
-    expect(appliquerForcage(tirage, 'super_rare', catalogue)).toBe(tirage);
   });
 });

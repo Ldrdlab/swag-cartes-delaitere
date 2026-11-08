@@ -8,9 +8,9 @@
 import { describe, expect, it } from 'vitest';
 import { nombreConfettis } from '../domain/effets';
 import { RARITIES } from '../domain/types';
-import { RARETES } from './raretes';
+import { EFFETS_REVELATION_ACTIFS, RARETES, RARETES_COMPLETES } from './raretes';
 
-describe('table des raretés', () => {
+describe('table complète des raretés (effets)', () => {
   it('a une entrée pour chacune des 7 raretés', () => {
     expect(RARITIES).toHaveLength(7);
     expect(Object.keys(RARETES).sort()).toEqual([...RARITIES].sort());
@@ -33,22 +33,22 @@ describe('table des raretés', () => {
   });
 
   it('lance 0, 0, 0, 26 puis 40 confettis (idem pour mythique et secrète)', () => {
-    expect(RARITIES.map((rarete) => nombreConfettis(RARETES[rarete].confettis, false))).toEqual([
-      0, 0, 0, 26, 40, 40, 40,
-    ]);
+    expect(
+      RARITIES.map((rarete) => nombreConfettis(RARETES_COMPLETES[rarete].confettis, false)),
+    ).toEqual([0, 0, 0, 26, 40, 40, 40]);
   });
 
   it('divise les confettis par deux en mode effets réduits', () => {
-    expect(RARITIES.map((rarete) => nombreConfettis(RARETES[rarete].confettis, true))).toEqual([
-      0, 0, 0, 13, 20, 20, 20,
-    ]);
+    expect(
+      RARITIES.map((rarete) => nombreConfettis(RARETES_COMPLETES[rarete].confettis, true)),
+    ).toEqual([0, 0, 0, 13, 20, 20, 20]);
   });
 
   it('suit le tableau du cahier des charges (retournement, reflet, tease)', () => {
-    expect(RARITIES.map((r) => RARETES[r].dureeRetournementMs)).toEqual([
+    expect(RARITIES.map((r) => RARETES_COMPLETES[r].dureeRetournementMs)).toEqual([
       650, 650, 650, 750, 900, 900, 900,
     ]);
-    expect(RARITIES.map((r) => RARETES[r].reflet)).toEqual([
+    expect(RARITIES.map((r) => RARETES_COMPLETES[r].reflet)).toEqual([
       false,
       false,
       true,
@@ -57,7 +57,7 @@ describe('table des raretés', () => {
       true,
       true,
     ]);
-    expect(RARITIES.map((r) => RARETES[r].tease)).toEqual([
+    expect(RARITIES.map((r) => RARETES_COMPLETES[r].tease)).toEqual([
       false,
       false,
       false,
@@ -66,7 +66,7 @@ describe('table des raretés', () => {
       true,
       true,
     ]);
-    expect(RARITIES.map((r) => RARETES[r].halo?.opacite ?? null)).toEqual([
+    expect(RARITIES.map((r) => RARETES_COMPLETES[r].halo?.opacite ?? null)).toEqual([
       null,
       0.4,
       0.55,
@@ -78,7 +78,7 @@ describe('table des raretés', () => {
   });
 
   it('met une lueur autour des super rares et des raretés supérieures au bilan', () => {
-    expect(RARITIES.map((r) => RARETES[r].lueurBilan)).toEqual([
+    expect(RARITIES.map((r) => RARETES_COMPLETES[r].lueurBilan)).toEqual([
       false,
       false,
       false,
@@ -87,5 +87,29 @@ describe('table des raretés', () => {
       true,
       true,
     ]);
+  });
+});
+
+describe('révélation simplifiée (V0.1)', () => {
+  it('coupe tous les effets tant que l’interrupteur est sur « faux »', () => {
+    expect(EFFETS_REVELATION_ACTIFS).toBe(false);
+    for (const rarete of RARITIES) {
+      const definition = RARETES[rarete];
+      expect(definition.halo, rarete).toBeNull();
+      expect(definition.confettis, rarete).toBe(0);
+      expect(definition.reflet, rarete).toBe(false);
+      expect(definition.rayons, rarete).toBe(false);
+      expect(definition.tease, rarete).toBe(false);
+      expect(definition.lueurBilan, rarete).toBe(false);
+      expect(definition.dureeRetournementMs, rarete).toBe(650);
+    }
+  });
+
+  it('garde les noms, étoiles et couleurs (badges de rareté)', () => {
+    for (const rarete of RARITIES) {
+      expect(RARETES[rarete].nom).toBe(RARETES_COMPLETES[rarete].nom);
+      expect(RARETES[rarete].etoiles).toBe(RARETES_COMPLETES[rarete].etoiles);
+      expect(RARETES[rarete].couleurs).toEqual(RARETES_COMPLETES[rarete].couleurs);
+    }
   });
 });

@@ -1,0 +1,121 @@
+/*
+ * Styles de l'onglet Collection : progression, compteurs, filtre, grille.
+ * Mobile d'abord : 2 colonnes. Sur ordinateur : colonnes automatiques (170 px minimum).
+ */
+.barre {
+  height: 14px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-disabled-bg);
+}
+
+.remplissage {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+}
+
+.compteurs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compteur,
+.compteurVide {
+  padding: var(--space-1) var(--space-2);
+  border: 2px solid;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.compteurVide {
+  opacity: 0.45;
+}
+
+.filtre {
+  align-self: flex-start;
+  min-height: var(--touch-target-min);
+  padding: var(--space-1) var(--space-3);
+  border: 2px solid var(--color-placeholder);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: var(--font-size-base);
+}
+
+.message {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .grille {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  }
+}
+
+.vignette {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+}
+
+.vignette:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.nomCarte {
+  font-size: 13px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+/* « ×3 » : pastille en haut à droite de la carte. */
+.quantite {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+/* Emplacement d'une carte pas encore obtenue : cadre vide grisé, couleur de rareté en bordure. */
+.emplacement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border: 3px dashed;
+  border-radius: var(--radius-md);
+  background: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+  font-size: 40px;
+  font-weight: 900;
+  opacity: 0.7;
+}

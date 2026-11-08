@@ -17,13 +17,13 @@ import {
   reduireRevelation,
   type EtatRevelation,
 } from '../domain/revelation';
-import type { Card } from '../domain/types';
+import type { CarteTiree } from '../domain/types';
 
 /** Ce que renvoie le hook. */
 export interface RevealSequence {
   etat: EtatRevelation;
   /** Carte courante (absente s'il n'y a aucune carte). */
-  carte: Card | undefined;
+  carte: CarteTiree | undefined;
   /** Définition de la rareté de la carte courante. */
   rarete: DefinitionRarete | undefined;
   /** Durée du retournement de la carte courante (ms). */
@@ -40,7 +40,7 @@ export interface RevealSequence {
 
 interface Options {
   /** Cartes à révéler, dans l'ordre. */
-  cartes: readonly Card[];
+  cartes: readonly CarteTiree[];
   /** L'utilisateur a-t-il demandé de réduire les animations ? */
   mouvementReduit: boolean;
 }

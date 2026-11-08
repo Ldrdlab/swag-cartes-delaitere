@@ -44,4 +44,6 @@ export interface AuthService {
   seDeconnecter(): Promise<void>;
   /** Relit le profil (bouton « Réessayer » après une erreur). */
   recharger(): void;
+  /** Relit le profil sans repasser par « Chargement… » (après un changement de pseudo, par exemple). */
+  rafraichir(): Promise<void>;
 }

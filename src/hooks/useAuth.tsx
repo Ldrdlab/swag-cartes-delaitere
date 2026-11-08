@@ -25,6 +25,7 @@ interface ValeurAuth {
   seConnecter: (email: string, motDePasse: string) => Promise<void>;
   seDeconnecter: () => Promise<void>;
   recharger: () => void;
+  rafraichir: () => Promise<void>;
 }
 
 const ContexteAuth = createContext<ValeurAuth | null>(null);
@@ -57,10 +58,13 @@ export function AuthProvider({ service, children }: AuthProviderProps) {
     await service?.seDeconnecter();
   }, [service]);
   const recharger = useCallback(() => service?.recharger(), [service]);
+  const rafraichir = useCallback(async () => {
+    await service?.rafraichir();
+  }, [service]);
 
   const valeur = useMemo(
-    () => ({ etat, seConnecter, seDeconnecter, recharger }),
-    [etat, seConnecter, seDeconnecter, recharger],
+    () => ({ etat, seConnecter, seDeconnecter, recharger, rafraichir }),
+    [etat, seConnecter, seDeconnecter, recharger, rafraichir],
   );
   return <ContexteAuth.Provider value={valeur}>{children}</ContexteAuth.Provider>;
 }

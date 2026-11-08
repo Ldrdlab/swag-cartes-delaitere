@@ -1,0 +1,35 @@
+/* Styles d'une page d'onglet : fond clair, contenu centré et défilant. */
+.page {
+  /* Hauteur réellement visible, ou 100 % de la zone de contenu quand la barre d'onglets est affichée. */
+  height: var(--viewport-height, 100dvh);
+  overflow-y: auto;
+  background: var(--color-bg-screen);
+}
+
+.contenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-3);
+}
+
+.entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+}
+
+.titre {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-title);
+}
+
+.complement {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-weight: 800;
+}

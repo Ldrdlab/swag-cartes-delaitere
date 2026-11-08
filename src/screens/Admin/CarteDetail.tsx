@@ -28,11 +28,13 @@ interface CarteDetailProps {
   carte: Card;
   /** Actions d'écriture, ou `null` en lecture seule. */
   admin: ActionsAdmin | null;
+  /** Quantité possédée par le joueur (collection) : affichée sous les badges. */
+  quantite?: number;
   onFermer: () => void;
 }
 
 /** Fenêtre de détail d'une carte. */
-export function CarteDetail({ carte, admin, onFermer }: CarteDetailProps) {
+export function CarteDetail({ carte, admin, quantite, onFermer }: CarteDetailProps) {
   const textes = TEXTES.mesCartes;
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titreId = useId();
@@ -83,6 +85,13 @@ export function CarteDetail({ carte, admin, onFermer }: CarteDetailProps) {
             )}
             {!edition.active && <span className={styles.variante}>{textes.badgeInactive}</span>}
           </p>
+          {quantite !== undefined && (
+            <p>
+              {quantite === 1
+                ? textes.exemplairesUn
+                : remplir(textes.exemplairesPlusieurs, { quantite: String(quantite) })}
+            </p>
+          )}
           {ratioAnormal && carte.width && carte.height && (
             <p className={styles.alerte}>
               {remplir(textes.infoRatio, {

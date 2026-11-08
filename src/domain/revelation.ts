@@ -8,13 +8,11 @@
  *   « Passer » : depuis n'importe quel état ──▶ BILAN
  *
  * Les minuteries (fins de TREMBLE et de RETOURNE) sont gérées par le hook useRevealSequence ; ici on
- * ne fait que calculer l'état suivant. Contient aussi le mode développeur `?forcer=<rareté>`.
+ * ne fait que calculer l'état suivant.
  * Expose : EtapeRevelation, EtatRevelation, EvenementRevelation, demarrerRevelation(),
- * reduireRevelation(), estDerniereCarte(), lireForcage(), appliquerForcage().
- * Dépend de : domain/types. Aucun import React ni DOM.
+ * reduireRevelation(), estDerniereCarte().
+ * Dépend de : rien. Aucun import React ni DOM.
  */
-import { RARITIES, type Card, type Rarity } from './types';
-
 /** Étape de la révélation. */
 export type EtapeRevelation = 'DOS' | 'TREMBLE' | 'RETOURNE' | 'FACE' | 'BILAN';
 
@@ -88,43 +86,4 @@ export function reduireRevelation(
  */
 export function estDerniereCarte(etat: EtatRevelation): boolean {
   return etat.indiceCarte >= etat.total - 1;
-}
-
-/**
- * Lit le paramètre d'URL `forcer` (mode développeur), ex. `?forcer=legendaire`.
- *
- * @param recherche - La partie de l'adresse qui suit `?` (ex. `window.location.search`).
- * @returns La rareté demandée, ou `null` si le paramètre est absent ou inconnu.
- */
-export function lireForcage(recherche: string): Rarity | null {
-  const valeur = new URLSearchParams(recherche).get('forcer');
-  if (!valeur) return null;
-  const normalisee = valeur
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toLowerCase()
-    .replace(/[\s-]+/g, '_');
-  return RARITIES.find((rarete) => rarete === normalisee) ?? null;
-}
-
-/**
- * Mode développeur : fait commencer la révélation par une carte de la rareté demandée.
- * Si la première carte a déjà cette rareté, rien ne change ; sinon elle est remplacée par la première
- * carte du catalogue de cette rareté (s'il y en a une).
- *
- * @param cartes - Cartes tirées.
- * @param rarete - Rareté voulue en première carte.
- * @param catalogue - Toutes les cartes connues.
- * @returns La liste de cartes à révéler.
- */
-export function appliquerForcage(
-  cartes: readonly Card[],
-  rarete: Rarity,
-  catalogue: readonly Card[],
-): readonly Card[] {
-  if (cartes[0]?.rarity === rarete) return cartes;
-  const carteForcee = catalogue.find((carte) => carte.rarity === rarete);
-  if (!carteForcee) return cartes;
-  return [carteForcee, ...cartes.slice(1)];
 }

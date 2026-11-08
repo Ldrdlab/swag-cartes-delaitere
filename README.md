@@ -9,12 +9,22 @@ vibration, de backend ni de multijoueur.
 
 ## Parcours
 
-Accueil → Profil → Choix du booster → Confirmation → Ouverture (découpe) → Révélation des cartes
-→ « Ouvrir un autre booster » (retour au choix) ou « Accueil ».
+Connexion → (choix du pseudo à la première visite) → **Accueil** → Choix du booster → Confirmation →
+Ouverture (découpe) → Révélation des cartes → « Ouvrir un autre booster » ou « Accueil ».
+
+La barre d'onglets (en bas sur téléphone, à gauche sur ordinateur) donne accès à : **Accueil** (boosters
+restants aujourd'hui, temps avant le prochain, bouton « Ouvrir un booster »), **Collection** (cartes
+obtenues, emplacements vides grisés, quantités, progression X / Y, filtre par rareté, vue agrandie),
+**Jouer** (« Bientôt disponible »), **Installer** (comment installer l'appli sur Android, iPhone et
+ordinateur) et, pour les administrateurs, **Admin**.
 
 Avant tout, on se **connecte** (e-mail + mot de passe : les comptes sont créés par l'administrateur, voir
-`supabase/README.md`). Depuis l'accueil, un administrateur voit en plus un bouton **Administration**
+`supabase/README.md`). Un administrateur voit en plus l'onglet **Admin**
 (cartes, boosters, joueurs, version ; voir « Espace administrateur » plus bas).
+
+**Limite quotidienne.** Chaque joueur peut ouvrir un nombre limité de boosters par jour (3 par défaut,
+réglable par l'admin). Le compteur se remet à zéro à minuit, heure de Paris. Le tirage des cartes est fait
+par le serveur : impossible de tricher depuis le navigateur.
 
 ## Prérequis
 

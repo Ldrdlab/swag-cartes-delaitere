@@ -1,24 +1,22 @@
 /**
- * Écran 6 — Révélation des cartes.
+ * Écran de révélation des cartes.
  *
- * Rôle : chaque carte arrive DOS visible ; l'utilisateur la touche, elle se retourne (avec une
- * animation d'attente pour les légendaires), puis il appuie sur « Suivant ». Après la dernière carte
- * (ou sur « Passer »), le bilan s'affiche avec « Ouvrir un autre booster » et « Accueil ».
+ * Rôle : chaque carte arrive DOS visible ; l'utilisateur la touche, elle se retourne, puis il appuie
+ * sur « Suivant ». Les cartes nouvelles portent le badge « Nouvelle ! ». Après la dernière carte (ou sur
+ * « Passer »), le bilan s'affiche avec « Ouvrir un autre booster » et « Accueil ».
  * La séquence est pilotée par domain/revelation (machine à états pure) via hooks/useRevealSequence.
- * Mode développeur : `?forcer=legendaire` dans l'adresse fait commencer par une carte de cette rareté.
+ * Révélation SIMPLE en V0.1 : les effets spéciaux sont coupés (config/raretes.ts, EFFETS_REVELATION_ACTIFS).
  * Expose : le composant `CardRevealScreen`.
  * Dépend de : react, hooks/useRevealSequence, hooks/useMouvementReduit, hooks/usePageVisible,
- * domain/revelation, data/cards, config/raretes, config/revelation, content/*, boosters/catalogue,
- * EnTete, Scene, Bilan, PaquetSortant, effets/Flash, CardReveal.module.css.
+ * config/raretes, config/revelation, content/*, boosters/catalogue, EnTete, Scene, Bilan, PaquetSortant,
+ * effets/Flash, CardReveal.module.css.
  */
-import { useMemo, type CSSProperties } from 'react';
+import { type CSSProperties } from 'react';
 import type { BoosterCatalogue } from '../../boosters/catalogue';
 import { remplir } from '../../content/formatTexte';
 import { TEXTES } from '../../content/textes';
 import { TAILLE_CARTE } from '../../config/revelation';
-import { CARDS } from '../../data/cards';
-import { appliquerForcage, lireForcage } from '../../domain/revelation';
-import type { Card } from '../../domain/types';
+import type { CarteTiree } from '../../domain/types';
 import { useMouvementReduit } from '../../hooks/useMouvementReduit';
 import { usePageVisible } from '../../hooks/usePageVisible';
 import { useRevealSequence } from '../../hooks/useRevealSequence';
@@ -31,7 +29,7 @@ import styles from './CardReveal.module.css';
 
 interface CardRevealScreenProps {
   /** Cartes tirées, dans l'ordre de révélation. */
-  cards: readonly Card[];
+  cards: readonly CarteTiree[];
   /** Booster qui vient d'être ouvert (nom, saison, dos des cartes). */
   booster: BoosterCatalogue;
   /** Retour au choix du booster. */
@@ -47,14 +45,8 @@ const LARGEUR_CARTE = `clamp(${TAILLE_CARTE.largeurMinPx}px, min(${TAILLE_CARTE.
 export function CardRevealScreen({ cards, booster, onOpenAnother, onHome }: CardRevealScreenProps) {
   const mouvementReduit = useMouvementReduit();
   const pageVisible = usePageVisible();
-  // Mode développeur : ?forcer=legendaire (lu une seule fois à l'ouverture de l'écran).
-  const forcage = useMemo(() => lireForcage(window.location.search), []);
-  const cartes = useMemo(
-    () => (forcage ? appliquerForcage(cards, forcage, CARDS) : cards),
-    [cards, forcage],
-  );
 
-  const sequence = useRevealSequence({ cartes, mouvementReduit });
+  const sequence = useRevealSequence({ cartes: cards, mouvementReduit });
   const { etat, carte, rarete } = sequence;
   const { etape, indiceCarte, total } = etat;
   const { theme } = booster;
@@ -64,7 +56,10 @@ export function CardRevealScreen({ cards, booster, onOpenAnother, onHome }: Card
   // Annonce pour les lecteurs d'écran, une fois la carte retournée.
   const annonce =
     etape === 'FACE' && carte && rarete
-      ? remplir(textes.annonce, { nom: carte.name, rarete: rarete.nom })
+      ? remplir(carte.nouvelle ? textes.annonceNouvelle : textes.annonce, {
+          nom: carte.name,
+          rarete: rarete.nom,
+        })
       : '';
   const variables = {
     '--carte-largeur': LARGEUR_CARTE,
@@ -85,7 +80,7 @@ export function CardRevealScreen({ cards, booster, onOpenAnother, onHome }: Card
         />
         {etape === 'BILAN' ? (
           <Bilan
-            cartes={cartes}
+            cartes={cards}
             nomBooster={theme.nom}
             onOuvrirAutre={onOpenAnother}
             onAccueil={onHome}
@@ -96,7 +91,7 @@ export function CardRevealScreen({ cards, booster, onOpenAnother, onHome }: Card
         <p className={styles.masque} aria-live="polite">
           {annonce}
         </p>
-        {/* Flash plein écran au milieu du retournement d'une carte à animation d'attente. */}
+        {/* Flash plein écran au milieu du retournement d'une carte à animation d'attente (effets actifs). */}
         {etape === 'RETOURNE' && rarete?.tease && !mouvementReduit ? (
           <Flash key={indiceCarte} />
         ) : null}

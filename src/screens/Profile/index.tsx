@@ -5,7 +5,7 @@
  * StorageService (l'avatar est enregistré par son identifiant, dans `iconId`), puis passer au choix du
  * booster. Trois modes : chargement, reprise d'un profil existant, saisie.
  * Expose : le composant `ProfileScreen`.
- * Dépend de : react, hooks/useStorage, domain/id, config/avatars, content/textes, ProfileEditor,
+ * Dépend de : react, hooks/useStorage, services/erreurs, domain/id, config/avatars, content/textes, ProfileEditor,
  * ProfileResume, ProfileLayout.
  */
 import { useEffect, useState } from 'react';
@@ -15,6 +15,7 @@ import { TEXTES } from '../../content/textes';
 import { generateId } from '../../domain/id';
 import type { Player } from '../../domain/types';
 import { useStorage } from '../../hooks/useStorage';
+import { ErreurService } from '../../services/erreurs';
 import { ProfileEditor } from './ProfileEditor';
 import { ProfileLayout } from './ProfileLayout';
 import { ProfileResume } from './ProfileResume';
@@ -59,8 +60,10 @@ export function ProfileScreen({ onDone }: ProfileScreenProps) {
     try {
       await storage.savePlayer(player);
       onDone();
-    } catch {
-      setSaveError(TEXTES.profil.erreurSauvegarde);
+    } catch (erreur) {
+      // Un pseudo déjà pris par un autre joueur est refusé par la base (nom unique).
+      const pris = erreur instanceof ErreurService && erreur.code === 'infos_invalides';
+      setSaveError(pris ? TEXTES.profil.erreurPseudoPris : TEXTES.profil.erreurSauvegarde);
       setSaving(false);
     }
   };

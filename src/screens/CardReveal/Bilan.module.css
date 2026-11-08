@@ -68,6 +68,15 @@
     0 0 30px 6px var(--lueur-bilan);
 }
 
+.nouvelle {
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--couleur-titre, #ff5e5b);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+}
+
 .nomCarte {
   margin: 0;
   color: #ffffff;

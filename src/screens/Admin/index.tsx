@@ -5,11 +5,10 @@
  * d'onglets. L'écran ne s'affiche que si le profil lu dans la base a le rôle « admin » ; mais la vraie
  * protection est dans la base : même en contournant l'écran, un joueur est refusé.
  * Expose : le composant `AdminScreen`.
- * Dépend de : react, components/Button, content/textes, hooks/useAuth, SectionCartes, SectionBoosters,
+ * Dépend de : react, content/textes, hooks/useAuth, SectionCartes, SectionBoosters,
  * SectionJoueurs, SectionVersion, MesCartes.module.css, Admin.module.css.
  */
 import { useRef, useState, type KeyboardEvent } from 'react';
-import { Button } from '../../components/Button';
 import { TEXTES } from '../../content/textes';
 import { useAuth } from '../../hooks/useAuth';
 import adminStyles from './Admin.module.css';
@@ -22,13 +21,8 @@ import { SectionVersion } from './SectionVersion';
 type Onglet = 'cartes' | 'boosters' | 'joueurs' | 'version';
 const ONGLETS: readonly Onglet[] = ['cartes', 'boosters', 'joueurs', 'version'];
 
-interface AdminScreenProps {
-  /** Appelé par « Retour » : revient à l'accueil. */
-  onBack: () => void;
-}
-
 /** Espace d'administration. */
-export function AdminScreen({ onBack }: AdminScreenProps) {
+export function AdminScreen() {
   const textes = TEXTES.admin;
   const { etat } = useAuth();
   const [onglet, setOnglet] = useState<Onglet>('cartes');
@@ -51,9 +45,6 @@ export function AdminScreen({ onBack }: AdminScreenProps) {
     <div className={styles.page}>
       <main className={styles.contenu} aria-labelledby="titre-admin">
         <header className={styles.entete}>
-          <Button variant="secondary" onClick={onBack}>
-            {textes.retour}
-          </Button>
           <h1 id="titre-admin" className={styles.titre}>
             {textes.titre}
           </h1>

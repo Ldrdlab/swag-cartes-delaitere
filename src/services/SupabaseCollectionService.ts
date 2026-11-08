@@ -11,6 +11,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { STOCKAGE_SUPABASE } from '../config/supabase';
 import type { InfosCarte } from '../domain/cartes';
+import type { EntreeCollection } from '../domain/collection';
 import {
   champsDepuisInfos,
   cheminsImages,
@@ -75,6 +76,38 @@ export class SupabaseCollectionService implements CollectionService {
       .overrideTypes<LigneCarte[]>();
     if (error) throw traduireErreur(error);
     return this.versCartes(data);
+  }
+
+  async lireCollectionJoueur(): Promise<EntreeCollection[]> {
+    const { data: session } = await this.client.auth.getSession();
+    const utilisateur = session.session?.user.id;
+    if (!utilisateur) throw new ErreurService('non_connecte');
+
+    // Cartes visibles : les cartes actives + celles que le joueur possède (même désactivées).
+    const cartes = await this.client
+      .from('cards')
+      .select(COLONNES_CARTE)
+      .order('created_at', { ascending: true })
+      .overrideTypes<LigneCarte[]>();
+    if (cartes.error) throw traduireErreur(cartes.error);
+    // Filtre explicite : un administrateur verrait sinon les collections de tous les joueurs.
+    const possedees = await this.client
+      .from('user_cards')
+      .select('card_id, quantity')
+      .eq('user_id', utilisateur)
+      .overrideTypes<{ card_id: string; quantity: number }[]>();
+    if (possedees.error) throw traduireErreur(possedees.error);
+
+    const quantites = new Map(possedees.data.map((ligne) => [ligne.card_id, ligne.quantity]));
+    const lignes = cartes.data.filter((ligne) => ligne.active || quantites.has(ligne.id));
+    // Les adresses d'images ne sont demandées QUE pour les cartes possédées : une carte pas encore
+    // obtenue reste un emplacement vide (aucun visuel n'est transmis à l'écran).
+    const visibles = await this.versCartes(lignes.filter((ligne) => quantites.has(ligne.id)));
+    const parId = new Map(visibles.map((carte) => [carte.id, carte]));
+    return lignes.map((ligne) => ({
+      carte: parId.get(ligne.id) ?? ligneVersCarte(ligne, new Map()),
+      quantite: quantites.get(ligne.id) ?? 0,
+    }));
   }
 
   async ajouterCarte(donnees: NouvelleCarteDonnees): Promise<Card> {

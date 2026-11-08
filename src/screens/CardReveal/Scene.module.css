@@ -81,6 +81,25 @@
   }
 }
 
+.badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Badge « Nouvelle ! » : corail vif, légèrement incliné. */
+.nouvelle {
+  padding: 3px 10px;
+  border: 2px solid #ffffff;
+  border-radius: var(--radius-pill);
+  background: var(--couleur-titre, #ff5e5b);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  transform: rotate(-3deg);
+}
+
 .nom {
   margin: 0;
   color: #ffffff;

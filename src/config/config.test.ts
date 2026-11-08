@@ -6,8 +6,6 @@
  * Dépend de : vitest, config/*.
  */
 import { describe, expect, it } from 'vitest';
-import { RARITIES } from '../domain/types';
-import { CARDS_PER_BOOSTER, RARITY_WEIGHTS } from './game';
 import { CUT_THRESHOLDS, SWIPE_THRESHOLDS } from './gestures';
 import { PSEUDO_MAX_LENGTH, PSEUDO_MIN_LENGTH } from './profile';
 
@@ -32,20 +30,6 @@ describe('réglages des gestes', () => {
   it('distingue le tap du swipe (le swipe exige plus de mouvement qu’un tap)', () => {
     expect(SWIPE_THRESHOLDS.swipeMinDistancePx).toBeGreaterThan(SWIPE_THRESHOLDS.tapMaxDistancePx);
     expect(SWIPE_THRESHOLDS.swipeMinVelocityPxPerMs).toBeGreaterThan(0);
-  });
-});
-
-describe('réglages du jeu', () => {
-  it('tire au moins une carte par booster', () => {
-    expect(Number.isInteger(CARDS_PER_BOOSTER)).toBe(true);
-    expect(CARDS_PER_BOOSTER).toBeGreaterThan(0);
-  });
-
-  it('définit un poids positif ou nul pour chaque rareté, avec au moins un poids > 0', () => {
-    for (const rarity of RARITIES) {
-      expect(RARITY_WEIGHTS[rarity]).toBeGreaterThanOrEqual(0);
-    }
-    expect(RARITIES.some((rarity) => RARITY_WEIGHTS[rarity] > 0)).toBe(true);
   });
 });
 
